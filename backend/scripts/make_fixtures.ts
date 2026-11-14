@@ -1,8 +1,9 @@
 // Writes backend/public/data/fixtures/<siteId>.json: real Sun/Earth positions, FAKE terrain.
 // Run: pnpm fixtures
 import { mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
-import { type FixtureFile, LUNAR_DAY_H, viewAt } from '../lib/fixtureView';
+import { type FixtureFile, viewAt } from '../lib/fixtureView';
 import { earthSunPath, sky } from '../lib/lunar';
+import { LUNAR_DAY_H } from '../lib/realView';
 import type { Site } from '../lib/types';
 
 const SITE_IDS = ['point-a', 'malapert-m1', 'apollo-11'];

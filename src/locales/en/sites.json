@@ -1,0 +1,61 @@
+{
+  "groups": {
+    "Apollo": "Apollo",
+    "CLPS": "CLPS",
+    "Artemis regions": "Artemis regions",
+    "International": "International",
+    "Reference points": "Reference points"
+  },
+  "point-a": {
+    "name": "Point A",
+    "blurb": "TODO C6: one-line blurb"
+  },
+  "point-b": {
+    "name": "Point B",
+    "blurb": "TODO C6: one-line blurb"
+  },
+  "point-c": {
+    "name": "Point C / de Gerlache Rim 2",
+    "blurb": "TODO C6: one-line blurb"
+  },
+  "point-d": {
+    "name": "Point D / Chang'e-7 target",
+    "blurb": "TODO C6: one-line blurb"
+  },
+  "malapert-m1": {
+    "name": "Malapert M1 / Malapert Massif",
+    "blurb": "TODO C6: one-line blurb"
+  },
+  "im-2": {
+    "name": "IM-2 / Mons Mouton",
+    "blurb": "TODO C6: one-line blurb"
+  },
+  "haworth": {
+    "name": "Haworth",
+    "blurb": "TODO C6: one-line blurb"
+  },
+  "nobile": {
+    "name": "Nobile / Griffin-1",
+    "blurb": "TODO C6: one-line blurb"
+  },
+  "slater": {
+    "name": "Slater",
+    "blurb": "TODO C6: one-line blurb"
+  },
+  "cabeus-b": {
+    "name": "Cabeus B",
+    "blurb": "TODO C6: one-line blurb"
+  },
+  "im-1": {
+    "name": "IM-1 Odysseus",
+    "blurb": "TODO C6: one-line blurb"
+  },
+  "apollo-11": {
+    "name": "Apollo 11",
+    "blurb": "TODO C6: one-line blurb"
+  },
+  "change-4": {
+    "name": "Chang'e 4",
+    "blurb": "TODO C6: one-line blurb"
+  }
+}

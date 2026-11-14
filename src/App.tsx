@@ -1,4 +1,10 @@
+import { useTranslation } from 'react-i18next';
+
 // Placeholder so the build runs. Christina owns this file.
-export default function App() {
-  return <h1>Lunar Landing Site Navigator</h1>;
-}
+const App = () => {
+  const { t } = useTranslation();
+
+  return <h1>{t('appTitle')}</h1>;
+};
+
+export default App;

@@ -1,0 +1,61 @@
+{
+  "groups": {
+    "Apollo": "Απόλλων",
+    "CLPS": "CLPS",
+    "Artemis regions": "Περιοχές Artemis",
+    "International": "Διεθνείς",
+    "Reference points": "Σημεία αναφοράς"
+  },
+  "point-a": {
+    "name": "Σημείο A",
+    "blurb": "TODO C6: περιγραφή μίας γραμμής"
+  },
+  "point-b": {
+    "name": "Σημείο B",
+    "blurb": "TODO C6: περιγραφή μίας γραμμής"
+  },
+  "point-c": {
+    "name": "Σημείο C / Χείλος de Gerlache 2",
+    "blurb": "TODO C6: περιγραφή μίας γραμμής"
+  },
+  "point-d": {
+    "name": "Σημείο D / Στόχος του Chang'e-7",
+    "blurb": "TODO C6: περιγραφή μίας γραμμής"
+  },
+  "malapert-m1": {
+    "name": "Malapert M1 / Όρος Malapert",
+    "blurb": "TODO C6: περιγραφή μίας γραμμής"
+  },
+  "im-2": {
+    "name": "IM-2 / Όρος Mouton",
+    "blurb": "TODO C6: περιγραφή μίας γραμμής"
+  },
+  "haworth": {
+    "name": "Haworth",
+    "blurb": "TODO C6: περιγραφή μίας γραμμής"
+  },
+  "nobile": {
+    "name": "Nobile / Griffin-1",
+    "blurb": "TODO C6: περιγραφή μίας γραμμής"
+  },
+  "slater": {
+    "name": "Slater",
+    "blurb": "TODO C6: περιγραφή μίας γραμμής"
+  },
+  "cabeus-b": {
+    "name": "Cabeus B",
+    "blurb": "TODO C6: περιγραφή μίας γραμμής"
+  },
+  "im-1": {
+    "name": "IM-1 Odysseus",
+    "blurb": "TODO C6: περιγραφή μίας γραμμής"
+  },
+  "apollo-11": {
+    "name": "Απόλλων 11",
+    "blurb": "TODO C6: περιγραφή μίας γραμμής"
+  },
+  "change-4": {
+    "name": "Chang'e 4",
+    "blurb": "TODO C6: περιγραφή μίας γραμμής"
+  }
+}

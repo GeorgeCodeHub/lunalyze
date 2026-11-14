@@ -1,15 +1,14 @@
 // The data contract between src/lib (George) and src/components (Christina). See docs/DATA_CONTRACT.md.
 
+// Display text (site name, blurb, group label) lives in src/locales/<lang>/sites.json, keyed by id.
 export type Site = {
   id: string;
-  name: string;
   lat: number;
   lon: number; // east, -180..180
   kind: 'landed' | 'planned' | 'artemis-region' | 'reference';
   precision: 'exact' | 'proxy';
   terrainModeled: boolean;
   group: 'Apollo' | 'CLPS' | 'Artemis regions' | 'International' | 'Reference points';
-  blurb: string;
   source: string;
 };
 

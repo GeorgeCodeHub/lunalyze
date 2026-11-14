@@ -25,7 +25,7 @@ const { views, loading, error } = useScenario(siteIds, t, zoom, { terrain });
 - `sky.sun`, `sky.earth`, `countdown` and `metrics.sunElDeg` / `panelOutputPct` are for the moment `t`.
 - Play button: call the hook once with the scenario date (lanes, metrics) and once with the playhead time (`sky`, `countdown`). Files are fetched once and cached.
 - A site with `terrainModeled: false` (apollo-11, change-4) gets the flat horizon `[[0, 0], [360, 0]]` and stays in `views`.
-- A modeled site with no mask file yet is left out of `views`, and so is an id that is not in `sites.json` (nothing is fetched for it).
+- With terrain on, a modeled site with no mask file yet is left out of `views`, and so is an id that is not in `sites.json` (nothing is fetched for it). With terrain off, a modeled site needs no mask file: nothing is fetched for it and it stays in `views`.
 - The signature is final; the data behind it is real.
 - When `t` changed and zoom and terrain did not, each site that was already shown keeps its view from the last `t` that fully loaded, so nothing blinks; a newly added site appears once it loads, and `loading` stays true until every new view has arrived.
 - A view that fails is not retried: `error` is set at once.

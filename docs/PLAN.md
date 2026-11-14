@@ -22,16 +22,16 @@ One Compare screen: up to 3 sites side by side, a date, and a zoom (Day / Lunar 
 - Vite + React + TypeScript 6.0 with the React Compiler, vitest, ESLint, React Doctor, GitHub Actions, Vercel
 - pnpm only, packages at least 7 days old
 - TanStack Query behind `useScenario` for data; Zustand for shared UI state (added with the first store)
-- react-i18next, English only (all copy in `src/locales/en/`)
+- react-i18next, English only (all copy in `frontend/locales/en/`)
 - CSS Modules. No Tailwind, no UI library
 - Plain SVG in components. No D3
-- astronomy-engine, used only inside `src/lib/`
-- Python + numpy for the terrain pipeline in `scripts/`
+- astronomy-engine, used only inside `backend/lib/`
+- Python + numpy for the terrain pipeline in `backend/scripts/`
 - Stretch only: `@react-three/fiber` + `@react-three/drei` (G12)
 
 ## Ownership
-- **George** → `scripts/`, `public/data/`, `src/lib/`
-- **Christina** → `src/components/`, `src/App.tsx`, `src/styles/`, `src/stores/`, `src/locales/`
+- **George** → `backend/scripts/`, `backend/public/data/`, `backend/lib/`
+- **Christina** → `frontend/components/`, `frontend/App.tsx`, `frontend/styles/`, `frontend/stores/`, `frontend/locales/`
 
 How we write code: [AGENTS.md](../AGENTS.md). `pnpm check` must pass.
 

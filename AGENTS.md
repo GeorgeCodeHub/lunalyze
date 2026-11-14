@@ -8,7 +8,7 @@ countdown chips, metric cards, timeline lanes, site picker. Use these words for 
 locale keys and test ids.
 
 A **domain** is a namespace of data and copy: `common`, `sites`, `compare`. Files in
-`src/locales/en/` and `src/stores/` take the same names.
+`frontend/locales/en/` and `frontend/stores/` take the same names.
 
 Ownership is in [CODEOWNERS](CODEOWNERS). Data shapes are in [docs/DATA_CONTRACT.md](docs/DATA_CONTRACT.md).
 
@@ -28,12 +28,12 @@ export default MetricCard;
 
 - **One component per file**, however small (a chip, a legend line, a loading row). Non-component
   helpers (a number formatter) may sit in the component's file or in a sibling `.ts` module.
-- **Split by screen region.** Each region gets its own folder under `src/components/`, named with
+- **Split by screen region.** Each region gets its own folder under `frontend/components/`, named with
   the region words above: `scenario-bar/`, `site-columns/`, `horizon-strip/`, `countdowns/`,
   `metric-cards/`, `timeline/`, `site-picker/`. The parent keeps the layout and the data it hands down.
 
 ```
-src/components/
+frontend/components/
   Compare.tsx           # layout, calls useScenario once, hands views down
   horizon-strip/
     HorizonStrip.tsx
@@ -42,7 +42,7 @@ src/components/
 ```
 
 - **Props types** sit at the top of the component file, unexported. Data shapes come from
-  `src/lib/types.ts`, the single source; a component file declares only its props.
+  `backend/lib/types.ts`, the single source; a component file declares only its props.
 - **Data comes only from `useScenario`.** Components call no `fetch` and import nothing from
   astronomy-engine; they draw what `SiteView` gives them, with `toXY` for horizon-strip coordinates.
 - Handle **every state explicitly**: `loading`, `error`, no views, `view.fixture` (fake-data
@@ -94,14 +94,14 @@ before that hook (`const ids = picked.map((s) => s.id); const { views } = useSce
 ## State
 
 - **URL search params** for anything linkable: the scenario (sites, date, zoom, terrain). See G10.
-- **TanStack Query** for data, always behind a hook in `src/lib/` (`useScenario`). Data stays in the Query cache.
+- **TanStack Query** for data, always behind a hook in `backend/lib/` (`useScenario`). Data stays in the Query cache.
 - **`useState`** for state one component owns.
 - **Zustand** for the remaining UI state shared across regions (the playhead, Explain mode).
-  One store per domain in `src/stores/<domain>.ts`, each an explicit state machine: a
+  One store per domain in `frontend/stores/<domain>.ts`, each an explicit state machine: a
   discriminated union on `status`, with named actions as the only transitions. Add `zustand` with the first store.
 
 ```ts
-// src/stores/compare.ts
+// frontend/stores/compare.ts
 import { create } from 'zustand';
 
 type PlaybackState = { status: 'paused'; t: Date } | { status: 'playing'; t: Date; hoursPerSecond: number };
@@ -125,36 +125,36 @@ export const usePlaybackStore = create<PlaybackStore>()((set) => ({
 
 - Every user-facing string goes through `t()`: JSX text, `aria-label`, `title`, `placeholder`,
   SVG `<text>` and `<title>`, caveats, units.
-- **One namespace per domain**: `src/locales/en/<domain>.json`, plus `common` for shared
+- **One namespace per domain**: `frontend/locales/en/<domain>.json`, plus `common` for shared
   words. `useTranslation('compare')` → `t('countdown.sunset', { time })`.
 - Keys name the meaning (`countdown.sunset`), so copy edits never change keys.
 - Site names, blurbs and group labels live in the `sites` namespace, keyed by site id:
   `t('point-a.name', { ns: 'sites' })`, ``t(`groups.${site.group}`, { ns: 'sites' })``.
-- The app is **English only**. Copy lives in `src/locales/en/`; `t()` keys are type-checked
-  against it. A new namespace is registered in `src/i18n.ts`.
+- The app is **English only**. Copy lives in `frontend/locales/en/`; `t()` keys are type-checked
+  against it. A new namespace is registered in `frontend/i18n.ts`.
 - Numbers and dates go through `Intl` with `'en'`; dates are UTC unless a label says otherwise.
 
 ## Styling
 
 - **CSS Modules**: `Component.module.css` next to the component. No Tailwind, no UI library, no D3.
-- Colors are CSS custom properties defined once in `src/styles/`. Modules use `var(--…)` only;
-  hex values stay in `src/styles/`.
+- Colors are CSS custom properties defined once in `frontend/styles/`. Modules use `var(--…)` only;
+  hex values stay in `frontend/styles/`.
 - Meaning is never carried by color alone: Sun and Earth also differ by label and marker shape;
   hidden behind terrain is dashed, visible is solid.
 
 ## Shared components
 
 - A piece used by more than one region (chip, card, switch, caveat) lives in
-  `src/components/shared/`, and regions compose it rather than restyling a copy.
+  `frontend/components/shared/`, and regions compose it rather than restyling a copy.
 - Controls are native elements (`<button>`, `<input type="range">`, `<select>`) styled with CSS
   Modules. The time scrubber takes arrow = 1 h, shift+arrow = 1 day.
 
 ## Tests
 
-- vitest. Tests in `src/lib/` assert literal expected values.
+- vitest. Tests in `backend/lib/` assert literal expected values.
 - Component tests render with happy-dom (`// @vitest-environment happy-dom`) inside a
-  `QueryClientProvider`, as `src/lib/useScenario.test.tsx` does.
-- Tests find elements only by `data-testid`, and every id comes from `src/test-ids.ts`: components set
+  `QueryClientProvider`, as `backend/lib/useScenario.test.tsx` does.
+- Tests find elements only by `data-testid`, and every id comes from `frontend/test-ids.ts`: components set
   `data-testid={testIds.…}` from the same registry. Create the registry with the first component test.
 - Assert ids, attributes (`aria-*`, `data-status`, `data-site-id`), counts and URLs, never copy,
   so copy edits never break a test.

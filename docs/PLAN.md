@@ -1,50 +1,70 @@
 # RGX – Lunar Landing Site Navigator: plan
 
 Team RGX (George + Christina), NASA Space Apps 2026, challenge "Lunar Landing Site Navigator".
-Live tracking: [#25 [RGX] Plan, gates, cut order](https://github.com/GeorgeCodeHub/rgx-lunar-navigator/issues/25). Data shapes: [DATA_CONTRACT.md](DATA_CONTRACT.md).
+Live tracking, issue links and the disqualification checklist: [#25 Plan, gates, cut order](https://github.com/GeorgeCodeHub/rgx-lunar-navigator/issues/25).
+
+## Deadline
+**Submit by Sun 2026-11-15 13:30 Europe/Athens. Hard stop 15:00.**
+
+- Open question (tick it in #25): confirm whether 15:00 is the Space Apps cutoff or the local event deadline
 
 ## Product
-
 Browser-only planner for the lunar south pole. Question it answers: **"Which site, and which week?"**
+One Compare screen: up to 3 sites side by side, a date, and a zoom (Day / Lunar day / Year).
 
-- **Horizon strip:** azimuth on x, elevation ±10° on y, terrain outline, Sun (amber) and Earth (blue) move with a time scrubber. Dashed line = terrain hides the body.
-- **Timeline:** one row per site, Sun-visible and Earth-visible bars, overlap highlighted, shared time axis.
-- **Cards per site:** sunlit %, Earth-visible %, longest period with no Sun and no Earth (limit 50 h, VIPER survival budget), first period ≥6 days with Sun + Earth after landing.
-- **Switches:** flat-or-terrain horizon, mast height 1/2/5 m, Planner/Explorer mode. Shareable scenario URLs.
+- **Horizon strip:** azimuth on x, elevation ±10° on y, terrain outline, Sun and Earth. Dashed = terrain hides the body.
+- **Countdown chips:** "Sunset in 3d 14h", "Earthrise in …".
+- **Metric cards** with change badges vs the previous scenario.
+- **Timeline lanes** (Sun, Earth, both) with a play button.
+- **Flat-or-terrain switch** and a shareable scenario URL. Mast height is fixed at 2 m.
 
-**Stack:** Vite + React + TypeScript, D3 drawn as React SVG, astronomy-engine (`lunar.js`, already checked against JPL Horizons to 0.006°), CSS variables from Figma variables, Python + numpy memmap + Pillow for terrain, vitest, GitHub Actions, Vercel. Stretch only: CesiumJS + Cesium Moon.
+## Locked stack
+- Vite + React + TypeScript, vitest, GitHub Actions, Vercel
+- CSS Modules. No Tailwind, no UI library
+- Plain SVG in components. No D3
+- astronomy-engine, used only inside `src/lib/`
+- Python + numpy for the terrain pipeline in `scripts/`
+- Stretch only: `@react-three/fiber` + `@react-three/drei` (G12)
 
-**Hard deadline:** Sun 2026-11-15 23:59 Europe/Athens.
+## Ownership
+- **George** → `scripts/`, `public/data/`, `src/lib/`
+- **Christina** → `src/components/`, `src/App.tsx`, `src/styles/`
 
-## Milestones (Europe/Athens)
+Data shapes: [docs/DATA_CONTRACT.md](DATA_CONTRACT.md).
 
-| # | When | Gate |
-|---|------|------|
-| M1 | Sat 15:30 | Sample data to design |
-| M2 | Sat 17:00 | Wireframes + tokens |
-| M3 | Sat 19:00 | Horizon-mask gate |
-| M4 | Sat 22:00 | Final screens |
-| M5 | Sun 12:00 | Deployed URL |
-| M6 | Sun 16:00 | Feature freeze |
-| M7 | Sun 21:00 | Submitted |
+## Schedule (Athens)
+**George**
+| When | What |
+|---|---|
+| Sat 14:50–15:30 | G1 + G2 |
+| 15:30–16:00 | G3 |
+| 16:00–19:30 | G4 |
+| 19:30–20:00 | G5 |
+| 20:00–22:30 | G6 |
+| 22:30–00:00 | G7 |
+| 23:00+ | G12 stretch (stop Sun 09:00) |
+| Sun 07:00–10:00 | G10, G11, fixes |
+| 10:00–11:00 | fixes, **FREEZE 11:00** |
+| 11:00–13:30 | support submission |
+
+**Christina**
+| When | What |
+|---|---|
+| Sat 14:50–15:30 | C1 + C2 |
+| 15:30–16:00 | clone + layout skeleton |
+| 16:00–19:30 | C5 |
+| 20:00–22:30 | C14 |
+| 22:30–00:00 | C6, C7, video storyboard |
+| Sun 07:00–09:00 | polish + C8 |
+| 09:00 | C13 test |
+| 10:00–11:00 | C9 fixes |
+| 11:00–12:30 | C10 |
+| 12:30–13:30 | C11, **SUBMIT** |
 
 ## Cut order if late
+1. G12 3D view
+2. G8 map
+3. Shareable URL
+4. Timeline zoom levels
 
-1. S1 Cesium
-2. Explorer mode
-3. Mast slider (ship 2 m only)
-4. G9 landing-window finder
-
-**Never cut:** horizon strip, timeline, cards, flat-or-terrain switch.
-
-## Disqualification checklist
-
-Tick these in the tracking issue, not here.
-
-- Video ≤30 s or ≤7 slides
-- English subtitles
-- All links public, no login
-- AI images watermarked, no NASA logos in AI content
-- Both members registered at the same Local Event
-- NASA data named
-- Deadline confirmed with Local Lead
+**Never cut:** horizon strip, timeline, metric cards, countdowns, flat-or-terrain switch.

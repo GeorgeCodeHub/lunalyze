@@ -14,7 +14,7 @@ const { views, loading, error } = useScenario(siteIds, t, zoom, { terrain });
 // zoom: 'day' | 'lunarDay' | 'year'
 // terrain: boolean    false = flat 0° horizon (the flat-or-terrain switch). Default true.
 // views: SiteView[]   one per site, same order as siteIds
-// loading: boolean    true until the site list and every asked-for site have loaded
+// loading: boolean    true while any asked-for site is still loading (see below)
 // error: Error | null set when the site list, a mask or the computation failed (a missing mask
 //                     file is "no data yet": that site is left out of views, error stays null)
 ```
@@ -27,11 +27,12 @@ const { views, loading, error } = useScenario(siteIds, t, zoom, { terrain });
 - A site with `terrainModeled: false` (apollo-11, change-4) gets the flat horizon `[[0, 0], [360, 0]]` and stays in `views`.
 - A modeled site with no mask file yet is left out of `views`, and so is an id that is not in `sites.json` (nothing is fetched for it).
 - The signature is final; the data behind it is real.
+- When `t` changed and zoom and terrain did not, each site that was already shown keeps its view from the last `t` that fully loaded, so nothing blinks; a newly added site appears once it loads, and `loading` stays true until every new view has arrived.
+- A view that fails is not retried: `error` is set at once.
 
 ### The data is real
 
-Every view has `fixture: false`: Sun and Earth positions come from the astronomy engine, the horizon from `masks/<siteId>.json`.
-The `fixture` flag stays in the type until G7 removes it.
+Sun and Earth positions come from the astronomy engine, the horizon from `masks/<siteId>.json`.
 
 - The observer stands 2 m above the 1737.4 km Moon sphere.
 - A body is visible when its centre is above the mask bin `elevDeg[floor(az·2)]` (a step lookup, no interpolation). With terrain off, or no mask, the horizon is 0°.
@@ -59,7 +60,7 @@ type Countdown = { kind: 'set' | 'rise'; hours: number | null }; // null = no ch
 type Interval = [string, string];                              // ISO UTC start, end
 type Zoom = 'day' | 'lunarDay' | 'year';
 type SiteView = {
-  site: Site; fixture: boolean;
+  site: Site;
   horizonIncomplete: boolean; // terrain on and the loaded mask has an incomplete bin: horizon values are lower bounds
   metrics: { sunElDeg: number; sunlitPct: number; earthPct: number; longestBlackoutH: number; panelOutputPct: number };
   countdown: { sun: Countdown; earth: Countdown };
@@ -99,7 +100,6 @@ toXY(az, el, width, height, stretch) // → { x, y } in SVG pixels
 |---|---|---|
 | `sites.json` | `Site[]`, 13 sites (no display text) | by hand |
 | `frontend/locales/en/sites.json` | site names, blurbs, group labels | C6 |
-| `fixtures/<siteId>.json` | hourly Sun/Earth for one lunar day from 2028-03-01, fake terrain, `fixture: true`; `useScenario` no longer reads them, G7 removes them | `pnpm fixtures` (`backend/scripts/make_fixtures.ts`) |
 | `masks/<siteId>.json` | real horizon at mast height 2 m | G4, `backend/scripts/horizon_masks.py` |
 | `terrain/<siteId>.bin` + `.json` | terrain crop for the 3D view | G4 |
 
@@ -119,8 +119,3 @@ type HorizonMask = {
 
 - `.bin`: 500 × 500 signed 16-bit integers, little-endian, row by row. A crop of `ldem_80s_80m` centred on the site. Height in metres = value × 0.5, above the 1737.4 km sphere.
 - `.json`: `{ siteId, width: 500, height: 500, pixelM: 80, origin: { x, y } }`. `origin` is the polar-stereographic position in metres of the centre of the first pixel (row 0, column 0): south pole at (0, 0), +x toward 90°E, +y toward 0° longitude. Pixel (row r, column c) is centred at (x + 80c, y − 80r); latitude = −90° + 2·atan(√(x²+y²) / 3 474 800 m), longitude = atan2(x, y).
-
-### `fixtures/<siteId>.json`
-
-Type `FixtureFile` in [backend/lib/fixtureView.ts](../backend/lib/fixtureView.ts): `terrain` (721 points), `sun` and `earth` (709 hourly `[az, el]`), `athensSunPath`, and `view`, a ready `SiteView` for 2028-03-01, zoom `lunarDay`.
-The app no longer reads these files (`useScenario` uses the masks). They go away in G7.

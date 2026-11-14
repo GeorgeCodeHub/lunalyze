@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act } from 'react';
 import { createRoot } from 'react-dom/client';
 import { beforeEach, expect, test, vi } from 'vitest';
+import type { Zoom } from './types';
 import { useScenario } from './useScenario';
 
 // Serves backend/public/ from disk and records requested paths. Paths in `failing` answer 500; other missing files are 404.
@@ -35,14 +36,23 @@ beforeEach(() => {
 
 const T = new Date('2028-03-05T06:30:00Z');
 
-/** Renders useScenario and waits until it stops loading. `at` re-renders with the current opts at the given t and waits. */
-const renderScenario = async (siteIds: string[], opts: { terrain: boolean }, t = T) => {
+/**
+ * Renders useScenario and waits until it stops loading. `at` re-renders with the current opts at the given t and waits.
+ * `change` re-renders with new arguments and does not wait. `defaults` are the client's query defaults.
+ */
+const renderScenario = async (
+  siteIds: string[],
+  opts: { terrain: boolean },
+  t = T,
+  defaults: { retry?: false } = { retry: false },
+) => {
   let got: ReturnType<typeof useScenario> = { views: [], loading: true, error: null };
+  let zoom: Zoom = 'day';
   const Probe = () => {
-    got = useScenario(siteIds, t, 'day', { ...opts });
+    got = useScenario(siteIds, t, zoom, { ...opts });
     return null;
   };
-  const client = new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: Infinity } } });
+  const client = new QueryClient({ defaultOptions: { queries: { ...defaults, staleTime: Infinity } } });
   const root = createRoot(document.createElement('div'));
   const rerender = () =>
     act(() =>
@@ -68,6 +78,14 @@ const renderScenario = async (siteIds: string[], opts: { terrain: boolean }, t =
       rerender();
       await settle();
     },
+    change: (next: { t?: Date; zoom?: Zoom; terrain?: boolean; siteIds?: string[] }) => {
+      t = next.t ?? t;
+      zoom = next.zoom ?? zoom;
+      opts = { terrain: next.terrain ?? opts.terrain };
+      siteIds = next.siteIds ?? siteIds;
+      rerender();
+    },
+    settle,
   };
 };
 
@@ -78,7 +96,6 @@ test('useScenario returns real views, one per site, in the order asked', async (
 
   const got = r.get();
   expect(got.views.map((v) => v.site.id)).toEqual(['apollo-11', 'haworth', 'point-a']);
-  expect(got.views.every((v) => !v.fixture)).toBe(true);
   expect(got.error).toBeNull();
   expect(got.views[0].sky.terrain).toEqual([[0, 0], [360, 0]]); // terrainModeled false: flat, stays in views
   expect(got.views[2].sky.terrain).toHaveLength(721);
@@ -148,4 +165,43 @@ test('files are still fetched once after the 5-minute cache clean-up has passed'
   } finally {
     vi.useRealTimers();
   }
+});
+
+test('a failing view is not retried: error at once, one request, the other site loads', async () => {
+  failing.add('/data/masks/point-b.json');
+  const got = (await renderScenario(['point-b', 'point-a'], { terrain: true }, T, {})).get(); // the app's client defaults
+  expect(got.error?.message).toBe('data/masks/point-b.json: HTTP 500');
+  expect(got.views.map((v) => v.site.id)).toEqual(['point-a']);
+  expect(requested.filter((p) => p === '/data/masks/point-b.json')).toHaveLength(1);
+});
+
+test('when only t changes the previous view stays until the new one loads', async () => {
+  const r = await renderScenario(['point-a'], { terrain: true });
+  const before = r.get().views[0];
+  r.change({ t: new Date(T.getTime() + 3600e3) });
+  expect(r.get().loading).toBe(true);
+  expect(r.get().views.map((v) => v.site.id)).toEqual(['point-a']);
+  expect(r.get().views[0]).toBe(before);
+  await r.settle();
+  expect(r.get().loading).toBe(false);
+  expect(r.get().views[0].sky.sun).not.toEqual(before.sky.sun);
+});
+
+test('a new zoom, terrain or site list does not keep stale views', async () => {
+  const next = new Date(T.getTime() + 3600e3);
+
+  const zoom = await renderScenario(['point-a'], { terrain: true });
+  zoom.change({ t: next, zoom: 'lunarDay' });
+  expect(zoom.get().views).toEqual([]);
+  expect(zoom.get().loading).toBe(true);
+
+  const terrain = await renderScenario(['point-a'], { terrain: true });
+  terrain.change({ t: next, terrain: false });
+  expect(terrain.get().views).toEqual([]);
+  expect(terrain.get().loading).toBe(true);
+
+  const sites = await renderScenario(['point-a'], { terrain: true });
+  sites.change({ t: next, siteIds: ['point-a', 'haworth'] });
+  expect(sites.get().views.map((v) => v.site.id)).toEqual(['point-a']);
+  expect(sites.get().loading).toBe(true);
 });

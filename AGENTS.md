@@ -45,8 +45,8 @@ frontend/components/
   `backend/lib/types.ts`, the single source; a component file declares only its props.
 - **Data comes only from `useScenario`.** Components call no `fetch` and import nothing from
   astronomy-engine; they draw what `SiteView` gives them, with `toXY` for horizon-strip coordinates.
-- Handle **every state explicitly**: `loading`, `error`, no views,
-  `view.horizonIncomplete` (lower-bound caveat), `site.terrainModeled === false` and `precision: 'proxy'` (caveats).
+- Handle **every state explicitly**: `loading`, `error`, no views, `view.horizonIncomplete` (lower-bound caveat),
+  `site.terrainModeled === false` and `precision: 'proxy'` (caveats).
 - The **React Compiler** memoizes components and hooks, so write plain values and functions;
   `useMemo`, `useCallback` and `memo` add nothing. When a library breaks under the compiler (lint
   `react-hooks/incompatible-library`), the component opens with `"use no memo"` and a comment

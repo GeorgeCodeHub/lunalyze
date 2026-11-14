@@ -56,7 +56,7 @@ A short form in the middle of the screen. Copy:
 1. **Where do you want to land?** Up to 3 places from a list, grouped as "Artemis regions", "Landed
    missions" and so on. (Typing a location is P2.)
 2. **When do you want to land?** Date and time, labelled "Time is in UTC (world time)".
-   Default: 1 March 2028 00:00, the start of the data.
+   Default: 1 March 2028 00:00.
 3. **How flexible is the date?**
    | Choice | Hint | Data window (`zoom`) |
    |---|---|---|

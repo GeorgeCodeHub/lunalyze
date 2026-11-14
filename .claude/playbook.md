@@ -34,7 +34,7 @@ protected:                     # merge_gate.py holds an auto-mode PR that touche
 
 # rgx-lunar-navigator playbook
 
-How `/factory` works in this repo. README invariants, AGENTS.md and CONSTRAINTS.md outrank this file.
+How `/factory` works in this repo. README invariants and AGENTS.md outrank this file.
 
 ## Work source
 

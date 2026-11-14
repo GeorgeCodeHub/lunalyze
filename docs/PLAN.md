@@ -30,8 +30,10 @@ One Compare screen: up to 3 sites side by side, a date, and a zoom (Day / Lunar 
 - Stretch only: `@react-three/fiber` + `@react-three/drei` (G12)
 
 ## Ownership
-- **George** → `backend/scripts/`, `backend/public/data/`, `backend/lib/`
-- **Christina** → `frontend/components/`, `frontend/App.tsx`, `frontend/styles/`, `frontend/stores/`, `frontend/locales/`
+- **George** → `backend/`
+- **Christina** → `frontend/`
+
+The source of truth is [CODEOWNERS](../CODEOWNERS).
 
 How we write code: [AGENTS.md](../AGENTS.md). `pnpm check` must pass.
 

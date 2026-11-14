@@ -30,5 +30,6 @@ pnpm fixtures      # rebuild backend/public/data/fixtures/*.json
 ## Where things are
 
 - [docs/PLAN.md](docs/PLAN.md): deadline, schedule, cut order
+- [docs/DESIGN.md](docs/DESIGN.md): design brief, users, screen layout, priorities
 - [docs/DATA_CONTRACT.md](docs/DATA_CONTRACT.md): data shapes and file formats
 - [CODEOWNERS](CODEOWNERS): who owns which folder

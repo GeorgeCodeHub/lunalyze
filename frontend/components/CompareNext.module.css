@@ -1,0 +1,38 @@
+.page {
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 12px;
+  min-height: 100vh;
+  padding: 24px 16px;
+  text-align: center;
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+.body {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.back {
+  min-height: 44px;
+  padding: 0 20px;
+  border: 1px solid var(--color-line);
+  background: transparent;
+  font-family: var(--font-mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.back:hover {
+  border-color: var(--color-line-strong);
+  background: var(--color-hover);
+}

@@ -5,7 +5,7 @@ import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
 export default defineConfig(
-  globalIgnores(['dist', 'spike']),
+  globalIgnores(['dist', 'spike', '.claude']), // .claude: locally installed agent tools, not app code
   js.configs.recommended,
   tseslint.configs.recommended,
   reactHooks.configs.flat['recommended-latest'],

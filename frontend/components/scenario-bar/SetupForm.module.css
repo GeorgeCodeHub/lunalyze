@@ -1,0 +1,78 @@
+.form {
+  display: grid;
+}
+
+.step {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+  margin: 0;
+  padding: 22px 20px 24px;
+  border: 0;
+  border-top: 1px solid var(--color-rule);
+}
+
+.step:first-child {
+  border-top: 0;
+}
+
+/* Questions in capitals with wide tracking, like an instrument readout. */
+.question {
+  float: left; /* lets the legend sit inside the grid like any other row */
+  width: 100%;
+  padding: 0;
+  font-size: 0.85rem;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.when {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 170px);
+  gap: 10px;
+}
+
+.error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: var(--color-error);
+  font-size: 0.85rem;
+}
+
+/* Outlined glass button: 2px light border, bold capitals, arrow at the end. */
+.submit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  min-height: 54px;
+  margin: 4px 20px 22px;
+  padding: 0 20px;
+  border: 2px solid var(--color-glass-border-strong);
+  border-radius: var(--radius-control);
+  background: var(--color-glass-strong);
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    background-color 160ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 160ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.submit:hover {
+  border-color: var(--color-text);
+  background: var(--color-glass-hover);
+}
+
+.submit:active .submitLabel {
+  transform: translateY(1px);
+}
+
+.submitLabel {
+  display: inline-block;
+}

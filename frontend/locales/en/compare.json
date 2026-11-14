@@ -1,0 +1,44 @@
+{
+  "setup": {
+    "title": "Compare landing sites",
+    "panelTitle": "Mission setup",
+    "team": "Team RGX · NASA Space Apps 2026",
+    "where": {
+      "label": "Where do you want to land?",
+      "place": "Place {{n}}",
+      "placeOptional": "Place {{n}} (optional)",
+      "choose": "Choose a place…",
+      "none": "None",
+      "error": "Pick at least one place."
+    },
+    "when": {
+      "label": "When do you want to land?",
+      "date": "Date",
+      "time": "Time (UTC)",
+      "hour": "{{hour}}:00 UTC"
+    },
+    "flex": {
+      "label": "How flexible is the date?",
+      "day": "That day only (24 hours)",
+      "lunarDay": "Within one Moon day (about a month)",
+      "year": "Any time that year"
+    },
+    "stay": {
+      "label": "How long will the mission stay on the Moon?",
+      "half": "½ Moon day (about 15 days)",
+      "one": "1 Moon day (about 30 days)",
+      "two": "2 Moon days (about 59 days)",
+      "three": "3 Moon days (about 89 days)"
+    },
+    "submit": "Compare these places"
+  },
+  "hero": {
+    "alt": "The full Moon, a NASA visualization made from Lunar Reconnaissance Orbiter data",
+    "credit": "Moon image: NASA Goddard, made from Lunar Reconnaissance Orbiter data."
+  },
+  "next": {
+    "title": "Your comparison is next",
+    "body": "The side-by-side comparison is being built.",
+    "back": "Change setup"
+  }
+}

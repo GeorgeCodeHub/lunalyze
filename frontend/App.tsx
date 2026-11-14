@@ -1,10 +1,30 @@
-import { useTranslation } from 'react-i18next';
+import { useEffect, useState } from 'react';
+import CompareNext from './components/CompareNext';
+import Setup from './components/Setup';
+import { readScenario, type Scenario, scenarioSearch } from './scenario';
 
-// Placeholder so the build runs. Christina owns this file.
 const App = () => {
-  const { t } = useTranslation();
+  const [scenario, setScenario] = useState(() => readScenario(window.location.search));
+  const [editing, setEditing] = useState(false);
 
-  return <h1>{t('appTitle')}</h1>;
+  const start = (next: Scenario) => {
+    window.history.pushState(null, '', scenarioSearch(next));
+    setScenario(next);
+    setEditing(false);
+  };
+
+  useEffect(() => {
+    const onPop = () => {
+      setScenario(readScenario(window.location.search));
+      setEditing(false);
+    };
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, []);
+
+  if (!scenario || editing) return <Setup initial={scenario} onSubmit={start} />;
+
+  return <CompareNext onBack={() => setEditing(true)} />;
 };
 
 export default App;

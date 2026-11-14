@@ -14,6 +14,8 @@
     "check": "pnpm lint && pnpm test && pnpm build && pnpm react-doctor"
   },
   "dependencies": {
+    "@fontsource/geist-mono": "^5.3.0",
+    "@fontsource/geist-pixel": "^5.3.0",
     "@tanstack/react-query": "^5.107.1",
     "astronomy-engine": "^2.1.19",
     "i18next": "^27.0.0",

@@ -1,0 +1,56 @@
+@import './tokens.css';
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  color-scheme: dark;
+  scrollbar-color: var(--color-line) var(--color-bg);
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--color-invert-bg);
+  color: var(--color-invert-text);
+}
+
+button,
+input,
+select {
+  font: inherit;
+  color: inherit;
+  caret-color: var(--color-text);
+}
+
+/* Dropdown menus open on a dark surface, so options stay readable over the glass. */
+option,
+optgroup {
+  background: var(--color-panel);
+  color: var(--color-text);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

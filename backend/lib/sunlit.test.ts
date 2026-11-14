@@ -1,4 +1,5 @@
 import { expect, test } from 'vitest';
+import { sky } from './lunar';
 import { sunlitFraction } from './sunlit';
 
 // Point A, 24 h from 2028-03-01T00:00Z: Sun az runs 289.4° down to about 285° at h≈8.7 (JPL Horizons fixtures in lunar.test.ts).
@@ -23,4 +24,15 @@ test('a step mask (index < 570 open, else wall) counts 15 of 24 samples', () => 
 test('a mask with the wrong length throws', () => {
   expect(() => sunlitFraction(Array<number>(719).fill(0), LAT, LON, START, 24)).toThrow();
   expect(() => sunlitFraction(Array<number>(721).fill(0), LAT, LON, START, 24)).toThrow();
+});
+
+test('fewer than one hour throws instead of returning NaN', () => {
+  expect(() => sunlitFraction(flat(0), LAT, LON, START, 0)).toThrow();
+  expect(() => sunlitFraction(flat(0), LAT, LON, START, NaN)).toThrow();
+  expect(() => sunlitFraction(flat(0), LAT, LON, START, 0.5)).toThrow();
+});
+
+test('a Sun exactly at the mask elevation is hidden (strict >)', () => {
+  const { el } = sky(LAT, LON, 0.002, START).sun;
+  expect(sunlitFraction(flat(el), LAT, LON, START, 1)).toBe(0);
 });

@@ -7,6 +7,7 @@
 # ///
 """Tests for the PGDA 69 BigTIFF reader, on a tiny synthetic grid. No network, no real TIFs."""
 
+import email.message
 import math
 import struct
 import sys
@@ -201,6 +202,111 @@ def test_unsupported_predictor_exits():
 
 def test_not_bigtiff_exits():
     assert "not a little-endian BigTIFF" in exits(magic=b"II*\x00\x08\x00\x00\x00")
+
+
+def patched(edit) -> Path:
+    """A good TIFF whose bytes `edit(buf, entry_pos)` then damages; entry_pos(i) is the file offset of IFD entry i."""
+    path = build(Path(tempfile.mkdtemp(dir=SCRATCH)) / "bad.tif")
+    buf = bytearray(path.read_bytes())
+    ifd = struct.unpack("<Q", buf[8:16])[0]
+    edit(buf, lambda i: ifd + 8 + 20 * i)
+    path.write_bytes(bytes(buf))
+    return path
+
+
+def exit_msg(fn) -> str:
+    try:
+        fn()
+    except SystemExit as e:
+        assert isinstance(e.code, str), e.code  # a message, not a bare status
+        return e.code
+    raise AssertionError("expected SystemExit")
+
+
+def test_unknown_tag_type_exits():
+    def edit(buf, at):
+        struct.pack_into("<H", buf, at(0) + 2, 11)  # TIFF type 11 (float) is not in TYPES
+
+    msg = exit_msg(lambda: pg.Tiff(patched(edit)))
+    assert "bad.tif" in msg and "malformed" in msg
+
+
+def test_short_offsets_table_exits():
+    def edit(buf, at):
+        for i in (8, 9):  # tags 324 and 325 now list 2 tiles for a 4-tile grid
+            struct.pack_into("<Q", buf, at(i) + 4, 2)
+
+    g = pg.Tiff(patched(edit))
+    assert len(g.offsets) == 2
+    msg = exit_msg(lambda: g.dn(*centre(259, 299)))  # tile 3
+    assert "bad.tif" in msg and "tile 3" in msg
+
+
+def test_truncated_ifd_exits():
+    def edit(buf, at):
+        del buf[at(5) :]  # the file ends inside the IFD
+
+    msg = exit_msg(lambda: pg.Tiff(patched(edit)))
+    assert "bad.tif" in msg and "malformed" in msg
+
+
+def test_corrupt_deflate_tile_exits():
+    def edit(buf, at):
+        buf[16:48] = b"\xff" * 32  # tile 0 starts at byte 16
+
+    g = pg.Tiff(patched(edit))
+    msg = exit_msg(lambda: g.dn(*centre(0, 0)))
+    assert "bad.tif" in msg and "tile 0" in msg
+
+
+class Reply:
+    """What urlopen returns: a context manager with geturl, headers, status and read."""
+
+    def __init__(self, url: str = pg.HOST + "g.tif", length: str | None = "4", status: int = 200, body: bytes = b"abcd"):
+        self.url, self.status, self.body, self.headers = url, status, body, email.message.Message()
+        if length is not None:
+            self.headers["Content-Length"] = length
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        return False
+
+    def geturl(self) -> str:
+        return self.url
+
+    def read(self, n: int = -1) -> bytes:
+        out, self.body = self.body[:n] if n >= 0 else self.body, self.body[n:] if n >= 0 else b""
+        return out
+
+
+def download_with(*replies: Reply) -> str:
+    queue, real = list(replies), pg.urllib.request.urlopen
+    pg.urllib.request.urlopen = lambda *a, **k: queue.pop(0)  # no network: each call gets the next stub
+    try:
+        return exit_msg(lambda: pg.download("g.tif", Path(tempfile.mkdtemp(dir=SCRATCH))))
+    finally:
+        pg.urllib.request.urlopen = real
+
+
+def test_download_redirect_off_host_exits():
+    assert "redirected away" in download_with(Reply(url="https://evil.example/g.tif"))
+    assert "redirected away" in download_with(Reply(), Reply(url="https://evil.example/g.tif"))  # the GET leg too
+
+
+def test_download_missing_content_length_exits():
+    assert "no Content-Length" in download_with(Reply(length=None))
+
+
+def test_download_happy_path_stubbed():
+    real, queue = pg.urllib.request.urlopen, [Reply(), Reply()]
+    pg.urllib.request.urlopen = lambda *a, **k: queue.pop(0)
+    try:
+        path = pg.download("g.tif", Path(tempfile.mkdtemp(dir=SCRATCH)))
+    finally:
+        pg.urllib.request.urlopen = real
+    assert path.read_bytes() == b"abcd"
 
 
 if __name__ == "__main__":

@@ -6,7 +6,7 @@ RGX – Lunar Landing Site Navigator (NASA Space Apps 2026). Which lunar south-p
 
 ## Rules that must never be broken
 
-1. **Fixture numbers are fake.** Data with `fixture: true` is never presented as a real result. A build that ships fixtures says so on screen.
+1. **No fake data ships.** Test data lives only in test files.
 2. **Every number on screen comes from `backend/lib/`** (ephemeris + horizon masks). Visuals (3D view, map) never produce numbers.
 3. **The JPL Horizons check stays at < 0.01°** on all 16 values in `backend/lib/lunar.test.ts`. It is never loosened, skipped or removed.
 4. **Components read data only through `useScenario`.** Its signature and `backend/lib/types.ts` change only with both owners agreeing, and [docs/DATA_CONTRACT.md](docs/DATA_CONTRACT.md) changes in the same commit.
@@ -24,7 +24,6 @@ How we write code: [AGENTS.md](AGENTS.md).
 pnpm install
 pnpm dev           # local app
 pnpm check         # lint, tests (incl. the JPL Horizons check), type-check + build, React Doctor
-pnpm fixtures      # rebuild backend/public/data/fixtures/*.json
 ```
 
 ## Where things are

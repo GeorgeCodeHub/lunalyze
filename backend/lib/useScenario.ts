@@ -1,4 +1,5 @@
 import { useQueries, useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
 import { type HorizonMask, realView } from './realView';
 import type { Site, SiteView, Zoom } from './types';
 
@@ -25,12 +26,14 @@ const fetchMask = async (id: string): Promise<HorizonMask | null> => {
  * Everything the Compare screen shows for the given sites, for the window that starts at t.
  * opts.terrain = false uses a flat horizon (the flat-or-terrain switch).
  *
- * The data is real (view.fixture === false): Sun and Earth positions against the horizon masks.
+ * The data is real: Sun and Earth positions against the horizon masks.
  * A site with terrainModeled false gets a flat 0° horizon and stays in `views`. An id that is not in
  * sites.json (nothing is fetched for it) and a modeled site with no mask file yet are left out of
  * `views`. Any other load failure, for the site list, a mask or the computation, is returned as
  * `error`; the views that did load are still returned.
- * Each view is computed in its query function, cached per site, t, zoom and terrain.
+ * Each view is computed in its query function, cached per site, t, zoom and terrain. A failed view is not retried.
+ * When t changes and zoom and terrain do not, each site already shown keeps its view from the last t that
+ * fully loaded while the new one loads (`loading` stays true), so the screen does not blink during playback.
  */
 export const useScenario = (
   siteIds: string[],
@@ -39,10 +42,18 @@ export const useScenario = (
   opts: { terrain: boolean } = { terrain: true },
 ): { views: SiteView[]; loading: boolean; error: Error | null } => {
   const queryClient = useQueryClient();
+  // The last scenario that fully loaded. useQueries gives placeholderData no previous data, so it is remembered here.
+  const [shown, setShown] = useState({ t: t.getTime(), zoom, terrain: opts.terrain, ids: siteIds });
+  const shownIds = new Set(shown.ids);
   const results = useQueries({
     queries: siteIds.map((id) => ({
       queryKey: ['view', id, t.getTime(), zoom, opts.terrain],
       staleTime: 'static' as const, // a pure function of the key: never recompute on focus or mount
+      retry: false, // a failed load shows as `error` at once
+      placeholderData: () =>
+        shownIds.has(id) && shown.zoom === zoom && shown.terrain === opts.terrain
+          ? queryClient.getQueryData<SiteView | null>(['view', id, shown.t, zoom, opts.terrain])
+          : undefined,
       queryFn: async (): Promise<SiteView | null> => {
         const sites = await queryClient.query({
           queryKey: ['data', 'sites'],
@@ -64,9 +75,17 @@ export const useScenario = (
     })),
   });
 
-  const loading = results.some((q) => q.isPending);
+  const loading = results.some((q) => q.isPending || q.isPlaceholderData);
   const error = results.find((q) => q.error)?.error ?? null;
   const views = results.flatMap((q) => (q.data ? [q.data] : []));
+
+  // Storing information from previous renders: https://react.dev/reference/react/useState#storing-information-from-previous-renders
+  if (
+    !loading &&
+    (shown.t !== t.getTime() || shown.zoom !== zoom || shown.terrain !== opts.terrain || shown.ids.join() !== siteIds.join())
+  ) {
+    setShown({ t: t.getTime(), zoom, terrain: opts.terrain, ids: siteIds });
+  }
 
   return { views, loading, error };
 };

@@ -9,7 +9,6 @@
     "build": "tsc --noEmit && vite build",
     "test": "vitest run",
     "lint": "eslint .",
-    "fixtures": "tsx backend/scripts/make_fixtures.ts",
     "mask-gate": "tsx backend/scripts/mask_gate.ts",
     "react-doctor": "react-doctor --no-score --no-telemetry --no-supply-chain --yes",
     "check": "pnpm lint && pnpm test && pnpm build && pnpm react-doctor"

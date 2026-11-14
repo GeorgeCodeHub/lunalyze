@@ -227,13 +227,6 @@ describe('a bad mask (criterion 13)', () => {
   });
 });
 
-test('every view is real data (criterion 14)', () => {
-  for (const zoom of ['day', 'lunarDay', 'year'] as Zoom[]) {
-    expect(realView(apollo, null, T, zoom, true).fixture).toBe(false);
-  }
-  expect(realView(site('point-a'), maskOf('point-a'), T, 'day', false).fixture).toBe(false);
-});
-
 test('year zoom stays within a second', () => {
   const start = performance.now();
   realView(site('point-a'), maskOf('point-a'), T, 'year', true);

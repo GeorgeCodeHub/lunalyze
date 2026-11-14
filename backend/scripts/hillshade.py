@@ -20,7 +20,7 @@ from horizon_masks import default_dem_dir
 N, SCALE_M = 3812, 240.0
 CROP = (370, 3442)  # 3072 px centred on the pole: offset (N-1)/2 = 1905.5 = (370 + 3441) / 2
 BLOCK = 3  # 3072 / 3 = 1024 px at 720 m/px; BLOCK = 6 gives the 512 px fallback
-HALF_WIDTH_M = 1536 * SCALE_M  # 368640, must equal POLAR_MAP.halfWidthM in backend/lib/projectPolar.ts
+HALF_WIDTH_M = int(1536 * SCALE_M)  # 368640, must equal POLAR_MAP.halfWidthM in backend/lib/projectPolar.ts
 MAX_BYTES = 1_048_576
 
 

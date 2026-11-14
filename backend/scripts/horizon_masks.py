@@ -9,6 +9,7 @@
 
 import argparse
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -146,9 +147,10 @@ def self_check(dems: list[Dem]) -> tuple[float, float, list[float]]:
 
 def default_dem_dir() -> Path:
     here = Path(__file__).resolve().parent
-    common = subprocess.run(
-        ["git", "rev-parse", "--path-format=absolute", "--git-common-dir"], cwd=here, capture_output=True, text=True, check=True
-    ).stdout.strip()
+    r = subprocess.run(["git", "rev-parse", "--path-format=absolute", "--git-common-dir"], cwd=here, capture_output=True, text=True)
+    if r.returncode != 0:
+        sys.exit("not inside a git checkout: pass --dem DIR")
+    common = r.stdout.strip()
     return Path(common).parent / "backend/dem"
 
 
@@ -159,17 +161,19 @@ def dump(path: Path, obj) -> None:
 def main() -> None:
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("site_ids", nargs="*")
-    p.add_argument("--dem", type=Path, default=default_dem_dir())
+    p.add_argument("--dem", type=Path, help="default: backend/dem of the main checkout")
     p.add_argument("--out", type=Path, default=Path(__file__).resolve().parents[1] / "public/data")
     args = p.parse_args()
 
     sites = {s["id"]: s for s in json.loads((args.out / "sites.json").read_text())}
     ids = args.site_ids or [i for i, s in sites.items() if s["terrainModeled"]]
     for i in ids:
+        if not re.fullmatch(r"[a-z0-9-]+", i):  # ids become output file names
+            sys.exit(f"{i!r} is not a valid site id")
         if i not in sites or not sites[i]["terrainModeled"]:
             sys.exit(f"{i} is not a terrainModeled site")
 
-    dems = load_dems(args.dem)
+    dems = load_dems(args.dem or default_dem_dir())
     m1, m2, shackleton = self_check(dems)
     print(f"self-check ok: nested medians {m1:.2f}, {m2:.2f} m; Shackleton {shackleton}")
     (args.out / "masks").mkdir(parents=True, exist_ok=True)

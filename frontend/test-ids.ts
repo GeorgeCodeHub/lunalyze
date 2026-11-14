@@ -12,4 +12,9 @@ export const testIds = {
     offMap: 'polar-map-off-map',
     credit: 'polar-map-credit',
   },
+  scenarioBar: {
+    terrainSwitch: 'scenario-bar-terrain-switch',
+    copyLink: 'scenario-bar-copy-link',
+    copyStatus: 'scenario-bar-copy-status',
+  },
 } as const;

@@ -18,12 +18,12 @@ const HORIZONS: [number, number, string, number, number, number, number][] = [
 
 const RAD = Math.PI / 180;
 /** Angle on the sky between two directions, degrees. */
-function separation(a: AzEl, b: AzEl): number {
+const separation = (a: AzEl, b: AzEl): number => {
   const c =
     Math.sin(a.el * RAD) * Math.sin(b.el * RAD) +
     Math.cos(a.el * RAD) * Math.cos(b.el * RAD) * Math.cos((a.az - b.az) * RAD);
   return Math.acos(Math.min(1, c)) / RAD;
-}
+};
 
 test('sky() matches all 16 JPL Horizons fixtures to better than 0.01°', () => {
   const errors = HORIZONS.flatMap(([lat, lon, utc, sunAz, sunEl, earthAz, earthEl]) => {

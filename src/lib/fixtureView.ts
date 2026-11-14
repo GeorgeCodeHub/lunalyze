@@ -32,7 +32,7 @@ const round = (v: number, digits: number) => Math.round(v * 10 ** digits) / 10 *
 const iso = (ms: number) => new Date(Math.round(ms / 60e3) * 60e3).toISOString();
 
 /** Position at time ms. Samples repeat after the last one, so any date works (dates outside the fixture are not real). */
-function at(samples: Pair[], t0: number, ms: number): Pair {
+const at = (samples: Pair[], t0: number, ms: number): Pair => {
   const period = samples.length - 1;
   const h = ((((ms - t0) / HOUR) % period) + period) % period;
   const i = Math.floor(h);
@@ -41,16 +41,16 @@ function at(samples: Pair[], t0: number, ms: number): Pair {
   const [a1, e1] = samples[i + 1];
   const da = ((a1 - a0 + 540) % 360) - 180; // shortest way round
   return [(a0 + da * f + 360) % 360, e0 + (e1 - e0) * f];
-}
+};
 
-function horizon(terrain: Pair[] | null, az: number): number {
+const horizon = (terrain: Pair[] | null, az: number): number => {
   if (!terrain) return 0;
   const i = Math.min(Math.floor(az * 2), terrain.length - 2);
   return terrain[i][1] + (terrain[i + 1][1] - terrain[i][1]) * (az * 2 - i);
-}
+};
 
 /** Periods inside [start, start + spanH] where vis() is true. Hourly scan, edges bisected to about 1 minute. */
-function intervals(vis: (ms: number) => boolean, start: number, spanH: number): [number, number][] {
+const intervals = (vis: (ms: number) => boolean, start: number, spanH: number): [number, number][] => {
   const out: [number, number][] = [];
   const end = start + spanH * HOUR;
   let prevT = start;
@@ -76,21 +76,21 @@ function intervals(vis: (ms: number) => boolean, start: number, spanH: number): 
   }
   if (open !== null) out.push([open, end]);
   return out;
-}
+};
 
 const hours = (iv: [number, number][]) => iv.reduce((sum, [a, b]) => sum + (b - a) / HOUR, 0);
 
-function countdown(vis: (ms: number) => boolean, ms: number): Countdown {
+const countdown = (vis: (ms: number) => boolean, ms: number): Countdown => {
   const iv = intervals(vis, ms, LUNAR_DAY_H); // look one lunar day ahead; null = no change in that time
   if (vis(ms)) {
     const setAt = iv[0][1];
     return { kind: 'set', hours: setAt < ms + LUNAR_DAY_H * HOUR ? round((setAt - ms) / HOUR, 2) : null };
   }
   return { kind: 'rise', hours: iv.length ? round((iv[0][0] - ms) / HOUR, 2) : null };
-}
+};
 
 /** The SiteView for the window that starts at t. terrainOn = false uses a flat 0° horizon. */
-export function viewAt(fx: FixtureFile, site: Site, t: Date, zoom: Zoom, terrainOn: boolean): SiteView {
+export const viewAt = (fx: FixtureFile, site: Site, t: Date, zoom: Zoom, terrainOn: boolean): SiteView => {
   const t0 = Date.parse(fx.t0);
   const ms = t.getTime();
   const terrain = terrainOn ? fx.terrain : null;
@@ -142,4 +142,4 @@ export function viewAt(fx: FixtureFile, site: Site, t: Date, zoom: Zoom, terrain
     },
     lanes: { sun: lane(sunLane), earth: lane(earthLane), both: lane(bothLane) },
   };
-}
+};

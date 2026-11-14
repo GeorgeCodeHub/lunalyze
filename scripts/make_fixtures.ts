@@ -14,14 +14,14 @@ const HOUR = 3600e3;
 const r3 = (v: number) => Math.round(v * 1000) / 1000;
 
 /** Fake horizon: three sines, at most 1.9° in total, different per site. Flat where terrain is not modeled. */
-function silhouette(site: Site): [number, number][] {
+const silhouette = (site: Site): [number, number][] => {
   const seed = [...site.id].reduce((sum, ch) => sum + ch.charCodeAt(0), 0);
   return Array.from({ length: 721 }, (_, i) => {
     const a = (i * 0.5 * Math.PI) / 180;
     const el = 0.9 * Math.sin(a + seed) + 0.6 * Math.sin(3 * a + 2 * seed) + 0.4 * Math.sin(7 * a + 3 * seed);
     return [i * 0.5, site.terrainModeled ? r3(el) : 0];
   });
-}
+};
 
 const sites: Site[] = JSON.parse(readFileSync('public/data/sites.json', 'utf8'));
 mkdirSync('public/data/fixtures', { recursive: true });

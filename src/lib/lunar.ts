@@ -25,7 +25,7 @@ const unit = (a: V3): V3 => {
  * lat: degrees north. lonE: degrees east. hKm: height above the 1737.4 km sphere.
  * az: 0 = north, 90 = east, range 0..360. el: degrees above the local horizontal plane.
  */
-export function sky(lat: number, lonE: number, hKm: number, date: Date): { sun: AzEl; earth: AzEl } {
+export const sky = (lat: number, lonE: number, hKm: number, date: Date): { sun: AzEl; earth: AzEl } => {
   // Moon body-fixed axes in J2000 equatorial coordinates (IAU rotation model).
   const axis = RotationAxis(Body.Moon, date);
   const pole: V3 = [axis.north.x, axis.north.y, axis.north.z];
@@ -51,10 +51,10 @@ export function sky(lat: number, lonE: number, hKm: number, date: Date): { sun: 
     return { az: (az + 360) % 360, el: Math.asin(dot(d, up)) / RAD };
   };
   return { sun: azEl([sun.x, sun.y, sun.z]), earth: azEl([0, 0, 0]) };
-}
+};
 
 /** Sun path at a place on Earth for 24 h from `start`, one [az, el] per hour (25 points). No refraction. */
-export function earthSunPath(lat: number, lonE: number, start: Date): [number, number][] {
+export const earthSunPath = (lat: number, lonE: number, start: Date): [number, number][] => {
   const obs = new Observer(lat, lonE, 0);
   return Array.from({ length: 25 }, (_, h) => {
     const t = new Date(start.getTime() + h * 3600e3);
@@ -62,4 +62,4 @@ export function earthSunPath(lat: number, lonE: number, start: Date): [number, n
     const hor = Horizon(t, obs, eq.ra, eq.dec);
     return [hor.azimuth, hor.altitude];
   });
-}
+};

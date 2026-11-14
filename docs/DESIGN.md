@@ -29,7 +29,7 @@ view harder for everyone else.
 
 1. **Plain words over jargon.** "Time in sunlight", not "illumination fraction". See [Words we use](#words-we-use).
 2. **Comparison over exploration.** The side-by-side comparison is the main feature.
-3. **Honest data.** Test data says so on screen. Every number has a unit, a time range and a source.
+3. **Honest data.** Every number has a unit, a time range and a source.
    Visuals never invent numbers: every number comes from `src/lib/`.
 4. **Progressive disclosure.** The answer first, the reason one step away, the raw numbers after that.
 5. **One visual language.** The Sun and Earth look the same everywhere: same marker shape, same label,
@@ -56,7 +56,7 @@ A short form in the middle of the screen. Copy:
 1. **Where do you want to land?** Up to 3 places from a list, grouped as "Artemis regions", "Landed
    missions" and so on. (Typing a location is P2.)
 2. **When do you want to land?** Date and time, labelled "Time is in UTC (world time)".
-   Default: 1 March 2028 00:00, the start of the test data.
+   Default: 1 March 2028 00:00.
 3. **How flexible is the date?**
    | Choice | Hint | Data window (`zoom`) |
    |---|---|---|
@@ -107,8 +107,8 @@ Places are labelled, never hidden from the list, so people can see why a place d
 
 ### Every state is designed
 
-Loading, error, no place picked, a place with no data yet, test data (banner), terrain not modelled
-(caveat), approximate location (`precision: 'proxy'`, "approximate" note).
+Loading, error, no place picked, a place with no data yet, terrain not modelled (caveat), horizon incomplete
+(`horizonIncomplete`: values are limits, caveat), approximate location (`precision: 'proxy'`, "approximate" note).
 
 ## Words we use
 
@@ -139,7 +139,7 @@ Matches the never-cut list and cut order in [PLAN.md](PLAN.md).
 - Fit label per place, with reason
 - Compare at least 2 places side by side
 - Flat-or-terrain switch
-- Test-data banner and NASA data credits
+- NASA data credits
 
 **P1: should have**
 - South-pole map for picking places

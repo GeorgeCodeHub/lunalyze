@@ -19,7 +19,7 @@ export type Zoom = 'day' | 'lunarDay' | 'year';
 
 export type SiteView = {
   site: Site;
-  fixture: boolean;
+  horizonIncomplete: boolean; // terrain on and the loaded mask has ≥ 1 incomplete bin (im-1); values are lower bounds
   metrics: { sunElDeg: number; sunlitPct: number; earthPct: number; longestBlackoutH: number; panelOutputPct: number };
   countdown: { sun: Countdown; earth: Countdown };
   sky: {

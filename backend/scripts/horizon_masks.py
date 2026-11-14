@@ -149,7 +149,7 @@ def default_dem_dir() -> Path:
 
 
 def dump(path: Path, obj) -> None:
-    path.write_text(json.dumps(obj, separators=(",", ":")) + "\n")
+    path.write_text(json.dumps(obj, separators=(",", ":"), allow_nan=False) + "\n")
 
 
 def main() -> None:

@@ -5,7 +5,7 @@ import sites from './locales/en/sites.json';
 
 export const defaultNS = 'common';
 
-// English only. All user-facing copy lives in src/locales/en/, one file per domain.
+// English only. All user-facing copy lives in frontend/locales/en/, one file per domain.
 export const resources = { en: { common, sites } } as const;
 
 void i18n.use(initReactI18next).init({

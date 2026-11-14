@@ -54,10 +54,10 @@ test('lanes and metrics cover the zoom window that starts at t', () => {
 });
 
 test('committed fixture files match the current code (re-run `npm run fixtures` if this fails)', () => {
-  const files = readdirSync('public/data/fixtures').filter((f) => f.endsWith('.json'));
+  const files = readdirSync('backend/public/data/fixtures').filter((f) => f.endsWith('.json'));
   expect(files).toHaveLength(3);
   for (const f of files) {
-    const file: FixtureFile = JSON.parse(readFileSync(`public/data/fixtures/${f}`, 'utf8'));
+    const file: FixtureFile = JSON.parse(readFileSync(`backend/public/data/fixtures/${f}`, 'utf8'));
     expect(file.sun).toHaveLength(709);
     expect(file.terrain).toHaveLength(721);
     expect(Math.max(...file.terrain.map(([, el]) => Math.abs(el)))).toBeLessThanOrEqual(2);

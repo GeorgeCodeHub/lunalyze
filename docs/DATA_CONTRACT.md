@@ -1,15 +1,15 @@
 # Data contract
 
-What `src/lib/` (George) gives to `src/components/` (Christina), and the files behind it.
-The types live in [src/lib/types.ts](../src/lib/types.ts). Change them there and here together.
+What `backend/lib/` (George) gives to `frontend/components/` (Christina), and the files behind it.
+The types live in [backend/lib/types.ts](../backend/lib/types.ts). Change them there and here together.
 
 ## The one hook components use
 
 ```ts
-import { useScenario } from './lib/useScenario';
+import { useScenario } from '../backend/lib/useScenario';
 
 const { views, loading, error } = useScenario(siteIds, t, zoom, { terrain });
-// siteIds: string[]   ids from public/data/sites.json, up to 3
+// siteIds: string[]   ids from backend/public/data/sites.json, up to 3
 // t: Date             the window starts here
 // zoom: 'day' | 'lunarDay' | 'year'
 // terrain: boolean    false = flat 0° horizon (the flat-or-terrain switch). Default true.
@@ -19,7 +19,7 @@ const { views, loading, error } = useScenario(siteIds, t, zoom, { terrain });
 //                     is "no data yet": that site is left out of views, error stays null)
 ```
 
-- The hook uses TanStack Query, so it must render inside `QueryClientProvider` (`src/main.tsx` provides it; tests wrap their own).
+- The hook uses TanStack Query, so it must render inside `QueryClientProvider` (`frontend/main.tsx` provides it; tests wrap their own).
 
 - Every number in a `SiteView` is for the window that starts at `t`: 24 h for `day`, 29.53 days for `lunarDay`, 365 days for `year`.
 - `sky.sun`, `sky.earth`, `countdown` and `metrics.sunElDeg` / `panelOutputPct` are for the moment `t`.
@@ -77,20 +77,20 @@ All angles are degrees. Azimuth: 0 = north, 90 = east, 0..360. Paths can jump fr
 ## Drawing: `toXY`
 
 ```ts
-import { toXY } from './lib/toXY';
+import { toXY } from '../backend/lib/toXY';
 toXY(az, el, width, height, stretch) // → { x, y } in SVG pixels
 // x = az / 360 * width
 // y = height / 2 - el * stretch * (height / 20)     stretch 1 shows -10°..+10°
 ```
 
-## Files in `public/data/`
+## Files in `backend/public/data/`
 
 | File | Contents | Made by |
 |---|---|---|
 | `sites.json` | `Site[]`, 13 sites (no display text) | by hand |
-| `src/locales/en/sites.json` | site names, blurbs, group labels | C6 |
-| `fixtures/<siteId>.json` | hourly Sun/Earth for one lunar day from 2028-03-01, fake terrain, `fixture: true` | `npm run fixtures` (`scripts/make_fixtures.ts`) |
-| `masks/<siteId>.json` | real horizon at mast height 2 m | G4, `scripts/horizon_masks.py` |
+| `frontend/locales/en/sites.json` | site names, blurbs, group labels | C6 |
+| `fixtures/<siteId>.json` | hourly Sun/Earth for one lunar day from 2028-03-01, fake terrain, `fixture: true` | `npm run fixtures` (`backend/scripts/make_fixtures.ts`) |
+| `masks/<siteId>.json` | real horizon at mast height 2 m | G4, `backend/scripts/horizon_masks.py` |
 | `terrain/<siteId>.bin` + `.json` | terrain crop for the 3D view | G4 |
 
 ### `masks/<siteId>.json`
@@ -112,5 +112,5 @@ type HorizonMask = {
 
 ### `fixtures/<siteId>.json`
 
-Type `FixtureFile` in [src/lib/fixtureView.ts](../src/lib/fixtureView.ts): `terrain` (721 points), `sun` and `earth` (709 hourly `[az, el]`), `athensSunPath`, and `view`, a ready `SiteView` for 2028-03-01, zoom `lunarDay`.
+Type `FixtureFile` in [backend/lib/fixtureView.ts](../backend/lib/fixtureView.ts): `terrain` (721 points), `sun` and `earth` (709 hourly `[az, el]`), `athensSunPath`, and `view`, a ready `SiteView` for 2028-03-01, zoom `lunarDay`.
 Only `useScenario` reads these files. They go away in G7.

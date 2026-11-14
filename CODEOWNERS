@@ -1,9 +1,3 @@
 # Who owns what. Ask the owner before you change their files.
-/scripts/         @GeorgeCodeHub
-/public/data/     @GeorgeCodeHub
-/src/lib/         @GeorgeCodeHub
-/src/components/  @ChristinaTsakaldimi
-/src/App.tsx      @ChristinaTsakaldimi
-/src/styles/      @ChristinaTsakaldimi
-/src/stores/      @ChristinaTsakaldimi
-/src/locales/     @ChristinaTsakaldimi
+/backend/   @GeorgeCodeHub
+/frontend/  @ChristinaTsakaldimi

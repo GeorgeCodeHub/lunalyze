@@ -17,5 +17,5 @@ export default defineConfig(
       'prefer-arrow-callback': 'error',
     },
   },
-  { files: ['scripts/**', '*.config.*'], languageOptions: { globals: globals.node } },
+  { files: ['backend/scripts/**', '*.config.*'], languageOptions: { globals: globals.node } },
 );

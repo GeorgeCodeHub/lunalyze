@@ -1,6 +1,6 @@
-// The data contract between src/lib (George) and src/components (Christina). See docs/DATA_CONTRACT.md.
+// The data contract between backend/lib (George) and frontend/components (Christina). See docs/DATA_CONTRACT.md.
 
-// Display text (site name, blurb, group label) lives in src/locales/<lang>/sites.json, keyed by id.
+// Display text (site name, blurb, group label) lives in frontend/locales/<lang>/sites.json, keyed by id.
 export type Site = {
   id: string;
   lat: number;

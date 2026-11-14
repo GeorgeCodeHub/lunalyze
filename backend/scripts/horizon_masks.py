@@ -20,6 +20,7 @@ MAST_M = 2.0
 AZ_STEP = 0.5
 N_AZ = 720
 DEMS = [("ldem_85s_20m", 15168, 20), ("ldem_80s_80m", 7600, 80), ("ldem_75s_240m", 3812, 240)]
+NEAR_M, NEAR_STEP_M = 5000.0, 20.0  # a 80 m DEM step skips peaks near the observer, so sample 20 m out to 5 km
 FINE_SITES = {"point-a", "point-b", "point-c", "point-d"}  # 20 m band only here
 
 Dem = tuple[np.ndarray, float]  # (int16 N x N, scale m/px); pixel centre of (j, i) at integer (j, i), off = (N-1)/2
@@ -77,6 +78,9 @@ def horizon(lat, lon, bands: list[tuple[Dem, float]]):
     start = 0.0
     for k, ((_, step), reach) in enumerate(bands):
         ds = np.arange(start + step, reach + step / 2, step)
+        if start < NEAR_M:
+            near = np.arange(start + NEAR_STEP_M, min(reach, NEAR_M) + NEAR_STEP_M / 2, NEAR_STEP_M)
+            ds = np.concatenate([near, ds[ds > NEAR_M]])
         d.append(ds)
         band.append(np.full(ds.size, k))
         start = reach

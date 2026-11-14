@@ -164,7 +164,7 @@ def main() -> int:
 
     sites = [s for s in json.loads(args.sites.read_text()) if s["terrainModeled"]]
     sites.sort(key=lambda s: (s["id"] not in GATE, list(GATE).index(s["id"]) if s["id"] in GATE else 0))  # gate sites first, in gate order
-    print("| Site | PGDA 69 avg sunlit % | grid | reference % |\n|---|---|---|---|")
+    print("| Site | PGDA 69 avg sunlit % | grid | retired lit. % |\n|---|---|---|---|")
     for s in sites:
         pct, label = sample(grids, s["lat"], s["lon"])
         print(f"| {s['id']} | {pct:.1f} | {label} | {GATE.get(s['id'], '-')} |")

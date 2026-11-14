@@ -10,15 +10,18 @@ import { useScenario } from './useScenario';
 const requested: string[] = [];
 const failing = new Set<string>();
 const htmlFallback = new Set<string>(); // paths answered like an SPA host: 200 with index.html
+const missing = new Set<string>(); // paths answered 404 even though the file exists
 beforeEach(() => {
   requested.length = 0;
   failing.clear();
   htmlFallback.clear();
+  missing.clear();
   (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
   vi.stubGlobal('fetch', async (url: string) => {
     const path = new URL(url, 'http://localhost').pathname;
     requested.push(path);
     if (failing.has(path)) return new Response('', { status: 500 });
+    if (missing.has(path)) return new Response('', { status: 404 });
     if (htmlFallback.has(path)) return new Response('<!doctype html>', { headers: { 'content-type': 'text/html' } });
     try {
       return new Response(readFileSync('backend/public' + path, 'utf8'), {
@@ -108,6 +111,13 @@ test('a mask that fails to load is reported as an error, and the other sites sti
   expect(got.views.map((v) => v.site.id)).toEqual(['point-a']);
 });
 
+test('a modeled site with no mask file yet is left out, with no error', async () => {
+  missing.add('/data/masks/point-b.json');
+  const got = (await renderScenario(['point-b', 'point-a'], { terrain: true })).get();
+  expect(got.error).toBeNull();
+  expect(got.views.map((v) => v.site.id)).toEqual(['point-a']);
+});
+
 test('a mask answered with an HTML page counts as missing: the site is left out, with no error', async () => {
   htmlFallback.add('/data/masks/point-b.json');
   const got = (await renderScenario(['point-b', 'point-a'], { terrain: true })).get();
@@ -122,4 +132,20 @@ test('files are fetched once, even when t changes', async () => {
   expect(r.get().views[0].sky.sun).not.toEqual(sun);
   expect(requested.filter((p) => p === '/data/masks/point-a.json')).toHaveLength(1);
   expect(requested.filter((p) => p === '/data/sites.json')).toHaveLength(1);
+});
+
+test('files are still fetched once after the 5-minute cache clean-up has passed', async () => {
+  vi.useFakeTimers({ shouldAdvanceTime: true });
+  try {
+    const r = await renderScenario(['point-a'], { terrain: true });
+    await act(async () => {
+      vi.advanceTimersByTime(5 * 60e3 + 1000);
+    });
+    await r.at(new Date(T.getTime() + 3600e3));
+    expect(r.get().views).toHaveLength(1);
+    expect(requested.filter((p) => p === '/data/masks/point-a.json')).toHaveLength(1);
+    expect(requested.filter((p) => p === '/data/sites.json')).toHaveLength(1);
+  } finally {
+    vi.useRealTimers();
+  }
 });

@@ -48,6 +48,7 @@ export const useScenario = (
           queryKey: ['data', 'sites'],
           queryFn: () => fetchJson<Site[]>('data/sites.json'),
           staleTime: 'static',
+          gcTime: Infinity, // read only via query(), which never resets the 5-min clean-up timer
         });
         const site = sites.find((s) => s.id === id);
         if (!site) return null;
@@ -56,6 +57,7 @@ export const useScenario = (
           queryKey: ['data', 'masks', id],
           queryFn: () => fetchMask(id),
           staleTime: 'static',
+          gcTime: Infinity,
         });
         return mask ? realView(site, mask, t, zoom, opts.terrain) : null;
       },

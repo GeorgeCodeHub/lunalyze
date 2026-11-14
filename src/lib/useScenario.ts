@@ -8,13 +8,23 @@ const fetchJson = async <T>(path: string): Promise<T> => {
   return r.json();
 };
 
+// A missing file means "no data for this site yet" (null); any other failure throws.
+const fetchSiteData = async (id: string): Promise<FixtureFile | null> => {
+  const path = `data/fixtures/${id}.json`;
+  const r = await fetch(import.meta.env.BASE_URL + path);
+  if (r.status === 404) return null;
+  if (!r.ok) throw new Error(`${path}: HTTP ${r.status}`);
+  return r.json();
+};
+
 /**
  * Everything the Compare screen shows for the given sites, for the window that starts at t.
  * opts.terrain = false uses a flat horizon (the flat-or-terrain switch).
  *
  * Today this serves fixtures (view.fixture === true: fake terrain, never show its numbers as real).
  * G6/G7 swap in real masks behind this same signature, so components do not change.
- * A site with no data yet is left out of `views`. `error` is set when the site list fails to load.
+ * A site with no data yet (missing file) is left out of `views`. Any other load failure, for the
+ * site list or a site, is returned as `error`; the views that did load are still returned.
  */
 export const useScenario = (
   siteIds: string[],
@@ -24,18 +34,15 @@ export const useScenario = (
 ): { views: SiteView[]; loading: boolean; error: Error | null } => {
   const sites = useQuery({ queryKey: ['data', 'sites'], queryFn: () => fetchJson<Site[]>('data/sites.json') });
   const fixtures = useQueries({
-    queries: siteIds.map((id) => ({
-      queryKey: ['data', 'fixtures', id],
-      queryFn: () => fetchJson<FixtureFile>(`data/fixtures/${id}.json`),
-      retry: false, // a missing fixture means "no data yet", not a network blip
-    })),
+    queries: siteIds.map((id) => ({ queryKey: ['data', 'fixtures', id], queryFn: () => fetchSiteData(id) })),
   });
 
   const loading = sites.isPending || fixtures.some((q) => q.isPending);
+  const error = sites.error ?? fixtures.find((q) => q.error)?.error ?? null;
   const views = fixtures.flatMap(({ data: fx }) => {
     const site = fx && sites.data?.find((s) => s.id === fx.siteId);
     return fx && site ? [viewAt(fx, site, t, zoom, opts.terrain)] : [];
   });
 
-  return { views, loading, error: sites.error };
+  return { views, loading, error };
 };

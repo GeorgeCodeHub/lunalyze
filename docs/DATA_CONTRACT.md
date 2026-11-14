@@ -15,7 +15,8 @@ const { views, loading, error } = useScenario(siteIds, t, zoom, { terrain });
 // terrain: boolean    false = flat 0° horizon (the flat-or-terrain switch). Default true.
 // views: SiteView[]   one per site, same order as siteIds
 // loading: boolean    true until the site list and every asked-for site have loaded
-// error: Error | null set when the site list failed to load
+// error: Error | null set when the site list or a site's data failed to load (a missing file
+//                     is "no data yet": that site is left out of views, error stays null)
 ```
 
 - The hook uses TanStack Query, so it must render inside `QueryClientProvider` (`src/main.tsx` provides it; tests wrap their own).

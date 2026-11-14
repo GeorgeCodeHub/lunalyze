@@ -100,3 +100,23 @@ test('after a failure, a later successful click shows copied', async () => {
   await click();
   expect(button.dataset.status).toBe('copied');
 });
+
+test('clipboard undefined: a second click on a failed copy empties the status before it fails again', async () => {
+  stubClipboard(undefined);
+  const { button, status, click } = await mount();
+  await click();
+  expect(button.dataset.status).toBe('failed');
+  expect(status.textContent).not.toBe('');
+
+  const seen: { status: string | undefined; empty: boolean }[] = [];
+  const observer = new MutationObserver(() => seen.push({ status: button.dataset.status, empty: status.textContent === '' }));
+  observer.observe(button, { attributes: true, attributeFilter: ['data-status'] });
+  observer.observe(status, { childList: true, characterData: true, subtree: true });
+  await click();
+  await Promise.resolve(); // MutationObserver callbacks run as microtasks
+  observer.disconnect();
+
+  expect(seen).toContainEqual({ status: 'idle', empty: true });
+  expect(button.dataset.status).toBe('failed');
+  expect(status.textContent).not.toBe('');
+});

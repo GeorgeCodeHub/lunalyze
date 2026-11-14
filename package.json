@@ -3,26 +3,42 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "packageManager": "pnpm@12.7.0",
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "test": "vitest run",
-    "fixtures": "tsx scripts/make_fixtures.ts"
+    "lint": "eslint .",
+    "fixtures": "tsx scripts/make_fixtures.ts",
+    "react-doctor": "react-doctor --no-score --no-telemetry --no-supply-chain --yes",
+    "check": "pnpm lint && pnpm test && pnpm build && pnpm react-doctor"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.107.1",
     "astronomy-engine": "^2.1.19",
+    "i18next": "^27.0.0",
     "react": "^19.3.1",
-    "react-dom": "^19.3.1"
+    "react-dom": "^19.3.1",
+    "react-i18next": "^18.0.0"
   },
   "devDependencies": {
+    "@babel/core": "^8.1.0",
+    "@eslint/js": "^10.0.1",
+    "@rolldown/plugin-babel": "^0.3.0",
     "@types/node": "^26.6.6",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
-    "@vitejs/plugin-react": "^6.3.0",
+    "@vitejs/plugin-react": "^6.2.1",
+    "babel-plugin-react-compiler": "^1.0.0",
+    "eslint": "^10.14.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.14.0",
     "happy-dom": "^21.0.4",
+    "react-doctor": "^0.9.22",
     "tsx": "^4.23.15",
-    "typescript": "^7.0.2",
-    "vite": "^8.3.8",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.72.1",
+    "vite": "^8.3.6",
     "vitest": "^5.1.0"
   }
 }

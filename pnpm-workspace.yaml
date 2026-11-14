@@ -1,0 +1,7 @@
+# Install only versions published at least 7 days ago (minutes). Applies to pnpm add, install and dlx.
+minimumReleaseAge: 10080
+# Refuse a release that lost its provenance (a possible takeover).
+trustPolicy: no-downgrade
+# esbuild's postinstall only re-checks its binary; the platform package already ships it.
+allowBuilds:
+  esbuild: false

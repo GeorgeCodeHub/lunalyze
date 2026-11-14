@@ -68,14 +68,37 @@ def test_c07_projection():
     approx(y / 80, 0, 1e-9)  # line == off
 
 
+def block_az(lat, lon, a_deg):
+    """horizon() argmax index for a 500 m square, 1000 m tall, 4250 m from the site along the bearing of azimuth a_deg."""
+    n, scale = 2001, 80.0
+    off = (n - 1) / 2
+    x0, y0 = (float(v) for v in hm.to_xy(lat, lon))
+    beta = np.radians(a_deg + lon)
+    ci, cj = off + (x0 + 4250 * np.sin(beta)) / scale, off - (y0 + 4250 * np.cos(beta)) / scale
+    a = np.zeros((n, n), np.int16)
+    a[round(cj) - 3 : round(cj) + 4, round(ci) - 3 : round(ci) + 4] = 2000
+    elev, _ = hm.horizon(lat, lon, [((a, scale), 10000.0)])
+    return int(np.argmax(elev)), elev
+
+
 def test_c08_azimuth():
-    lat0, lon0 = -88.0, 30.0
-    x0, y0 = (float(v) for v in hm.to_xy(lat0, lon0))
-    # same bearing maths as horizon(): beta = A + lon
-    for a, check in [(0, lambda la, lo: la > lat0 and abs(lo - lon0) < 1e-6), (90, lambda la, lo: lo > lon0), (270, lambda la, lo: lo < lon0)]:
-        beta = np.radians(a + lon0)
-        la, lo = inverse(x0 + 1000 * np.sin(beta), y0 + 1000 * np.cos(beta))
-        assert check(float(la), float(lo)), (a, la, lo)
+    # 0 = north (away from the pole), 90 = east, 270 = west, at a non-zero longitude, through horizon()
+    for a_deg in (0, 90, 270):
+        k, elev = block_az(-88.0, 30.0, a_deg)
+        assert min((k - a_deg * 2) % 720, (a_deg * 2 - k) % 720) <= 10, (a_deg, k)  # circular distance
+        assert elev[k] > 10
+
+
+def test_c08b_wall_east_at_lon_90():
+    n = 1201
+    off = (n - 1) / 2
+    x0, _ = (float(v) for v in hm.to_xy(-89, 90))  # site at map (+30324, 0); local east is map -y
+    ci = round(off + x0 / 80)
+    a = np.zeros((n, n), np.int16)
+    a[650:657, ci - 6 : ci + 7] = 2000  # y = -4000..-4480 m
+    elev, _ = hm.horizon(-89, 90, [((a, 80.0), 10000.0)])
+    assert abs(int(np.argmax(elev)) - 180) <= 2, int(np.argmax(elev))
+    assert elev[180] > 10 and elev[540] < 0
 
 
 def test_c09_elevation_formula():
@@ -132,6 +155,13 @@ def test_c14_crop():
     assert (crop[:, 299:] == 777).all() and crop[:, 299:].size == 100500
     assert (crop[:, :299] == a[50:550, 301:600]).all()
     assert ox == (301 - 299.5) * 80 and oy == 19960.0
+    # site at x = 20040, y = 10000: crop rows 0..74 lie above the 80 m DEM; the 240 m DEM has DN = its row
+    lat, lon = (float(v) for v in inverse(20040.0, 10000.0))
+    d240 = (np.repeat(np.arange(600, dtype=np.int16)[:, None], 600, axis=1), 240.0)
+    crop, ox, oy = hm.terrain_crop(lat, lon, (a, 80.0), d240)
+    assert oy == (299.5 + 75) * 80
+    assert (int(crop[0, 499]), int(crop[74, 499])) == (175, 199)  # row 0: y = 29960 m, row 74: y = 24040 m
+    assert (crop[75:, :299] == a[0:425, 301:600]).all()
 
 
 # --- synthetic edge cases ---

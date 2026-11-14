@@ -4,7 +4,7 @@ import type { Body, Countdown, Interval, Site, SiteView, Zoom } from './types';
 
 type Pair = [number, number]; // [az, el] degrees
 
-/** Shape of public/data/fixtures/<siteId>.json */
+/** Shape of backend/public/data/fixtures/<siteId>.json */
 export type FixtureFile = {
   fixture: true;
   siteId: string;

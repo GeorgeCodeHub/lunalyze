@@ -1,9 +1,9 @@
-// Writes public/data/fixtures/<siteId>.json: real Sun/Earth positions, FAKE terrain.
+// Writes backend/public/data/fixtures/<siteId>.json: real Sun/Earth positions, FAKE terrain.
 // Run: pnpm fixtures
 import { mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
-import { type FixtureFile, LUNAR_DAY_H, viewAt } from '../src/lib/fixtureView';
-import { earthSunPath, sky } from '../src/lib/lunar';
-import type { Site } from '../src/lib/types';
+import { type FixtureFile, LUNAR_DAY_H, viewAt } from '../lib/fixtureView';
+import { earthSunPath, sky } from '../lib/lunar';
+import type { Site } from '../lib/types';
 
 const SITE_IDS = ['point-a', 'malapert-m1', 'apollo-11'];
 const T0 = new Date('2028-03-01T00:00:00Z');
@@ -25,9 +25,9 @@ const silhouette = (site: Site): [number, number][] => {
 
 const readSites = (): Site[] => {
   try {
-    return JSON.parse(readFileSync('public/data/sites.json', 'utf8'));
+    return JSON.parse(readFileSync('backend/public/data/sites.json', 'utf8'));
   } catch (err) {
-    throw new Error(`Cannot read public/data/sites.json (run from the repo root): ${(err as Error).message}`, {
+    throw new Error(`Cannot read backend/public/data/sites.json (run from the repo root): ${(err as Error).message}`, {
       cause: err,
     });
   }
@@ -40,11 +40,11 @@ const writeAtomic = (path: string, text: string) => {
 };
 
 const sites = readSites();
-mkdirSync('public/data/fixtures', { recursive: true });
+mkdirSync('backend/public/data/fixtures', { recursive: true });
 
 for (const id of SITE_IDS) {
   const site = sites.find((s) => s.id === id);
-  if (!site) throw new Error(`${id} is not in public/data/sites.json`);
+  if (!site) throw new Error(`${id} is not in backend/public/data/sites.json`);
 
   const sun: [number, number][] = [];
   const earth: [number, number][] = [];
@@ -65,7 +65,7 @@ for (const id of SITE_IDS) {
     athensSunPath: earthSunPath(ATHENS.lat, ATHENS.lon, T0).map(([az, el]): [number, number] => [r3(az), r3(el)]),
   };
   const file: FixtureFile = { ...raw, view: viewAt({ ...raw, view: null as never }, site, T0, 'lunarDay', true) };
-  writeAtomic(`public/data/fixtures/${id}.json`, JSON.stringify(file) + '\n');
+  writeAtomic(`backend/public/data/fixtures/${id}.json`, JSON.stringify(file) + '\n');
   const m = file.view.metrics;
   console.log(`${id}: sunlit ${m.sunlitPct}%  earth ${m.earthPct}%  longest blackout ${m.longestBlackoutH} h (fake terrain)`);
 }

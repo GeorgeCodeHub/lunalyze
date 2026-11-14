@@ -6,14 +6,14 @@ import { createRoot } from 'react-dom/client';
 import { beforeEach, expect, test, vi } from 'vitest';
 import { useScenario } from './useScenario';
 
-// Serves public/ from disk. "broken" fails with a server error; other missing files are 404.
+// Serves backend/public/ from disk. "broken" fails with a server error; other missing files are 404.
 beforeEach(() => {
   (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
   vi.stubGlobal('fetch', async (url: string) => {
     const path = new URL(url, 'http://localhost').pathname;
     if (path.includes('broken')) return new Response('', { status: 500 });
     try {
-      return new Response(readFileSync('public' + path, 'utf8'));
+      return new Response(readFileSync('backend/public' + path, 'utf8'));
     } catch {
       return new Response('', { status: 404 });
     }

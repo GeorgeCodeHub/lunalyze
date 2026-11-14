@@ -10,14 +10,22 @@ import SetupForm from './SetupForm';
 let container: HTMLDivElement;
 let root: Root;
 
-const byId = (id: string) => [...container.querySelectorAll<HTMLSelectElement>(`[data-testid="${id}"]`)];
+const all = (id: string) => [...container.querySelectorAll(`[data-testid="${id}"]`)];
 const one = <E extends Element>(id: string) => container.querySelector(`[data-testid="${id}"]`) as E;
-const placeSelect = (slot: number) => byId(testIds.setup.siteSelect)[slot - 1];
+const siteSelect = () => one<HTMLSelectElement>(testIds.setup.siteSelect);
+const coordsInput = () => one<HTMLInputElement>(testIds.setup.coords);
 
 const setValue = (select: HTMLSelectElement, value: string) =>
   act(() => {
     select.value = value;
     select.dispatchEvent(new Event('change', { bubbles: true }));
+  });
+// Sets the value through the native setter so React sees a real change, as when the user types.
+const valueSetter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
+const type = (input: HTMLInputElement, value: string) =>
+  act(() => {
+    valueSetter?.call(input, value);
+    input.dispatchEvent(new Event('input', { bubbles: true }));
   });
 const submit = () => act(() => one<HTMLButtonElement>(testIds.setup.submit).click());
 const render = (onSubmit: (s: Scenario) => void = vi.fn(), initial: Scenario | null = null) =>
@@ -42,45 +50,44 @@ afterEach(() => {
   container.remove();
 });
 
-test('shows three place dropdowns, one each for date hour, flexibility and stay', () => {
+test('asks for one place: a site list and a coordinates field, then the hour and the stay', () => {
   render();
 
-  expect(byId(testIds.setup.siteSelect)).toHaveLength(3);
+  expect(all(testIds.setup.siteSelect)).toHaveLength(1);
+  expect(all(testIds.setup.coords)).toHaveLength(1);
+  expect(siteSelect().querySelectorAll('optgroup')).toHaveLength(5);
   expect(one<HTMLSelectElement>(testIds.setup.hour).options).toHaveLength(24);
-  expect(one<HTMLSelectElement>(testIds.setup.zoom).options).toHaveLength(3);
-  expect(one<HTMLSelectElement>(testIds.setup.stay).options).toHaveLength(4);
-  expect(placeSelect(1).querySelectorAll('optgroup')).toHaveLength(5);
+  expect(one<HTMLSelectElement>(testIds.setup.stay).options).toHaveLength(5);
 });
 
-test('asks for a place before submitting, and moves focus to the first place', () => {
+test('asks for a place before submitting, and moves focus to the site list', () => {
   const onSubmit = vi.fn();
   render(onSubmit);
 
   submit();
 
   expect(onSubmit).not.toHaveBeenCalled();
-  expect(byId(testIds.setup.siteError)).toHaveLength(1);
-  expect(placeSelect(1).getAttribute('aria-invalid')).toBe('true');
-  expect(document.activeElement).toBe(placeSelect(1));
+  expect(all(testIds.setup.siteError)).toHaveLength(1);
+  expect(siteSelect().getAttribute('aria-invalid')).toBe('true');
+  expect(coordsInput().getAttribute('aria-invalid')).toBe('true');
+  expect(document.activeElement).toBe(siteSelect());
 });
 
-test('submits the picked places, a 24-hour UTC start, flexibility and stay', () => {
+test('submits the picked site, a 24-hour UTC start and the stay', () => {
   const onSubmit = vi.fn<(s: Scenario) => void>();
   render(onSubmit);
 
-  setValue(placeSelect(1), 'point-a');
-  setValue(placeSelect(2), 'malapert-m1');
+  setValue(siteSelect(), 'malapert-m1');
   setValue(one(testIds.setup.hour), '18');
-  setValue(one(testIds.setup.zoom), 'year');
-  setValue(one(testIds.setup.stay), '2');
+  setValue(one(testIds.setup.stay), '14');
   submit();
 
-  expect(byId(testIds.setup.siteError)).toHaveLength(0);
+  expect(all(testIds.setup.siteError)).toHaveLength(0);
   expect(onSubmit).toHaveBeenCalledWith({
-    siteIds: ['point-a', 'malapert-m1'],
+    places: [{ kind: 'site', id: 'malapert-m1' }],
     start: startAt(18),
-    zoom: 'year',
-    stay: 2,
+    zoom: 'lunarDay',
+    stay: 14,
   });
 });
 
@@ -91,79 +98,110 @@ test.each([
   const onSubmit = vi.fn<(s: Scenario) => void>();
   render(onSubmit);
 
-  setValue(placeSelect(1), 'point-a');
+  setValue(siteSelect(), 'point-a');
   setValue(one(testIds.setup.hour), hourValue);
   submit();
 
   expect(onSubmit.mock.calls[0][0].start).toEqual(startAt(hour));
 });
 
-test('accepts the shortest and longest stay, and the narrowest and widest window', () => {
+test('accepts the shortest and longest stay', () => {
   const onSubmit = vi.fn<(s: Scenario) => void>();
   render(onSubmit);
 
-  setValue(placeSelect(1), 'point-a');
-  setValue(one(testIds.setup.stay), '0.5');
-  setValue(one(testIds.setup.zoom), 'day');
+  setValue(siteSelect(), 'point-a');
+  setValue(one(testIds.setup.stay), '1');
   submit();
-  setValue(one(testIds.setup.stay), '3');
-  setValue(one(testIds.setup.zoom), 'year');
+  setValue(one(testIds.setup.stay), '30');
   submit();
 
-  expect(onSubmit.mock.calls.map(([s]) => [s.stay, s.zoom])).toEqual([
-    [0.5, 'day'],
-    [3, 'year'],
-  ]);
+  expect(onSubmit.mock.calls.map(([s]) => s.stay)).toEqual([1, 30]);
 });
 
-test('starts from a shared scenario: places, date, hour, window and stay are filled in', () => {
-  const shared: Scenario = { siteIds: ['haworth', 'point-b'], start: startAt(23), zoom: 'day', stay: 0.5 };
+test('starts from a shared scenario: its first place, date, hour and stay; the window is kept', () => {
+  const shared: Scenario = {
+    places: [
+      { kind: 'coords', lat: -85.25, lon: 31.4 },
+      { kind: 'site', id: 'haworth' },
+    ],
+    start: startAt(23),
+    zoom: 'day',
+    stay: 1,
+  };
   const onSubmit = vi.fn<(s: Scenario) => void>();
   render(onSubmit, shared);
 
-  expect(byId(testIds.setup.siteSelect).map((s) => s.value)).toEqual(['haworth', 'point-b', '']);
+  expect(siteSelect().value).toBe('');
+  expect(coordsInput().value).toBe('-85.25, 31.4');
   expect(one<HTMLSelectElement>(testIds.setup.hour).value).toBe('23');
   submit();
 
-  expect(onSubmit).toHaveBeenCalledWith(shared);
+  expect(onSubmit).toHaveBeenCalledWith({ ...shared, places: [shared.places[0]] });
 });
 
 test('an empty date falls back to the default start instead of an invalid date', () => {
   const onSubmit = vi.fn<(s: Scenario) => void>();
   render(onSubmit);
 
-  setValue(placeSelect(1), 'point-a');
-  act(() => {
-    const date = one<HTMLInputElement>(testIds.setup.date);
-    date.value = '';
-    date.dispatchEvent(new Event('input', { bubbles: true }));
-    date.dispatchEvent(new Event('change', { bubbles: true }));
-  });
+  setValue(siteSelect(), 'point-a');
+  type(one(testIds.setup.date), '');
   submit();
 
   expect(onSubmit.mock.calls[0][0].start).toEqual(DEFAULT_START);
 });
 
-test('a place picked in one dropdown is left out of the others', () => {
-  render();
-
-  setValue(placeSelect(1), 'haworth');
-
-  const optionValues = (slot: number) => [...placeSelect(slot).options].map((o) => o.value);
-  expect(optionValues(1)).toContain('haworth');
-  expect(optionValues(2)).not.toContain('haworth');
-  expect(optionValues(3)).not.toContain('haworth');
-});
-
-test('clearing a middle place keeps the others in order', () => {
+test.each([
+  ['90, 180', 90, 180],
+  ['-90, -180', -90, -180],
+  ['−85.3 31.4', -85.3, 31.4],
+  [' 0;0 ', 0, 0],
+])('submits coordinates written as "%s"', (text, lat, lon) => {
   const onSubmit = vi.fn<(s: Scenario) => void>();
   render(onSubmit);
 
-  setValue(placeSelect(1), 'point-a');
-  setValue(placeSelect(2), 'point-b');
-  setValue(placeSelect(3), 'haworth');
-  setValue(placeSelect(2), '');
+  type(coordsInput(), text);
   submit();
 
-  expect(onSubmit.mock.calls[0][0].siteIds).toEqual(['point-a', 'haworth']);
+  expect(onSubmit.mock.calls[0][0].places).toEqual([{ kind: 'coords', lat, lon }]);
+});
+
+test.each(['90.01, 0', '0, -180.01', '-85', '-85, 31, 2', 'north, east'])(
+  'blocks coordinates "%s" and moves focus to them',
+  (text) => {
+    const onSubmit = vi.fn();
+    render(onSubmit);
+
+    type(coordsInput(), text);
+    submit();
+
+    expect(onSubmit).not.toHaveBeenCalled();
+    expect(all(testIds.setup.coordsError)).toHaveLength(1);
+    expect(all(testIds.setup.siteError)).toHaveLength(0);
+    expect(coordsInput().getAttribute('aria-invalid')).toBe('true');
+    expect(document.activeElement).toBe(coordsInput());
+  },
+);
+
+test('typing coordinates clears the picked site, and picking a site clears them', () => {
+  render();
+
+  setValue(siteSelect(), 'haworth');
+  type(coordsInput(), '-85, 31');
+  expect(siteSelect().value).toBe('');
+
+  setValue(siteSelect(), 'point-a');
+  expect(coordsInput().value).toBe('');
+});
+
+test('fixing the coordinates clears the error and submits', () => {
+  const onSubmit = vi.fn<(s: Scenario) => void>();
+  render(onSubmit);
+
+  type(coordsInput(), '-91, 10');
+  submit();
+  type(coordsInput(), '-89.5, 10');
+
+  expect(all(testIds.setup.coordsError)).toHaveLength(0);
+  submit();
+  expect(onSubmit.mock.calls[0][0].places).toEqual([{ kind: 'coords', lat: -89.5, lon: 10 }]);
 });

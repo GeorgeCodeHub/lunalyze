@@ -1,15 +1,18 @@
 {
   "setup": {
-    "title": "Compare landing sites",
+    "subtitle": "See which landing places keep sunlight for power and Earth in view for radio contact through your whole stay.",
     "panelTitle": "Mission setup",
     "team": "Team RGX · NASA Space Apps 2026",
     "where": {
       "label": "Where do you want to land?",
-      "place": "Place {{n}}",
-      "placeOptional": "Place {{n}} (optional)",
-      "choose": "Choose a place…",
-      "none": "None",
-      "error": "Pick at least one place."
+      "site": "Known landing site",
+      "choose": "Choose a site…",
+      "or": "or",
+      "coords": "Your own coordinates",
+      "coordsExample": "−85.3, 31.4",
+      "coordsHint": "Coordinates: latitude, then longitude, in degrees. South and west are minus.",
+      "coordsError": "Write the latitude (−90 to 90), a comma, then the longitude (−180 to 180).",
+      "error": "Pick a known site or enter your own coordinates."
     },
     "when": {
       "label": "When do you want to land?",
@@ -17,20 +20,15 @@
       "time": "Time (UTC)",
       "hour": "{{hour}}:00 UTC"
     },
-    "flex": {
-      "label": "How flexible is the date?",
-      "day": "That day only (24 hours)",
-      "lunarDay": "Within one Moon day (about a month)",
-      "year": "Any time that year"
-    },
     "stay": {
       "label": "How long will the mission stay on the Moon?",
-      "half": "½ Moon day (about 15 days)",
-      "one": "1 Moon day (about 30 days)",
-      "two": "2 Moon days (about 59 days)",
-      "three": "3 Moon days (about 89 days)"
+      "day": "About 1 day",
+      "threeDays": "About 3 days",
+      "week": "About a week",
+      "twoWeeks": "About 14 days (one Moon daytime)",
+      "month": "About 30 days (one full Moon day)"
     },
-    "submit": "Compare these places"
+    "submit": "Show landing options"
   },
   "hero": {
     "alt": "The full Moon, a NASA visualization made from Lunar Reconnaissance Orbiter data",

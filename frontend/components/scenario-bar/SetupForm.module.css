@@ -7,7 +7,7 @@
   gap: 12px;
   min-width: 0;
   margin: 0;
-  padding: 22px 20px 24px;
+  padding: 24px 20px;
   border: 0;
   border-top: 1px solid var(--color-rule);
 }
@@ -31,26 +31,18 @@
 .when {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 170px);
-  gap: 10px;
+  gap: 12px;
 }
 
-.error {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 0;
-  color: var(--color-error);
-  font-size: 0.85rem;
-}
 
 /* Outlined glass button: 2px light border, bold capitals, arrow at the end. */
 .submit {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 14px;
-  min-height: 54px;
-  margin: 4px 20px 22px;
+  gap: 16px;
+  min-height: 56px;
+  margin: 4px 20px 24px;
   padding: 0 20px;
   border: 2px solid var(--color-glass-border-strong);
   border-radius: var(--radius-control);

@@ -1,7 +1,7 @@
 /* Frosted-glass form fields, shared by every region that asks a question. */
 .field {
   display: grid;
-  gap: 6px;
+  gap: 8px;
 }
 
 .label {
@@ -13,8 +13,8 @@
 
 .control {
   width: 100%;
-  min-height: 46px;
-  padding: 0 14px;
+  min-height: 48px;
+  padding: 0 16px;
   border: 1px solid var(--color-glass-border);
   border-radius: var(--radius-control);
   background-color: var(--color-glass);
@@ -42,16 +42,50 @@ select.control {
     linear-gradient(var(--color-glass-border), var(--color-glass-border));
   background-repeat: no-repeat;
   background-position:
-    right 15px center,
-    right 42px center;
+    right 16px center,
+    right 44px center;
   background-size:
     12px 8px,
     1px 55%;
   cursor: pointer;
 }
 
-/* The native calendar icon, lightened to match the text. */
+/* Date fields: the same divider and light icon as the dropdowns. The browser's own calendar
+   button is kept, invisible, over the icon so clicking it still opens the date picker. */
+input[type='date'].control {
+  position: relative;
+  padding-right: 52px;
+  background-image:
+    var(--icon-calendar),
+    linear-gradient(var(--color-glass-border), var(--color-glass-border));
+  background-repeat: no-repeat;
+  background-position:
+    right 16px center,
+    right 44px center;
+  background-size:
+    14px 14px,
+    1px 55%;
+}
+
 .control::-webkit-calendar-picker-indicator {
-  filter: invert(0.9);
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 44px;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  opacity: 0;
   cursor: pointer;
+}
+
+/* A field's error line: icon and words, never color alone. Spans the full row in a grid. */
+.error {
+  display: flex;
+  grid-column: 1 / -1;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: var(--color-error);
+  font-size: 0.85rem;
 }

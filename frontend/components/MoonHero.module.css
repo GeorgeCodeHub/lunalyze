@@ -1,12 +1,16 @@
 /* The full Moon sits at the right edge of the screen and runs off it, like a long-lens photo.
    The image is square with the disc centred, about 84% of the frame wide. */
+/* Small screens: a big Moon hangs from the top right, cut by the top and right edges, with its
+   lower-left edge and glow in view. The banner fades into the page instead of ending in a line. */
 .hero {
   position: relative;
-  height: 280px;
+  height: 300px;
+  margin-bottom: -48px; /* the title tucks into the fading glow, no empty band between them */
   overflow: hidden;
   background:
-    radial-gradient(ellipse 60% 70% at 85% 45%, var(--color-moon-haze), transparent 70%),
-    radial-gradient(ellipse 90% 90% at 90% 50%, var(--color-moon-haze-far), transparent 75%);
+    radial-gradient(ellipse 75% 80% at 85% 0%, var(--color-moon-haze), transparent 72%),
+    radial-gradient(ellipse 120% 110% at 85% 0%, var(--color-moon-haze-far), transparent 80%);
+  mask-image: linear-gradient(to bottom, black 70%, transparent); /* only the alpha counts */
 }
 
 .defs {
@@ -15,8 +19,16 @@
   height: 0;
 }
 
+.rimColor {
+  flood-color: var(--color-moon-rim);
+}
+
 .glowColor {
   flood-color: var(--color-moon-glow);
+}
+
+.hazeColor {
+  flood-color: var(--color-moon-haze-glow);
 }
 
 /* A sparse, uneven starfield: three dot layers on different, coprime tile sizes so no grid shows. */
@@ -39,26 +51,35 @@
    glow keeps its colour while only the Moon is brightened. */
 .moon {
   position: absolute;
-  top: -120px;
-  left: 34%;
-  height: 520px;
+  top: -420px; /* centre 60px above the top edge, so the glowing lower edge clears the fade */
+  left: calc(85% - 360px); /* centre at 85% of the width */
+  height: 720px;
   width: auto;
   filter: url(#moon-glow);
 }
 
+/* Wide screens: the Moon's centre sits on the right edge, so its left half shows, nearly as tall
+   as the screen with its top and bottom in view. Its left edge stays at least 720px from the left.
+   The disc is 84% of the image height, so 112vh of image is a disc about 94vh across. */
 @media (min-width: 1100px) {
   .hero {
     position: fixed;
-    inset: 0 0 0 auto;
-    width: max(44vw, calc(100vw - 760px));
+    inset: 0;
     height: 100vh;
+    margin-bottom: 0;
+    pointer-events: none;
+    mask-image: none;
+    /* Warm haze centred on the Moon, reaching across to the far left like the long-exposure sky. */
+    background:
+      radial-gradient(ellipse 60% 90% at 100% 50%, var(--color-moon-haze), transparent 72%),
+      radial-gradient(ellipse 120% 130% at 100% 50%, var(--color-moon-haze-far), transparent 80%);
   }
 
   .moon {
     top: 50%;
-    left: 0;
-    height: min(112vh, 1120px);
-    transform: translateY(-50%);
+    right: 0;
+    left: auto;
+    height: min(112vh, calc((100vw - 720px) * 2 / 0.84));
+    transform: translate(50%, -50%);
   }
-
 }

@@ -5,7 +5,8 @@ import styles from './MoonHero.module.css';
 
 // The photo is decoration with a credit; it carries no data (README rule 2).
 // The SVG filter cuts the Moon out of its black sky (any pixel brighter than the sky becomes opaque),
-// then wraps the cut-out in a tight bright rim and a wide warm halo that fades into the page.
+// then lights it like a long-exposure photo: a white-hot limb, a white-to-cream bloom at the edge,
+// and a wide warm haze that fades into the page.
 const MoonHero = () => {
   const { t } = useTranslation('compare');
 
@@ -19,28 +20,50 @@ const MoonHero = () => {
             values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  7 7 7 0 -1.4"
             result="cutout"
           />
-          {/* Bright, with a faint warm cast from the glow, but not blown out: crater detail stays. */}
+          {/* Bright and a little washed, like a long exposure, while crater detail stays. */}
           <feComponentTransfer in="cutout" result="moon">
-            <feFuncR type="linear" slope="1.16" intercept="0.07" />
-            <feFuncG type="linear" slope="1.14" intercept="0.05" />
-            <feFuncB type="linear" slope="1.1" intercept="0.03" />
+            <feFuncR type="linear" slope="1.2" intercept="0.1" />
+            <feFuncG type="linear" slope="1.18" intercept="0.09" />
+            <feFuncB type="linear" slope="1.14" intercept="0.07" />
           </feComponentTransfer>
+
+          {/* 1. The limb burns white: a white band just inside the edge, fading inward. */}
+          <feGaussianBlur in="cutout" stdDeviation="40" result="innerBlur" />
+          <feComposite in="cutout" in2="innerBlur" operator="out" result="edgeBand" />
+          <feFlood className={styles.rimColor} result="rimColor" />
+          <feComposite in="rimColor" in2="edgeBand" operator="in" result="limbOnce" />
+          <feComponentTransfer in="limbOnce" result="limb">
+            <feFuncA type="linear" slope="2.4" />
+          </feComponentTransfer>
+
+          {/* 2. A thick white-to-cream bloom hugging the edge outside. */}
+          <feGaussianBlur in="cutout" stdDeviation="9" result="bloomBlur" />
+          <feComposite in="rimColor" in2="bloomBlur" operator="in" result="bloom" />
+          <feGaussianBlur in="cutout" stdDeviation="24" result="bloomWideBlur" />
+          <feComposite in="rimColor" in2="bloomWideBlur" operator="in" result="bloomWide" />
           <feFlood className={styles.glowColor} result="glowColor" />
-          <feGaussianBlur in="moon" stdDeviation="10" result="rimBlur" />
-          <feComposite in="glowColor" in2="rimBlur" operator="in" result="rim" />
-          <feGaussianBlur in="moon" stdDeviation="34" result="midBlur" />
-          <feComposite in="glowColor" in2="midBlur" operator="in" result="mid" />
-          <feGaussianBlur in="moon" stdDeviation="120" result="farBlur" />
-          <feComposite in="glowColor" in2="farBlur" operator="in" result="far" />
-          <feComponentTransfer in="far" result="farSoft">
-            <feFuncA type="linear" slope="0.7" />
+          <feGaussianBlur in="cutout" stdDeviation="38" result="midBlur" />
+          <feComposite in="glowColor" in2="midBlur" operator="in" result="midOnce" />
+          <feComponentTransfer in="midOnce" result="mid">
+            <feFuncA type="linear" slope="1.5" />
           </feComponentTransfer>
+
+          {/* 3. A wide warm haze that spreads far into the sky. */}
+          <feFlood className={styles.hazeColor} result="hazeColor" />
+          <feGaussianBlur in="cutout" stdDeviation="150" result="farBlur" />
+          <feComposite in="hazeColor" in2="farBlur" operator="in" result="farOnce" />
+          <feComponentTransfer in="farOnce" result="far">
+            <feFuncA type="linear" slope="1.3" />
+          </feComponentTransfer>
+
           <feMerge>
-            <feMergeNode in="farSoft" />
+            <feMergeNode in="far" />
             <feMergeNode in="mid" />
-            <feMergeNode in="rim" />
-            <feMergeNode in="rim" />
+            <feMergeNode in="bloomWide" />
+            <feMergeNode in="bloom" />
+            <feMergeNode in="bloom" />
             <feMergeNode in="moon" />
+            <feMergeNode in="limb" />
           </feMerge>
         </filter>
       </svg>

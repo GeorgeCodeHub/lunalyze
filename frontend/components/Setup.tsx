@@ -8,7 +8,7 @@ import styles from './Setup.module.css';
 
 type SetupProps = { initial: Scenario | null; onSubmit: (scenario: Scenario) => void };
 
-// The Compare screen before any place is picked: the title and the four setup questions.
+// The Compare screen before any place is picked: the title, what the tool does, and the four setup questions.
 const Setup = ({ initial, onSubmit }: SetupProps) => {
   const { t } = useTranslation('compare');
   const { t: tCommon } = useTranslation();
@@ -17,7 +17,10 @@ const Setup = ({ initial, onSubmit }: SetupProps) => {
     <div className={styles.page}>
       <MoonHero />
       <main className={styles.main}>
-        <h1 className={styles.title}>{t('setup.title')}</h1>
+        <header className={styles.intro}>
+          <h1 className={styles.title}>{tCommon('appTitle')}</h1>
+          <p className={styles.subtitle}>{t('setup.subtitle')}</p>
+        </header>
         <section className={styles.panel} aria-labelledby="setup-panel-title">
           <h2 id="setup-panel-title" className={styles.panelTitle}>
             {t('setup.panelTitle')}
@@ -26,10 +29,6 @@ const Setup = ({ initial, onSubmit }: SetupProps) => {
           <SetupForm initial={initial} onSubmit={onSubmit} />
         </section>
         <footer className={styles.footer}>
-          <p className={styles.brand}>
-            <Barcode />
-            {tCommon('appTitle')}
-          </p>
           <p>{t('setup.team')}</p>
           <p data-testid={testIds.hero.credit}>{t('hero.credit')}</p>
         </footer>

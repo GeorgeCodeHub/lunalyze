@@ -2,7 +2,7 @@
 .barcode {
   display: inline-block;
   flex: none;
-  height: 14px;
+  height: 16px;
   background-image: linear-gradient(
     90deg,
     currentColor 0 1px,
@@ -21,7 +21,7 @@
 }
 
 .short {
-  width: 34px;
+  width: 32px;
 }
 
 .long {

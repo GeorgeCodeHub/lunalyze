@@ -2,3 +2,35 @@
   display: grid;
   gap: 12px;
 }
+
+/* Known site on the left, own coordinates on the right; stacked on narrow screens. */
+.row {
+  display: grid;
+  gap: 12px;
+}
+
+.hint {
+  margin: 0;
+  color: var(--color-text-faint);
+  font-size: 0.75rem;
+}
+
+.or {
+  display: none;
+}
+
+@media (min-width: 560px) {
+  .row {
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: end;
+  }
+
+  .or {
+    display: block;
+    padding-bottom: 16px;
+    color: var(--color-text-faint);
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+}

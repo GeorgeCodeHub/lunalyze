@@ -1,67 +1,89 @@
 import type { RefObject } from 'react';
 import { useTranslation } from 'react-i18next';
-import { MAX_SITES } from '../../scenario';
 import { testIds } from '../../test-ids';
 import fieldStyles from '../shared/Field.module.css';
+import IconAlert from '../shared/IconAlert';
+import type { PlaceDraft } from './placeDrafts';
 import styles from './SitePicker.module.css';
 import { groupLabelKey, PICKER_GROUPS, siteNameKey } from './siteIds';
 
 type SitePickerProps = {
-  picked: string[];
-  onChange: (ids: string[]) => void;
-  firstRef: RefObject<HTMLSelectElement | null>;
+  draft: PlaceDraft;
+  onChange: (draft: PlaceDraft) => void;
+  siteRef: RefObject<HTMLSelectElement | null>;
+  coordsRef: RefObject<HTMLInputElement | null>;
   errorId?: string;
+  coordsInvalid: boolean;
 };
 
-const SLOTS = Array.from({ length: MAX_SITES }, (_, i) => i);
+const HINT_ID = 'setup-coords-hint';
+const COORDS_ERROR_ID = 'setup-coords-error';
 
-// One dropdown per place: Place 1 is required, Places 2 and 3 are optional. A place picked in one
-// dropdown is left out of the others, so the same place cannot be compared with itself.
-const SitePicker = ({ picked, onChange, firstRef, errorId }: SitePickerProps) => {
+// The one place the mission wants to land: a known site from the list, or coordinates typed in.
+// Filling one clears the other. Alternatives to compare with come on the results screen.
+const SitePicker = ({ draft, onChange, siteRef, coordsRef, errorId, coordsInvalid }: SitePickerProps) => {
   const { t } = useTranslation('compare');
   const { t: tSites } = useTranslation('sites');
 
-  const change = (slot: number, id: string) => {
-    const slots = SLOTS.map((i) => (i === slot ? id : (picked[i] ?? '')));
-    onChange(slots.filter(Boolean));
-  };
+  const missing = errorId ? true : undefined;
 
   return (
     <div className={styles.picker}>
-      {SLOTS.map((slot) => {
-        const value = picked[slot] ?? '';
-        const takenElsewhere = new Set(picked.filter((_, i) => i !== slot));
-        const first = slot === 0;
-        const label = first ? t('setup.where.place', { n: 1 }) : t('setup.where.placeOptional', { n: slot + 1 });
-        return (
-          <label key={slot} className={fieldStyles.field}>
-            <span className={fieldStyles.label}>{label}</span>
-            <select
-              ref={first ? firstRef : undefined}
-              className={fieldStyles.control}
-              value={value}
-              aria-describedby={first ? errorId : undefined}
-              aria-invalid={first && errorId ? true : undefined}
-              data-testid={testIds.setup.siteSelect}
-              data-slot={slot + 1}
-              onChange={(e) => change(slot, e.target.value)}
-            >
-              <option value="">{first ? t('setup.where.choose') : t('setup.where.none')}</option>
-              {PICKER_GROUPS.map(({ group, ids }) => (
-                <optgroup key={group} label={tSites(groupLabelKey(group))}>
-                  {ids
-                    .filter((id) => !takenElsewhere.has(id))
-                    .map((id) => (
-                      <option key={id} value={id}>
-                        {tSites(siteNameKey(id))}
-                      </option>
-                    ))}
-                </optgroup>
-              ))}
-            </select>
-          </label>
-        );
-      })}
+      <div className={styles.row}>
+        <label className={fieldStyles.field}>
+          <span className={fieldStyles.label}>{t('setup.where.site')}</span>
+          <select
+            ref={siteRef}
+            className={fieldStyles.control}
+            value={draft.siteId}
+            aria-describedby={errorId}
+            aria-invalid={missing}
+            data-testid={testIds.setup.siteSelect}
+            onChange={(e) => onChange({ siteId: e.target.value, coords: '' })}
+          >
+            <option value="">{t('setup.where.choose')}</option>
+            {PICKER_GROUPS.map(({ group, ids }) => (
+              <optgroup key={group} label={tSites(groupLabelKey(group))}>
+                {ids.map((id) => (
+                  <option key={id} value={id}>
+                    {tSites(siteNameKey(id))}
+                  </option>
+                ))}
+              </optgroup>
+            ))}
+          </select>
+        </label>
+        <span className={styles.or} aria-hidden="true">
+          {t('setup.where.or')}
+        </span>
+        <label className={fieldStyles.field}>
+          <span className={fieldStyles.label}>{t('setup.where.coords')}</span>
+          <input
+            ref={coordsRef}
+            type="text"
+            inputMode="decimal"
+            autoComplete="off"
+            spellCheck={false}
+            className={fieldStyles.control}
+            value={draft.coords}
+            placeholder={t('setup.where.coordsExample')}
+            aria-invalid={coordsInvalid || missing}
+            aria-describedby={[coordsInvalid ? COORDS_ERROR_ID : HINT_ID, errorId].filter(Boolean).join(' ')}
+            data-testid={testIds.setup.coords}
+            onChange={(e) => onChange({ siteId: '', coords: e.target.value })}
+          />
+        </label>
+      </div>
+      {coordsInvalid ? (
+        <p id={COORDS_ERROR_ID} className={fieldStyles.error} role="alert" data-testid={testIds.setup.coordsError}>
+          <IconAlert />
+          {t('setup.where.coordsError')}
+        </p>
+      ) : (
+        <p id={HINT_ID} className={styles.hint}>
+          {t('setup.where.coordsHint')}
+        </p>
+      )}
     </div>
   );
 };

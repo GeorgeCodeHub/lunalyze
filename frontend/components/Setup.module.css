@@ -24,6 +24,20 @@
   text-wrap: balance;
 }
 
+/* Title and subtitle stay close together; the page gap separates them from the panel. */
+.intro {
+  display: grid;
+  gap: 16px;
+}
+
+.subtitle {
+  max-width: 54ch;
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
 /* Frosted glass: the Moon's glow and the stars show through, blurred, wherever they sit behind it. */
 .panel {
   border: 1px solid var(--color-glass-border);
@@ -37,9 +51,9 @@
   align-items: center;
   gap: 16px;
   margin: 0;
-  padding: 14px 20px;
+  padding: 16px 20px;
   border-bottom: 1px solid var(--color-rule);
-  font-size: 0.75rem;
+  font-size: 1.05rem; /* above the questions (0.85rem): the panel heading leads */
   font-weight: 500;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -49,7 +63,7 @@
 /* Name, team and image credit, out of the way at the bottom. */
 .footer {
   display: grid;
-  gap: 6px;
+  gap: 8px;
   padding-top: 20px;
   border-top: 1px solid var(--color-rule);
   color: var(--color-text-faint);
@@ -60,14 +74,6 @@
 
 .footer p {
   margin: 0;
-}
-
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  color: var(--color-text-muted);
-  font-weight: 500;
 }
 
 @media (min-width: 720px) {

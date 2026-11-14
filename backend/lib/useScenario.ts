@@ -2,19 +2,23 @@ import { useQueries, useQueryClient } from '@tanstack/react-query';
 import { type HorizonMask, realView } from './realView';
 import type { Site, SiteView, Zoom } from './types';
 
+const isJson = (r: Response) => r.headers.get('content-type')?.includes('json') ?? false;
+
 const fetchJson = async <T>(path: string): Promise<T> => {
   const r = await fetch(import.meta.env.BASE_URL + path);
   if (!r.ok) throw new Error(`${path}: HTTP ${r.status}`);
+  if (!isJson(r)) throw new Error(`${path}: not JSON`);
   return r.json();
 };
 
 // A missing mask file means "no data for this site yet" (null); any other failure throws.
+// An SPA host answers a missing file with 200 and index.html, so a non-JSON answer is missing too.
 const fetchMask = async (id: string): Promise<HorizonMask | null> => {
   const path = `data/masks/${id}.json`;
   const r = await fetch(import.meta.env.BASE_URL + path);
   if (r.status === 404) return null;
   if (!r.ok) throw new Error(`${path}: HTTP ${r.status}`);
-  return r.json();
+  return isJson(r) ? r.json() : null;
 };
 
 /**

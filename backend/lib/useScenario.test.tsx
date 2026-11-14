@@ -9,16 +9,21 @@ import { useScenario } from './useScenario';
 // Serves backend/public/ from disk and records requested paths. Paths in `failing` answer 500; other missing files are 404.
 const requested: string[] = [];
 const failing = new Set<string>();
+const htmlFallback = new Set<string>(); // paths answered like an SPA host: 200 with index.html
 beforeEach(() => {
   requested.length = 0;
   failing.clear();
+  htmlFallback.clear();
   (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
   vi.stubGlobal('fetch', async (url: string) => {
     const path = new URL(url, 'http://localhost').pathname;
     requested.push(path);
     if (failing.has(path)) return new Response('', { status: 500 });
+    if (htmlFallback.has(path)) return new Response('<!doctype html>', { headers: { 'content-type': 'text/html' } });
     try {
-      return new Response(readFileSync('backend/public' + path, 'utf8'));
+      return new Response(readFileSync('backend/public' + path, 'utf8'), {
+        headers: { 'content-type': 'application/json' },
+      });
     } catch {
       return new Response('', { status: 404 });
     }
@@ -100,6 +105,13 @@ test('a mask that fails to load is reported as an error, and the other sites sti
   failing.add('/data/masks/point-b.json');
   const got = (await renderScenario(['point-b', 'point-a'], { terrain: true })).get();
   expect(got.error?.message).toBe('data/masks/point-b.json: HTTP 500');
+  expect(got.views.map((v) => v.site.id)).toEqual(['point-a']);
+});
+
+test('a mask answered with an HTML page counts as missing: the site is left out, with no error', async () => {
+  htmlFallback.add('/data/masks/point-b.json');
+  const got = (await renderScenario(['point-b', 'point-a'], { terrain: true })).get();
+  expect(got.error).toBeNull();
   expect(got.views.map((v) => v.site.id)).toEqual(['point-a']);
 });
 

@@ -80,9 +80,9 @@ export const discFraction = (aboveDeg: number): number => {
 };
 
 /** The real SiteView for the window that starts at t. mask null = flat 0° horizon (terrainModeled false, G1).
- *  terrainOn false = flat horizon. Throws on a mask that is not 720 bins. */
+ *  terrainOn false = flat horizon. Throws on a mask that is not 720 bins when terrainOn. */
 export const realView = (site: Site, mask: HorizonMask | null, t: Date, zoom: Zoom, terrainOn: boolean): SiteView => {
-  if (mask && (mask.elevDeg.length !== MASK_POINTS || mask.incomplete.length !== MASK_POINTS)) {
+  if (terrainOn && mask && (mask.elevDeg.length !== MASK_POINTS || mask.incomplete.length !== MASK_POINTS)) {
     const got = mask.elevDeg.length !== MASK_POINTS ? mask.elevDeg.length : mask.incomplete.length;
     throw new Error(`mask must have ${MASK_POINTS} points, got ${got}`);
   }

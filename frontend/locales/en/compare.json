@@ -18,5 +18,7 @@
     "legendApproximate": "Hollow pin: approximate location",
     "summary": "{{site}}: Sun {{sun}}, Earth {{earth}}.",
     "approximateNote": "Approximate location."
-  }
+  },
+  "terrain": { "label": "Terrain", "on": "on: real horizon", "off": "off: flat 0° horizon" },
+  "copyLink": { "action": "Copy link", "copied": "Link copied", "failed": "Copy failed. Copy the link from the address bar." }
 }

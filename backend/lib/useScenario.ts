@@ -27,9 +27,9 @@ const fetchMask = async (id: string): Promise<HorizonMask | null> => {
  * opts.terrain = false uses a flat horizon (the flat-or-terrain switch).
  *
  * The data is real: Sun and Earth positions against the horizon masks.
- * A site with terrainModeled false gets a flat 0° horizon and stays in `views`. An id that is not in
- * sites.json (nothing is fetched for it) and a modeled site with no mask file yet are left out of
- * `views`. Any other load failure, for the site list, a mask or the computation, is returned as
+ * A site with terrainModeled false gets a flat 0° horizon and stays in `views`. With terrain off every site
+ * does: no mask is fetched, so a missing or failing mask file changes nothing. With terrain on, an id that is
+ * not in sites.json (nothing is fetched for it) and a modeled site with no mask file yet are left out of `views`. Any other load failure, for the site list, a mask or the computation, is returned as
  * `error`; the views that did load are still returned.
  * Each view is computed in its query function, cached per site, t, zoom and terrain. A failed view is not retried.
  * When t changes and zoom and terrain do not, each site already shown keeps its view from the last t that
@@ -63,7 +63,7 @@ export const useScenario = (
         });
         const site = sites.find((s) => s.id === id);
         if (!site) return null;
-        if (!site.terrainModeled) return realView(site, null, t, zoom, opts.terrain);
+        if (!site.terrainModeled || !opts.terrain) return realView(site, null, t, zoom, opts.terrain);
         const mask = await queryClient.query({
           queryKey: ['data', 'masks', id],
           queryFn: () => fetchMask(id),

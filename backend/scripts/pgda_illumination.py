@@ -49,6 +49,10 @@ def to_xy(lat: float, lon: float) -> tuple[float, float]:
 def download(name: str, dest: Path) -> Path:
     url, path = HOST + name, dest / name
     with urllib.request.urlopen(urllib.request.Request(url, method="HEAD"), timeout=60) as r:
+        if not r.geturl().startswith(HOST):  # urlopen follows redirects to any host
+            sys.exit(f"{name}: redirected away from {HOST} to {r.geturl()}")
+        if r.headers["Content-Length"] is None:
+            sys.exit(f"{name}: server sent no Content-Length")
         size = int(r.headers["Content-Length"])
     have = path.stat().st_size if path.exists() else 0
     if have > size:
@@ -56,6 +60,8 @@ def download(name: str, dest: Path) -> Path:
     if have < size:
         req = urllib.request.Request(url, headers={"Range": f"bytes={have}-"} if have else {})
         with urllib.request.urlopen(req, timeout=60) as r:
+            if not r.geturl().startswith(HOST):
+                sys.exit(f"{name}: redirected away from {HOST} to {r.geturl()}")
             resumed = have > 0 and r.status == 206  # a 200 means the server ignored Range: restart
             with path.open("ab" if resumed else "wb") as f:
                 shutil.copyfileobj(r, f, CHUNK)

@@ -1,42 +1,24 @@
 {
-  "setup": {
-    "subtitle": "See which landing places keep sunlight for power and Earth in view for radio contact through your whole stay.",
-    "panelTitle": "Mission setup",
-    "team": "Team RGX · NASA Space Apps 2026",
-    "where": {
-      "label": "Where do you want to land?",
-      "site": "Known landing site",
-      "choose": "Choose a site…",
-      "or": "or",
-      "coords": "Your own coordinates",
-      "coordsExample": "−85.3, 31.4",
-      "coordsHint": "Coordinates: latitude, then longitude, in degrees. South and west are minus.",
-      "coordsError": "Write the latitude (−90 to 90), a comma, then the longitude (−180 to 180).",
-      "error": "Pick a known site or enter your own coordinates."
-    },
-    "when": {
-      "label": "When do you want to land?",
-      "date": "Date",
-      "time": "Time (UTC)",
-      "hour": "{{hour}}:00 UTC"
-    },
-    "stay": {
-      "label": "How long will the mission stay on the Moon?",
-      "day": "About 1 day",
-      "threeDays": "About 3 days",
-      "week": "About a week",
-      "twoWeeks": "About 14 days (one Moon daytime)",
-      "month": "About 30 days (one full Moon day)"
-    },
-    "submit": "Show landing options"
+  "map": {
+    "label": "Map of the Moon's south pole with a marker for each place you picked",
+    "labelEmpty": "Map of the Moon's south pole. No places picked yet.",
+    "image": "Shaded relief of the Moon's south pole",
+    "pin": "{{site}}",
+    "approximate": "{{site}} (approximate location)",
+    "lowerBound": "Hills beyond the height map are not counted, so the Sun and Earth may be hidden more often than shown.",
+    "sun": "Sun",
+    "earth": "Earth",
+    "visible": "visible",
+    "hidden": "hidden",
+    "bodyLine": "{{body}} direction: {{status}}",
+    "offMap": "{{site}} is too far from the pole to show on this map.",
+    "credit": "Terrain: NASA LRO LOLA height map, shaded for display.",
+    "legendSolid": "Solid line: in view",
+    "legendDashed": "Dashed line: hidden",
+    "legendApproximate": "Hollow pin: approximate location",
+    "summary": "{{site}}: Sun {{sun}}, Earth {{earth}}.",
+    "approximateNote": "Approximate location."
   },
-  "hero": {
-    "alt": "The full Moon, a NASA visualization made from Lunar Reconnaissance Orbiter data",
-    "credit": "Moon image: NASA Goddard, made from Lunar Reconnaissance Orbiter data."
-  },
-  "next": {
-    "title": "Your comparison is next",
-    "body": "The side-by-side comparison is being built.",
-    "back": "Change setup"
-  }
+  "terrain": { "label": "Terrain", "on": "on: real horizon", "off": "off: flat 0° horizon" },
+  "copyLink": { "action": "Copy link", "copied": "Link copied", "failed": "Copy failed. Copy the link from the address bar." }
 }

@@ -1,30 +1,39 @@
-import { useQueries, useQuery } from '@tanstack/react-query';
-import { type FixtureFile, viewAt } from './fixtureView';
+import { useQueries, useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
+import { type HorizonMask, realView } from './realView';
 import type { Site, SiteView, Zoom } from './types';
+
+const isJson = (r: Response) => r.headers.get('content-type')?.includes('json') ?? false;
 
 const fetchJson = async <T>(path: string): Promise<T> => {
   const r = await fetch(import.meta.env.BASE_URL + path);
   if (!r.ok) throw new Error(`${path}: HTTP ${r.status}`);
+  if (!isJson(r)) throw new Error(`${path}: not JSON`);
   return r.json();
 };
 
-// A missing file means "no data for this site yet" (null); any other failure throws.
-const fetchSiteData = async (id: string): Promise<FixtureFile | null> => {
-  const path = `data/fixtures/${id}.json`;
+// A missing mask file means "no data for this site yet" (null); any other failure throws.
+// An SPA host answers a missing file with 200 and index.html, so a non-JSON answer is missing too.
+const fetchMask = async (id: string): Promise<HorizonMask | null> => {
+  const path = `data/masks/${id}.json`;
   const r = await fetch(import.meta.env.BASE_URL + path);
   if (r.status === 404) return null;
   if (!r.ok) throw new Error(`${path}: HTTP ${r.status}`);
-  return r.json();
+  return isJson(r) ? r.json() : null;
 };
 
 /**
  * Everything the Compare screen shows for the given sites, for the window that starts at t.
  * opts.terrain = false uses a flat horizon (the flat-or-terrain switch).
  *
- * Today this serves fixtures (view.fixture === true: fake terrain, never show its numbers as real).
- * G6/G7 swap in real masks behind this same signature, so components do not change.
- * A site with no data yet (missing file) is left out of `views`. Any other load failure, for the
- * site list or a site, is returned as `error`; the views that did load are still returned.
+ * The data is real: Sun and Earth positions against the horizon masks.
+ * A site with terrainModeled false gets a flat 0° horizon and stays in `views`. With terrain off every site
+ * does: no mask is fetched, so a missing or failing mask file changes nothing. With terrain on, an id that is
+ * not in sites.json (nothing is fetched for it) and a modeled site with no mask file yet are left out of `views`. Any other load failure, for the site list, a mask or the computation, is returned as
+ * `error`; the views that did load are still returned.
+ * Each view is computed in its query function, cached per site, t, zoom and terrain. A failed view is not retried.
+ * When t changes and zoom and terrain do not, each site already shown keeps its view from the last t that
+ * fully loaded while the new one loads (`loading` stays true), so the screen does not blink during playback.
  */
 export const useScenario = (
   siteIds: string[],
@@ -32,17 +41,51 @@ export const useScenario = (
   zoom: Zoom,
   opts: { terrain: boolean } = { terrain: true },
 ): { views: SiteView[]; loading: boolean; error: Error | null } => {
-  const sites = useQuery({ queryKey: ['data', 'sites'], queryFn: () => fetchJson<Site[]>('data/sites.json') });
-  const fixtures = useQueries({
-    queries: siteIds.map((id) => ({ queryKey: ['data', 'fixtures', id], queryFn: () => fetchSiteData(id) })),
+  const queryClient = useQueryClient();
+  // The last scenario that fully loaded. useQueries gives placeholderData no previous data, so it is remembered here.
+  const [shown, setShown] = useState({ t: t.getTime(), zoom, terrain: opts.terrain, ids: siteIds });
+  const shownIds = new Set(shown.ids);
+  const results = useQueries({
+    queries: siteIds.map((id) => ({
+      queryKey: ['view', id, t.getTime(), zoom, opts.terrain],
+      staleTime: 'static' as const, // a pure function of the key: never recompute on focus or mount
+      retry: false, // a failed load shows as `error` at once
+      placeholderData: () =>
+        shownIds.has(id) && shown.zoom === zoom && shown.terrain === opts.terrain
+          ? queryClient.getQueryData<SiteView | null>(['view', id, shown.t, zoom, opts.terrain])
+          : undefined,
+      queryFn: async (): Promise<SiteView | null> => {
+        const sites = await queryClient.query({
+          queryKey: ['data', 'sites'],
+          queryFn: () => fetchJson<Site[]>('data/sites.json'),
+          staleTime: 'static',
+          gcTime: Infinity, // read only via query(), which never resets the 5-min clean-up timer
+        });
+        const site = sites.find((s) => s.id === id);
+        if (!site) return null;
+        if (!site.terrainModeled || !opts.terrain) return realView(site, null, t, zoom, opts.terrain);
+        const mask = await queryClient.query({
+          queryKey: ['data', 'masks', id],
+          queryFn: () => fetchMask(id),
+          staleTime: 'static',
+          gcTime: Infinity,
+        });
+        return mask ? realView(site, mask, t, zoom, opts.terrain) : null;
+      },
+    })),
   });
 
-  const loading = sites.isPending || fixtures.some((q) => q.isPending);
-  const error = sites.error ?? fixtures.find((q) => q.error)?.error ?? null;
-  const views = fixtures.flatMap(({ data: fx }) => {
-    const site = fx && sites.data?.find((s) => s.id === fx.siteId);
-    return fx && site ? [viewAt(fx, site, t, zoom, opts.terrain)] : [];
-  });
+  const loading = results.some((q) => q.isPending || q.isPlaceholderData);
+  const error = results.find((q) => q.error)?.error ?? null;
+  const views = results.flatMap((q) => (q.data ? [q.data] : []));
+
+  // Storing information from previous renders: https://react.dev/reference/react/useState#storing-information-from-previous-renders
+  if (
+    !loading &&
+    (shown.t !== t.getTime() || shown.zoom !== zoom || shown.terrain !== opts.terrain || shown.ids.join() !== siteIds.join())
+  ) {
+    setShown({ t: t.getTime(), zoom, terrain: opts.terrain, ids: siteIds });
+  }
 
   return { views, loading, error };
 };

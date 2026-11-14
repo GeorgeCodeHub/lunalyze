@@ -14,9 +14,9 @@ const { views, loading, error } = useScenario(siteIds, t, zoom, { terrain });
 // zoom: 'day' | 'lunarDay' | 'year'
 // terrain: boolean    false = flat 0° horizon (the flat-or-terrain switch). Default true.
 // views: SiteView[]   one per site, same order as siteIds
-// loading: boolean    true until the site list and every asked-for site have loaded
-// error: Error | null set when the site list or a site's data failed to load (a missing file
-//                     is "no data yet": that site is left out of views, error stays null)
+// loading: boolean    true while any asked-for site is still loading (see below)
+// error: Error | null set when the site list, a mask or the computation failed (a missing mask
+//                     file is "no data yet": that site is left out of views, error stays null)
 ```
 
 - The hook uses TanStack Query, so it must render inside `QueryClientProvider` (`frontend/main.tsx` provides it; tests wrap their own).
@@ -24,14 +24,23 @@ const { views, loading, error } = useScenario(siteIds, t, zoom, { terrain });
 - Every number in a `SiteView` is for the window that starts at `t`: 24 h for `day`, 29.53 days for `lunarDay`, 365 days for `year`.
 - `sky.sun`, `sky.earth`, `countdown` and `metrics.sunElDeg` / `panelOutputPct` are for the moment `t`.
 - Play button: call the hook once with the scenario date (lanes, metrics) and once with the playhead time (`sky`, `countdown`). Files are fetched once and cached.
-- A site with no data yet is left out of `views`. Today only `point-a`, `malapert-m1` and `apollo-11` have fixtures.
-- The signature is final. G6/G7 put real data behind it; components do not change.
+- A site with `terrainModeled: false` (apollo-11, change-4) gets the flat horizon `[[0, 0], [360, 0]]` and stays in `views`.
+- With terrain on, a modeled site with no mask file yet is left out of `views`, and so is an id that is not in `sites.json` (nothing is fetched for it). With terrain off, a modeled site needs no mask file: nothing is fetched for it and it stays in `views`.
+- The signature is final; the data behind it is real.
+- When `t` changed and zoom and terrain did not, each site that was already shown keeps its view from the last `t` that fully loaded, so nothing blinks; a newly added site appears once it loads, and `loading` stays true until every new view has arrived.
+- A view that fails is not retried: `error` is set at once.
 
-### `fixture: true` means fake terrain
+### The data is real
 
-Fixtures use real Sun and Earth positions but an invented horizon. **Never show a fixture's numbers as real.**
-If `view.fixture` is `true` in a build that is going out, say so on screen. Fixture samples cover
-2028-03-01 to 2028-03-30 and repeat after that, so other dates are not real either.
+Sun and Earth positions come from the astronomy engine, the horizon from `masks/<siteId>.json`.
+
+- The observer stands 2 m above the 1737.4 km Moon sphere.
+- A body is visible when its centre is above the mask bin `elevDeg[floor(az·2)]` (a step lookup, no interpolation). With terrain off, or no mask, the horizon is 0°.
+- `sunElDeg` is the raw Sun elevation, not relative to the horizon.
+- `panelOutputPct` is the exact share of the Sun's disc above the horizon at `t`.
+- Countdowns and lane edges are accurate to about 1 minute. The scan is hourly, so a set and a rise inside the same hour can be missed.
+- `athensSunPath` is 25 hourly points: 24 h from `t`.
+- `horizonIncomplete` is true when terrain is on and the loaded mask has at least one `incomplete` bin. Today that is `im-1` only (300.5°–56.5°, 233 of 720 bins). Its mask values there are lower bounds: the real horizon may be higher, so the Sun and Earth numbers are upper bounds. Show a caveat.
 
 ## Types
 
@@ -51,7 +60,8 @@ type Countdown = { kind: 'set' | 'rise'; hours: number | null }; // null = no ch
 type Interval = [string, string];                              // ISO UTC start, end
 type Zoom = 'day' | 'lunarDay' | 'year';
 type SiteView = {
-  site: Site; fixture: boolean;
+  site: Site;
+  horizonIncomplete: boolean; // terrain on and the loaded mask has an incomplete bin: horizon values are lower bounds
   metrics: { sunElDeg: number; sunlitPct: number; earthPct: number; longestBlackoutH: number; panelOutputPct: number };
   countdown: { sun: Countdown; earth: Countdown };
   sky: { terrain: [number, number][]; sun: Body; earth: Body; sunPath: [number, number][];
@@ -62,15 +72,16 @@ type SiteView = {
 
 | Field | Meaning |
 |---|---|
-| `metrics.sunElDeg` | Sun elevation at `t`, degrees |
+| `metrics.sunElDeg` | raw Sun elevation at `t`, degrees (not relative to the horizon) |
 | `metrics.sunlitPct`, `earthPct` | share of the window with the Sun / Earth above the horizon |
 | `metrics.longestBlackoutH` | longest period in the window with no Sun and no Earth, hours. Limit: 50 h |
-| `metrics.panelOutputPct` | share of the Sun's disc above the horizon at `t` |
+| `metrics.panelOutputPct` | exact share of the Sun's disc above the horizon at `t` |
 | `countdown.sun` | body is up → `kind: 'set'`, hours until it goes behind the horizon. Body is down → `kind: 'rise'` |
-| `sky.terrain` | horizon outline, `[az, el]` pairs from azimuth 0 to 360 |
+| `sky.terrain` | horizon outline, `[az, el]` pairs from azimuth 0 to 360 (721 points; flat `[[0, 0], [360, 0]]`) |
 | `sky.sunPath`, `earthPath` | `[az, el]` from `t` across the window: every 1 h (`day`, `lunarDay`) or 12 h (`year`) |
-| `sky.athensSunPath` | Sun at Athens (37.98N, 23.73E), `[az, el]` every hour for 24 h |
+| `sky.athensSunPath` | Sun at Athens (37.98N, 23.73E), `[az, el]` every hour for 24 h from `t` (25 points) |
 | `lanes.both` | periods with Sun and Earth together |
+| `horizonIncomplete` | `true`: the mask has incomplete bins (terrain on); treat terrain-dependent numbers as limits |
 
 All angles are degrees. Azimuth: 0 = north, 90 = east, 0..360. Paths can jump from 360 to 0: start a new line when azimuth jumps by more than 180.
 
@@ -89,7 +100,6 @@ toXY(az, el, width, height, stretch) // → { x, y } in SVG pixels
 |---|---|---|
 | `sites.json` | `Site[]`, 13 sites (no display text) | by hand |
 | `frontend/locales/en/sites.json` | site names, blurbs, group labels | C6 |
-| `fixtures/<siteId>.json` | hourly Sun/Earth for one lunar day from 2028-03-01, fake terrain, `fixture: true` | `npm run fixtures` (`backend/scripts/make_fixtures.ts`) |
 | `masks/<siteId>.json` | real horizon at mast height 2 m | G4, `backend/scripts/horizon_masks.py` |
 | `terrain/<siteId>.bin` + `.json` | terrain crop for the 3D view | G4 |
 
@@ -108,9 +118,4 @@ type HorizonMask = {
 ### `terrain/<siteId>.bin` and `terrain/<siteId>.json`
 
 - `.bin`: 500 × 500 signed 16-bit integers, little-endian, row by row. A crop of `ldem_80s_80m` centred on the site. Height in metres = value × 0.5, above the 1737.4 km sphere.
-- `.json`: `{ siteId, width: 500, height: 500, pixelM: 80, origin }`. `origin` is the polar-stereographic position of the first pixel in metres. G4 fixes the exact field names when it writes the first file.
-
-### `fixtures/<siteId>.json`
-
-Type `FixtureFile` in [backend/lib/fixtureView.ts](../backend/lib/fixtureView.ts): `terrain` (721 points), `sun` and `earth` (709 hourly `[az, el]`), `athensSunPath`, and `view`, a ready `SiteView` for 2028-03-01, zoom `lunarDay`.
-Only `useScenario` reads these files. They go away in G7.
+- `.json`: `{ siteId, width: 500, height: 500, pixelM: 80, origin: { x, y } }`. `origin` is the polar-stereographic position in metres of the centre of the first pixel (row 0, column 0): south pole at (0, 0), +x toward 90°E, +y toward 0° longitude. Pixel (row r, column c) is centred at (x + 80c, y − 80r); latitude = −90° + 2·atan(√(x²+y²) / 3 474 800 m), longitude = atan2(x, y).

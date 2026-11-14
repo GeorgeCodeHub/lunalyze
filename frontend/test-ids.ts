@@ -1,15 +1,20 @@
-// Every data-testid in the app comes from here. Tests find elements only by these ids.
 export const testIds = {
-  setup: {
-    form: 'setup-form',
-    siteSelect: 'setup-site-select',
-    siteError: 'setup-site-error',
-    coords: 'setup-coords',
-    coordsError: 'setup-coords-error',
-    date: 'setup-date',
-    hour: 'setup-hour',
-    stay: 'setup-stay',
-    submit: 'setup-submit',
+  polarMap: {
+    root: 'polar-map',
+    svg: 'polar-map-svg',
+    legend: 'polar-map-legend',
+    pinDot: 'polar-map-pin-dot',
+    bodyStroke: 'polar-map-body-stroke',
+    bodyMarker: 'polar-map-body-marker',
+    image: 'polar-map-image',
+    pin: 'polar-map-pin',
+    bodyLine: 'polar-map-body-line',
+    offMap: 'polar-map-off-map',
+    credit: 'polar-map-credit',
   },
-  hero: { image: 'hero-image', credit: 'hero-credit' },
+  scenarioBar: {
+    terrainSwitch: 'scenario-bar-terrain-switch',
+    copyLink: 'scenario-bar-copy-link',
+    copyStatus: 'scenario-bar-copy-status',
+  },
 } as const;

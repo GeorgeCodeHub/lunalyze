@@ -1,0 +1,22 @@
+.pin {
+  r: 1.8%;
+  fill: var(--color-pin);
+  stroke: var(--color-map-bg);
+  stroke-width: 0.5%;
+}
+
+g[data-precision='proxy'] .pin {
+  fill: var(--color-map-bg);
+  stroke: var(--color-pin);
+  stroke-width: 0.6%;
+}
+
+.label {
+  fill: var(--color-pin);
+  stroke: var(--color-map-bg);
+  font-size: 10px;
+  stroke-width: 0.225em; /* 0.9% of the map width at the scaled-up size */
+  paint-order: stroke;
+  stroke-linejoin: round;
+  dominant-baseline: middle;
+}

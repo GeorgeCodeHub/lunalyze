@@ -3,3 +3,5 @@ dist
 .vercel
 *.local
 .cto-toolkit/
+backend/dem/
+__pycache__/

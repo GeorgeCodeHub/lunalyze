@@ -9,6 +9,9 @@ export const defaultNS = 'common';
 // English only. All user-facing copy lives in frontend/locales/en/, one file per domain.
 export const resources = { en: { common, sites, compare } } as const;
 
+/** A site id with a name and blurb in sites.json (locales.test.ts checks every site has them). */
+export type SiteId = Exclude<keyof (typeof resources)['en']['sites'], 'groups'>;
+
 void i18n.use(initReactI18next).init({
   resources,
   lng: 'en',

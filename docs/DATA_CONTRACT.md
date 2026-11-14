@@ -108,7 +108,7 @@ type HorizonMask = {
 ### `terrain/<siteId>.bin` and `terrain/<siteId>.json`
 
 - `.bin`: 500 × 500 signed 16-bit integers, little-endian, row by row. A crop of `ldem_80s_80m` centred on the site. Height in metres = value × 0.5, above the 1737.4 km sphere.
-- `.json`: `{ siteId, width: 500, height: 500, pixelM: 80, origin }`. `origin` is the polar-stereographic position of the first pixel in metres. G4 fixes the exact field names when it writes the first file.
+- `.json`: `{ siteId, width: 500, height: 500, pixelM: 80, origin: { x, y } }`. `origin` is the polar-stereographic position in metres of the centre of the first pixel (row 0, column 0): south pole at (0, 0), +x toward 90°E, +y toward 0° longitude. Pixel (row r, column c) is centred at (x + 80c, y − 80r); latitude = −90° + 2·atan(√(x²+y²) / 3 474 800 m), longitude = atan2(x, y).
 
 ### `fixtures/<siteId>.json`
 

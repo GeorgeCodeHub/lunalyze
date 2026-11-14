@@ -147,7 +147,10 @@ def self_check(dems: list[Dem]) -> tuple[float, float, list[float]]:
 
 def default_dem_dir() -> Path:
     here = Path(__file__).resolve().parent
-    r = subprocess.run(["git", "rev-parse", "--path-format=absolute", "--git-common-dir"], cwd=here, capture_output=True, text=True)
+    try:
+        r = subprocess.run(["git", "rev-parse", "--path-format=absolute", "--git-common-dir"], cwd=here, capture_output=True, text=True)
+    except FileNotFoundError:
+        sys.exit("git not found: pass --dem DIR")
     if r.returncode != 0:
         sys.exit("not inside a git checkout: pass --dem DIR")
     common = r.stdout.strip()

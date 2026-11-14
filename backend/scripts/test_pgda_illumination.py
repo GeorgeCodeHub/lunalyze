@@ -259,6 +259,47 @@ def test_corrupt_deflate_tile_exits():
     assert "bad.tif" in msg and "tile 0" in msg
 
 
+def test_huge_tag_count_exits():
+    def edit(buf, at):
+        struct.pack_into("<Q", buf, at(8) + 4, 1 << 62)  # tag 324 claims 2^62 offsets
+
+    msg = exit_msg(lambda: pg.Tiff(patched(edit)))
+    assert "bad.tif" in msg and "tag 324" in msg
+
+
+def test_huge_ifd_offset_exits():
+    def edit(buf, at):
+        struct.pack_into("<Q", buf, 8, 1 << 63)  # IFD offset beyond any file
+
+    msg = exit_msg(lambda: pg.Tiff(patched(edit)))
+    assert "bad.tif" in msg and "malformed" in msg
+
+
+def test_oversized_tile_count_exits():
+    def edit(buf, at):
+        (pos,) = struct.unpack_from("<Q", buf, at(9) + 12)  # tag 325 values: the tile byte counts
+        struct.pack_into("<Q", buf, pos, 1 << 40)  # tile 0 claims 1 TiB
+
+    g = pg.Tiff(patched(edit))
+    msg = exit_msg(lambda: g.dn(*centre(0, 0)))
+    assert "bad.tif" in msg and "tile 0" in msg
+
+
+def test_zero_tile_width_exits():
+    def edit(buf, at):
+        struct.pack_into("<H", buf, at(6) + 12, 0)  # tag 322, tile width
+
+    assert "zero tile size" in exit_msg(lambda: pg.Tiff(patched(edit)))
+
+
+def test_zero_pixel_scale_exits():
+    def edit(buf, at):
+        (pos,) = struct.unpack_from("<Q", buf, at(11) + 12)  # tag 33550 values: scale x, y, z
+        struct.pack_into("<2d", buf, pos, 0.0, 0.0)
+
+    assert "pixel scale" in exit_msg(lambda: pg.Tiff(patched(edit)))
+
+
 class Reply:
     """What urlopen returns: a context manager with geturl, headers, status and read."""
 
@@ -297,6 +338,10 @@ def test_download_redirect_off_host_exits():
 
 def test_download_missing_content_length_exits():
     assert "no Content-Length" in download_with(Reply(length=None))
+
+
+def test_download_non_numeric_content_length_exits():
+    assert "non-numeric Content-Length" in download_with(Reply(length="abc"))
 
 
 def test_download_happy_path_stubbed():

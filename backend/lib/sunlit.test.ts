@@ -30,6 +30,7 @@ test('fewer than one hour throws instead of returning NaN', () => {
   expect(() => sunlitFraction(flat(0), LAT, LON, START, 0)).toThrow();
   expect(() => sunlitFraction(flat(0), LAT, LON, START, NaN)).toThrow();
   expect(() => sunlitFraction(flat(0), LAT, LON, START, 0.5)).toThrow();
+  expect(() => sunlitFraction(flat(0), LAT, LON, START, 1.5)).toThrow();
 });
 
 test('a Sun exactly at the mask elevation is hidden (strict >)', () => {

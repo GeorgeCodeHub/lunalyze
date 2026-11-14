@@ -88,7 +88,7 @@ toXY(az, el, width, height, stretch) // → { x, y } in SVG pixels
 | File | Contents | Made by |
 |---|---|---|
 | `sites.json` | `Site[]`, 13 sites (no display text) | by hand |
-| `src/locales/{en,el}/sites.json` | site names, blurbs, group labels | C6 |
+| `src/locales/en/sites.json` | site names, blurbs, group labels | C6 |
 | `fixtures/<siteId>.json` | hourly Sun/Earth for one lunar day from 2028-03-01, fake terrain, `fixture: true` | `npm run fixtures` (`scripts/make_fixtures.ts`) |
 | `masks/<siteId>.json` | real horizon at mast height 2 m | G4, `scripts/horizon_masks.py` |
 | `terrain/<siteId>.bin` + `.json` | terrain crop for the 3D view | G4 |

@@ -22,7 +22,7 @@ One Compare screen: up to 3 sites side by side, a date, and a zoom (Day / Lunar 
 - Vite + React + TypeScript 6.0 with the React Compiler, vitest, ESLint, React Doctor, GitHub Actions, Vercel
 - pnpm only, packages at least 7 days old
 - TanStack Query behind `useScenario` for data; Zustand for shared UI state (added with the first store)
-- react-i18next, English + Greek (`en`, `el`)
+- react-i18next, English only (all copy in `src/locales/en/`)
 - CSS Modules. No Tailwind, no UI library
 - Plain SVG in components. No D3
 - astronomy-engine, used only inside `src/lib/`

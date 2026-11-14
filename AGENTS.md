@@ -8,7 +8,7 @@ countdown chips, metric cards, timeline lanes, site picker. Use these words for 
 locale keys and test ids.
 
 A **domain** is a namespace of data and copy: `common`, `sites`, `compare`. Files in
-`src/locales/<lang>/` and `src/stores/` take the same names.
+`src/locales/en/` and `src/stores/` take the same names.
 
 Ownership is in [CODEOWNERS](CODEOWNERS). Data shapes are in [docs/DATA_CONTRACT.md](docs/DATA_CONTRACT.md).
 
@@ -93,7 +93,7 @@ before that hook (`const ids = picked.map((s) => s.id); const { views } = useSce
 
 ## State
 
-- **URL search params** for anything linkable: the scenario (sites, date, zoom, terrain, `lang`). See G10.
+- **URL search params** for anything linkable: the scenario (sites, date, zoom, terrain). See G10.
 - **TanStack Query** for data, always behind a hook in `src/lib/` (`useScenario`). Data stays in the Query cache.
 - **`useState`** for state one component owns.
 - **Zustand** for the remaining UI state shared across regions (the playhead, Explain mode).
@@ -125,15 +125,14 @@ export const usePlaybackStore = create<PlaybackStore>()((set) => ({
 
 - Every user-facing string goes through `t()`: JSX text, `aria-label`, `title`, `placeholder`,
   SVG `<text>` and `<title>`, caveats, units.
-- **One namespace per domain**: `src/locales/<lang>/<domain>.json`, plus `common` for shared
+- **One namespace per domain**: `src/locales/en/<domain>.json`, plus `common` for shared
   words. `useTranslation('compare')` → `t('countdown.sunset', { time })`.
 - Keys name the meaning (`countdown.sunset`), so copy edits never change keys.
 - Site names, blurbs and group labels live in the `sites` namespace, keyed by site id:
   `t('point-a.name', { ns: 'sites' })`, ``t(`groups.${site.group}`, { ns: 'sites' })``.
-- Languages are **`en` and `el`**: every key lands in both `src/locales/en/` and `src/locales/el/`
-  in the same change. `t()` keys are type-checked against `en`; `src/locales/locales.test.ts`
-  fails when the two differ. A new namespace is registered in `src/i18n.ts`.
-- Numbers and dates go through `Intl` with `i18n.language`; dates are UTC unless a label says otherwise.
+- The app is **English only**. Copy lives in `src/locales/en/`; `t()` keys are type-checked
+  against it. A new namespace is registered in `src/i18n.ts`.
+- Numbers and dates go through `Intl` with `'en'`; dates are UTC unless a label says otherwise.
 
 ## Styling
 

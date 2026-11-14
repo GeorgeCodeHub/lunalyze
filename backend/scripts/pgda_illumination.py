@@ -80,6 +80,14 @@ class Tiff:
         head = self.f.read(16)
         if head[:4] != b"II+\x00" or struct.unpack("<HH", head[4:8]) != (8, 0):
             sys.exit(f"{path.name}: not a little-endian BigTIFF")
+        self.name = path.name
+        try:
+            self._parse(head)
+        except (KeyError, IndexError, struct.error) as e:  # unsupported TIFF type, missing tag, truncated file
+            sys.exit(f"{path.name}: malformed or unsupported TIFF ({type(e).__name__}: {e})")
+
+    def _parse(self, head: bytes):
+        path_name = self.name
         self.f.seek(struct.unpack("<Q", head[8:])[0])
         (n,) = struct.unpack("<Q", self.f.read(8))
         self.tags = {}
@@ -100,12 +108,12 @@ class Tiff:
         self.compression, self.predictor = t[259][0], t.get(317, (1,))[0]
         self.tie, self.pixel = t[33922], t[33550]
         if (t[258], t[277], t.get(339)) != ((16,), (1,), (2,)):
-            sys.exit(f"{path.name}: expected one int16 sample per pixel")
+            sys.exit(f"{path_name}: expected one int16 sample per pixel")
         if self.compression not in (8, 32946) or self.predictor not in (1, 2):
-            sys.exit(f"{path.name}: compression {self.compression} / predictor {self.predictor} unsupported (Deflate, 1 or 2 only)")
+            sys.exit(f"{path_name}: compression {self.compression} / predictor {self.predictor} unsupported (Deflate, 1 or 2 only)")
         self.x0, self.y0, self.s = self.tie[3], self.tie[4], self.pixel[0]
         if self.tie[:3] != (0.0, 0.0, 0.0) or self.pixel[1] != self.s or abs(self.x0 + self.w * self.s / 2) > 1e-6 or abs(self.y0 - self.h * self.s / 2) > 1e-6:
-            sys.exit(f"{path.name}: tiepoint {self.tie} / scale {self.pixel} is not a centred corner-origin grid")
+            sys.exit(f"{path_name}: tiepoint {self.tie} / scale {self.pixel} is not a centred corner-origin grid")
 
     def contains(self, x: float, y: float) -> bool:
         return 0 <= (x - self.x0) / self.s < self.w and 0 <= (self.y0 - y) / self.s < self.h
@@ -113,8 +121,11 @@ class Tiff:
     def dn(self, x: float, y: float) -> int:
         col, row = math.floor((x - self.x0) / self.s), math.floor((self.y0 - y) / self.s)
         k = (row // self.th) * math.ceil(self.w / self.tw) + col // self.tw
-        self.f.seek(self.offsets[k])
-        px = list(struct.unpack(f"<{self.tw * self.th}h", zlib.decompress(self.f.read(self.counts[k]))))
+        try:
+            self.f.seek(self.offsets[k])
+            px = list(struct.unpack(f"<{self.tw * self.th}h", zlib.decompress(self.f.read(self.counts[k]))))
+        except (IndexError, struct.error, zlib.error) as e:  # short offsets table, truncated or corrupt tile
+            sys.exit(f"{self.name}: cannot read tile {k} ({type(e).__name__}: {e})")
         r, c = row % self.th, col % self.tw
         if self.predictor == 2:  # horizontal differencing: running sum along the row, int16 wraparound
             v = 0

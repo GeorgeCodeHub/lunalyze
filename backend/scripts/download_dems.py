@@ -22,7 +22,7 @@ CHUNK = 1 << 20
 
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument("products", nargs="*", choices=PRODUCTS, default=PRODUCTS)
+    p.add_argument("products", nargs="*", choices=PRODUCTS, default=None)  # None: py3.12 checks any other default against choices
     p.add_argument("--dest", type=Path, default=Path(__file__).resolve().parents[1] / "dem")
     return p.parse_args()
 
@@ -68,7 +68,7 @@ def fetch_image(name: str, dest: Path, size: int) -> int:
 def main() -> int:
     args = parse_args()
     args.dest.mkdir(parents=True, exist_ok=True)
-    names = list(dict.fromkeys(args.products))
+    names = sorted(set(args.products or PRODUCTS), key=PRODUCTS.index)  # smallest first, whatever the CLI order
     for name in names:  # all labels before any image
         fetch_label(name, args.dest)
     bad = False

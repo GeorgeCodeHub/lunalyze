@@ -16,6 +16,7 @@
     "legendSolid": "Solid line: in view",
     "legendDashed": "Dashed line: hidden",
     "legendApproximate": "Hollow pin: approximate location",
-    "summary": "{{site}}: Sun {{sun}}, Earth {{earth}}"
+    "summary": "{{site}}: Sun {{sun}}, Earth {{earth}}.",
+    "approximateNote": "Approximate location."
   }
 }

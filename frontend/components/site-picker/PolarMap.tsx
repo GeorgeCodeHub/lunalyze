@@ -17,6 +17,7 @@ const PolarMap = ({ views }: PolarMapProps) => {
   const pins = placed.filter(({ x, y }) => onPolarMap(x, y));
   const offMap = placed.filter(({ x, y }) => !onPolarMap(x, y));
   const anyProxy = pins.some(({ view }) => view.site.precision === 'proxy');
+
   const nameOf = (view: SiteView) => t(`${view.site.id as SiteId}.name`, { ns: 'sites' });
   const status = (hidden: boolean) => t(hidden ? 'map.hidden' : 'map.visible');
 
@@ -24,6 +25,7 @@ const PolarMap = ({ views }: PolarMapProps) => {
     <figure className={styles.figure} data-testid={testIds.polarMap.root}>
       <svg
         className={styles.svg}
+        data-testid={testIds.polarMap.svg}
         viewBox={`${-H} ${-H} ${2 * H} ${2 * H}`}
         role="img"
         aria-label={views.length === 0 ? t('map.labelEmpty') : t('map.label')}
@@ -49,7 +51,7 @@ const PolarMap = ({ views }: PolarMapProps) => {
           </p>
         ))}
         {pins.length > 0 && (
-          <ul className={styles.legend}>
+          <ul className={styles.legend} data-testid={testIds.polarMap.legend}>
             <li>
               <span className={styles.sun} aria-hidden="true">
                 ●
@@ -75,7 +77,7 @@ const PolarMap = ({ views }: PolarMapProps) => {
                 sun: status(view.sky.sun.hidden),
                 earth: status(view.sky.earth.hidden),
               })}
-              {view.site.precision === 'proxy' && ` ${t('map.approximate', { site: nameOf(view) })}`}
+              {view.site.precision === 'proxy' && ` ${t('map.approximateNote')}`}
               {view.horizonIncomplete && ` ${t('map.lowerBound')}`}
             </li>
           ))}

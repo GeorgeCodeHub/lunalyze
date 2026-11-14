@@ -25,13 +25,13 @@ const BodyLine = ({ body, status, x, y, dx, dy }: BodyLineProps) => {
     <g data-testid={testIds.polarMap.bodyLine} data-body={body} data-status={status} className={styles.line}>
       <title>{t('map.bodyLine', { body: t(`map.${body}`), status: t(`map.${status}`) })}</title>
       <line className={styles.casing} x1={x} y1={-y} x2={ex} y2={-ey} />
-      <line className={styles.stroke} x1={x} y1={-y} x2={ex} y2={-ey} />
+      <line className={styles.stroke} data-testid={testIds.polarMap.bodyStroke} x1={x} y1={-y} x2={ex} y2={-ey} />
       <g transform={`translate(${ex} ${-ey})`}>
         {body === 'sun' ? (
-          <circle className={styles.marker} cx={0} cy={0} />
+          <circle className={styles.marker} data-testid={testIds.polarMap.bodyMarker} cx={0} cy={0} />
         ) : (
           <g transform="rotate(45)">
-            <rect className={styles.marker} />
+            <rect className={styles.marker} data-testid={testIds.polarMap.bodyMarker} />
           </g>
         )}
       </g>

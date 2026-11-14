@@ -36,7 +36,7 @@ const mount = async (views: SiteView[]) => {
   const client = new QueryClient();
   await act(async () => root.render(<QueryClientProvider client={client}><PolarMap views={views} /></QueryClientProvider>));
   const all = (id: string, from: ParentNode = host) => [...from.querySelectorAll(`[data-testid="${id}"]`)];
-  return { host, all, one: (id: string) => host.querySelector(`[data-testid="${id}"]`) };
+  return { host, all, one: (id: string, from: ParentNode = host) => from.querySelector(`[data-testid="${id}"]`) };
 };
 
 beforeEach(() => {
@@ -72,16 +72,16 @@ describe('body lines (criteria 7, 9)', () => {
   test('sun ends in a circle, earth in a rect, and no other marker', async () => {
     const m = await mount([view('point-a')]);
     const [pin] = pins(m);
-    const shapes = (body: string) => [...lineOf(pin, body).querySelectorAll('circle, rect')].map((e) => e.tagName.toLowerCase());
+    const shapes = (body: string) => m.all(testIds.polarMap.bodyMarker, lineOf(pin, body)).map((e) => e.tagName.toLowerCase());
     expect(shapes('sun')).toEqual(['circle']);
     expect(shapes('earth')).toEqual(['rect']);
   });
   test('a bearing of 0 at lon 0 runs up the screen, 90 runs right (SVG y is negated)', async () => {
-    // lon 0 site: haworth is at -4; use malapert-m1 (2.7) and compare against the mapDirection arithmetic by sign only
+    // malapert-m1 sits near lon 0 (2.7), so map north and east are close to screen up and right
     const m = await mount([view('malapert-m1', { sunAz: 0, earthAz: 90 })]);
     const num = (e: Element, a: string) => Number(e.getAttribute(a));
-    const sun = lineOf(pins(m)[0], 'sun').querySelector('line:last-of-type') as Element;
-    const earth = lineOf(pins(m)[0], 'earth').querySelector('line:last-of-type') as Element;
+    const sun = m.one(testIds.polarMap.bodyStroke, lineOf(pins(m)[0], 'sun')) as Element;
+    const earth = m.one(testIds.polarMap.bodyStroke, lineOf(pins(m)[0], 'earth')) as Element;
     expect(num(sun, 'y2')).toBeLessThan(num(sun, 'y1')); // north (away from the pole at ~0 lon) is +y map = up
     expect(num(earth, 'x2')).toBeGreaterThan(num(earth, 'x1')); // east at lon ~0 is +x
     // line length is 0.25 H
@@ -97,7 +97,6 @@ describe('dash by attribute (criterion 8)', () => {
     const dashed = rules.filter(([, body]) => body?.includes('stroke-dasharray'));
     expect(dashed.length).toBeGreaterThan(0);
     for (const [selector] of dashed) expect(selector).toContain("[data-status='hidden']");
-    expect(css).not.toContain("[data-status='visible'] .stroke {\n  stroke-dasharray");
   });
 });
 
@@ -128,9 +127,9 @@ describe('empty, credit, image (criteria 11, 12, 13)', () => {
     expect(m.all(testIds.polarMap.offMap)).toHaveLength(0);
   });
   test('the svg is role=img with a label that differs when no places are picked', async () => {
-    const label = async (views: SiteView[]) => (await mount(views)).host.querySelector('svg')?.getAttribute('aria-label');
+    const label = async (views: SiteView[]) => (await mount(views)).one(testIds.polarMap.svg)?.getAttribute('aria-label');
     const [empty, one] = [await label([]), await label([view('point-a')])];
-    expect((await mount([])).host.querySelector('svg')?.getAttribute('role')).toBe('img');
+    expect((await mount([])).one(testIds.polarMap.svg)?.getAttribute('role')).toBe('img');
     expect(empty).toBeTruthy();
     expect(one).toBeTruthy();
     expect(empty).not.toBe(one);
@@ -146,7 +145,7 @@ describe('empty, credit, image (criteria 11, 12, 13)', () => {
     expect(img.getAttribute('href')).toBe(import.meta.env.BASE_URL + POLAR_MAP.path);
     expect(img.getAttribute('href')).toBe('/data/map/south-pole-hillshade.png');
     const H = POLAR_MAP.halfWidthM;
-    expect(m.host.querySelector('svg')?.getAttribute('viewBox')).toBe(`${-H} ${-H} ${2 * H} ${2 * H}`);
+    expect(m.one(testIds.polarMap.svg)?.getAttribute('viewBox')).toBe(`${-H} ${-H} ${2 * H} ${2 * H}`);
     expect([img.getAttribute('x'), img.getAttribute('y'), img.getAttribute('width'), img.getAttribute('height')]).toEqual([
       String(-H), String(-H), String(2 * H), String(2 * H),
     ]);
@@ -162,9 +161,19 @@ describe('many views', () => {
   });
   test('a pin sits at (x, -y) of the projection: point-a is left of and below the pole in screen terms', async () => {
     const m = await mount([view('point-a')]);
-    const c = pins(m)[0].querySelector('circle:not([cx="0"])') as Element;
+    const c = m.one(testIds.polarMap.pinDot) as Element;
     // point-a projects to x -2347, y -9415, so SVG y is +9415
     expect(Number(c.getAttribute('cx'))).toBeCloseTo(-2347.488, 2);
     expect(Number(c.getAttribute('cy'))).toBeCloseTo(9415.262, 2);
+  });
+});
+
+describe('legend', () => {
+  test('hidden with no pins; four items for exact pins; a fifth when any pin is a proxy', async () => {
+    const items = async (views: SiteView[]) => (await mount(views)).one(testIds.polarMap.legend)?.children.length ?? 0;
+    expect(await items([])).toBe(0);
+    expect(await items([view('change-4')])).toBe(0);
+    expect(await items([view('point-a'), view('im-1')])).toBe(4);
+    expect(await items([view('point-a'), view('point-c')])).toBe(5);
   });
 });

@@ -30,7 +30,7 @@ const MapPin = ({ view, x, y }: MapPinProps) => {
       <title>{title}</title>
       <BodyLine body="sun" status={sky.sun.hidden ? 'hidden' : 'visible'} x={x} y={y} dx={sun.dx} dy={sun.dy} />
       <BodyLine body="earth" status={sky.earth.hidden ? 'hidden' : 'visible'} x={x} y={y} dx={earth.dx} dy={earth.dy} />
-      <circle className={styles.pin} cx={x} cy={-y} />
+      <circle className={styles.pin} data-testid={testIds.polarMap.pinDot} cx={x} cy={-y} />
       <text
         className={styles.label}
         transform={`translate(${labelEnd ? x - LABEL_OFFSET_M : x + LABEL_OFFSET_M} ${-y}) scale(${LABEL_SCALE})`}

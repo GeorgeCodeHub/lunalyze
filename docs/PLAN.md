@@ -19,7 +19,10 @@ One Compare screen: up to 3 sites side by side, a date, and a zoom (Day / Lunar 
 - **Flat-or-terrain switch** and a shareable scenario URL. Mast height is fixed at 2 m.
 
 ## Locked stack
-- Vite + React + TypeScript, vitest, GitHub Actions, Vercel
+- Vite + React + TypeScript 6.0 with the React Compiler, vitest, ESLint, React Doctor, GitHub Actions, Vercel
+- pnpm only, packages at least 7 days old
+- TanStack Query behind `useScenario` for data; Zustand for shared UI state (added with the first store)
+- react-i18next, English + Greek (`en`, `el`)
 - CSS Modules. No Tailwind, no UI library
 - Plain SVG in components. No D3
 - astronomy-engine, used only inside `src/lib/`
@@ -28,7 +31,9 @@ One Compare screen: up to 3 sites side by side, a date, and a zoom (Day / Lunar 
 
 ## Ownership
 - **George** → `scripts/`, `public/data/`, `src/lib/`
-- **Christina** → `src/components/`, `src/App.tsx`, `src/styles/`
+- **Christina** → `src/components/`, `src/App.tsx`, `src/styles/`, `src/stores/`, `src/locales/`
+
+How we write code: [AGENTS.md](../AGENTS.md). `pnpm check` must pass.
 
 Data shapes: [docs/DATA_CONTRACT.md](DATA_CONTRACT.md).
 

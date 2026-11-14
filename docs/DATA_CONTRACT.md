@@ -8,13 +8,17 @@ The types live in [src/lib/types.ts](../src/lib/types.ts). Change them there and
 ```ts
 import { useScenario } from './lib/useScenario';
 
-const { views, loading } = useScenario(siteIds, t, zoom, { terrain });
+const { views, loading, error } = useScenario(siteIds, t, zoom, { terrain });
 // siteIds: string[]   ids from public/data/sites.json, up to 3
 // t: Date             the window starts here
 // zoom: 'day' | 'lunarDay' | 'year'
 // terrain: boolean    false = flat 0° horizon (the flat-or-terrain switch). Default true.
 // views: SiteView[]   one per site, same order as siteIds
+// loading: boolean    true until the site list and every asked-for site have loaded
+// error: Error | null set when the site list failed to load
 ```
+
+- The hook uses TanStack Query, so it must render inside `QueryClientProvider` (`src/main.tsx` provides it; tests wrap their own).
 
 - Every number in a `SiteView` is for the window that starts at `t`: 24 h for `day`, 29.53 days for `lunarDay`, 365 days for `year`.
 - `sky.sun`, `sky.earth`, `countdown` and `metrics.sunElDeg` / `panelOutputPct` are for the moment `t`.
@@ -32,13 +36,15 @@ If `view.fixture` is `true` in a build that is going out, say so on screen. Fixt
 
 ```ts
 type Site = {
-  id: string; name: string; lat: number; lon: number; // lon east, -180..180
+  id: string; lat: number; lon: number; // lon east, -180..180
   kind: 'landed' | 'planned' | 'artemis-region' | 'reference';
   precision: 'exact' | 'proxy';      // proxy: show as "approximate"
   terrainModeled: boolean;            // false: flat horizon, show the "terrain not modeled" caveat
   group: 'Apollo' | 'CLPS' | 'Artemis regions' | 'International' | 'Reference points';
-  blurb: string; source: string;
+  source: string;
 };
+// Display text is not in the data. Name, blurb and group label come from the `sites` locale
+// namespace, keyed by id: t('point-a.name', { ns: 'sites' }), t('groups.CLPS', { ns: 'sites' }).
 type Body = { az: number; el: number; hidden: boolean };       // degrees; hidden = behind the horizon
 type Countdown = { kind: 'set' | 'rise'; hours: number | null }; // null = no change within one lunar day
 type Interval = [string, string];                              // ISO UTC start, end
@@ -80,7 +86,8 @@ toXY(az, el, width, height, stretch) // → { x, y } in SVG pixels
 
 | File | Contents | Made by |
 |---|---|---|
-| `sites.json` | `Site[]`, 13 sites | by hand; blurbs in C6 |
+| `sites.json` | `Site[]`, 13 sites (no display text) | by hand |
+| `src/locales/{en,el}/sites.json` | site names, blurbs, group labels | C6 |
 | `fixtures/<siteId>.json` | hourly Sun/Earth for one lunar day from 2028-03-01, fake terrain, `fixture: true` | `npm run fixtures` (`scripts/make_fixtures.ts`) |
 | `masks/<siteId>.json` | real horizon at mast height 2 m | G4, `scripts/horizon_masks.py` |
 | `terrain/<siteId>.bin` + `.json` | terrain crop for the 3D view | G4 |

@@ -48,12 +48,14 @@ const renderScenario = async (
 ) => {
   let got: ReturnType<typeof useScenario> = { views: [], loading: true, error: null };
   let zoom: Zoom = 'day';
+  let renders = 0;
   const Probe = () => {
+    renders++;
     got = useScenario(siteIds, t, zoom, { ...opts });
     return null;
   };
   const client = new QueryClient({ defaultOptions: { queries: { ...defaults, staleTime: Infinity } } });
-  const root = createRoot(document.createElement('div'));
+  let root = createRoot(document.createElement('div'));
   const rerender = () =>
     act(() =>
       root.render(
@@ -73,6 +75,12 @@ const renderScenario = async (
   return {
     first,
     get: () => got,
+    renders: () => renders,
+    unmount: () => act(() => root.unmount()),
+    remount: () => {
+      root = createRoot(document.createElement('div'));
+      return rerender();
+    },
     at: async (next: Date) => {
       t = next;
       rerender();
@@ -204,4 +212,91 @@ test('a new zoom, terrain or site list does not keep stale views', async () => {
   sites.change({ t: next, siteIds: ['point-a', 'haworth'] });
   expect(sites.get().views.map((v) => v.site.id)).toEqual(['point-a']);
   expect(sites.get().loading).toBe(true);
+});
+
+test('playback outrunning compute keeps the last fully loaded view, never blank', async () => {
+  const r = await renderScenario(['point-a'], { terrain: true });
+  const before = r.get().views[0];
+  for (const h of [1, 2, 3]) {
+    r.change({ t: new Date(T.getTime() + h * 3600e3) });
+    expect(r.get().views[0]).toBe(before);
+    expect(r.get().loading).toBe(true);
+  }
+  await r.settle();
+  expect(r.get().views).toHaveLength(1);
+  expect(r.get().views[0]).not.toBe(before);
+});
+
+test('adding a site while t moves: the old site keeps its view, the new one joins after loading', async () => {
+  const r = await renderScenario(['point-a'], { terrain: true });
+  const before = r.get().views[0];
+  r.change({ t: new Date(T.getTime() + 3600e3), siteIds: ['point-a', 'haworth'] });
+  expect(r.get().views[0]).toBe(before);
+  await r.settle();
+  expect(r.get().views.map((v) => v.site.id)).toEqual(['point-a', 'haworth']);
+});
+
+test('a site that fails on a new t is reported while the other site still has its view', async () => {
+  failing.add('/data/masks/point-b.json');
+  const r = await renderScenario(['point-a'], { terrain: true });
+  r.change({ t: new Date(T.getTime() + 3600e3), siteIds: ['point-a', 'point-b'] });
+  await r.settle();
+  expect(r.get().error?.message).toBe('data/masks/point-b.json: HTTP 500');
+  expect(r.get().views.map((v) => v.site.id)).toEqual(['point-a']);
+  expect(requested.filter((p) => p === '/data/masks/point-b.json')).toHaveLength(1);
+});
+
+test('the render-time setShown settles: no render loop after loading, with sites, none, or a changed scenario', async () => {
+  const r = await renderScenario(['point-a'], { terrain: true });
+  r.change({ t: new Date(T.getTime() + 3600e3), zoom: 'lunarDay', terrain: false, siteIds: ['haworth'] });
+  await r.settle();
+  const n = r.renders();
+  await act(async () => {});
+  await act(async () => {});
+  expect(r.renders()).toBe(n);
+  expect(n).toBeLessThan(30);
+
+  const empty = await renderScenario([], { terrain: true });
+  const m = empty.renders();
+  await act(async () => {});
+  expect(empty.renders()).toBe(m);
+  expect(m).toBeLessThan(5);
+});
+
+test('unmount and remount: a fresh mount shows the cached view without a blank frame', async () => {
+  const r = await renderScenario(['point-a'], { terrain: true });
+  await r.unmount();
+  await r.remount();
+  await r.settle();
+  expect(r.get().views.map((v) => v.site.id)).toEqual(['point-a']);
+});
+
+test('returning to a zoom, terrain or site that was cached earlier does not show that old view as a placeholder', async () => {
+  const next = new Date(T.getTime() + 3600e3);
+
+  const zoom = await renderScenario(['point-a'], { terrain: true });
+  zoom.change({ zoom: 'lunarDay' });
+  await zoom.settle();
+  zoom.change({ t: next, zoom: 'day' }); // ['view', id, T, 'day', ...] is cached, but is not the last shown scenario
+  expect(zoom.get().views).toEqual([]);
+
+  const terrain = await renderScenario(['point-a'], { terrain: true });
+  terrain.change({ terrain: false });
+  await terrain.settle();
+  terrain.change({ t: next, terrain: true });
+  expect(terrain.get().views).toEqual([]);
+
+  const sites = await renderScenario(['point-a', 'haworth'], { terrain: true });
+  sites.change({ siteIds: ['point-a'] });
+  await sites.settle();
+  sites.change({ t: next, siteIds: ['point-a', 'haworth'] });
+  expect(sites.get().views.map((v) => v.site.id)).toEqual(['point-a']);
+});
+
+test('after a new t has loaded, the next t keeps that view, not the one before it', async () => {
+  const r = await renderScenario(['point-a'], { terrain: true });
+  await r.at(new Date(T.getTime() + 3600e3));
+  const second = r.get().views[0];
+  r.change({ t: new Date(T.getTime() + 7200e3) });
+  expect(r.get().views[0]).toBe(second);
 });

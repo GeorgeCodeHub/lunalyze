@@ -285,6 +285,16 @@ def test_oversized_tile_count_exits():
     assert "bad.tif" in msg and "tile 0" in msg
 
 
+def test_huge_tile_offset_exits():
+    def edit(buf, at):
+        (pos,) = struct.unpack_from("<Q", buf, at(8) + 12)  # tag 324 values: the tile offsets
+        struct.pack_into("<Q", buf, pos, 1 << 63)  # tile 0 starts beyond any file
+
+    g = pg.Tiff(patched(edit))
+    msg = exit_msg(lambda: g.dn(*centre(0, 0)))
+    assert "bad.tif" in msg and "tile 0" in msg
+
+
 def test_zero_tile_width_exits():
     def edit(buf, at):
         struct.pack_into("<H", buf, at(6) + 12, 0)  # tag 322, tile width

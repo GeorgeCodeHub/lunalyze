@@ -129,10 +129,12 @@ class Tiff:
         col, row = math.floor((x - self.x0) / self.s), math.floor((self.y0 - y) / self.s)
         k = (row // self.th) * math.ceil(self.w / self.tw) + col // self.tw
         try:
-            if self.counts[k] > self.size:
-                sys.exit(f"{self.name}: tile {k} claims {self.counts[k]} bytes in a {self.size}-byte file")
+            if self.offsets[k] + self.counts[k] > self.size:
+                sys.exit(f"{self.name}: tile {k} claims bytes {self.offsets[k]}+{self.counts[k]} in a {self.size}-byte file")
             self.f.seek(self.offsets[k])
-            px = list(struct.unpack(f"<{self.tw * self.th}h", zlib.decompress(self.f.read(self.counts[k]))))
+            n = self.tw * self.th
+            raw = zlib.decompressobj().decompress(self.f.read(self.counts[k]), 2 * n)  # capped: no zip bomb
+            px = list(struct.unpack(f"<{n}h", raw))
         except (IndexError, struct.error, zlib.error) as e:  # short offsets table, truncated or corrupt tile
             sys.exit(f"{self.name}: cannot read tile {k} ({type(e).__name__}: {e})")
         r, c = row % self.th, col % self.tw

@@ -1,4 +1,4 @@
-// Mask gate: sunlit % at a 2 m mast from the committed horizon masks, against reference values.
+// Mask gate: sunlit % at a 2 m mast from the committed horizon masks, against PGDA product 69 averages.
 // Run: pnpm mask-gate
 import { readFileSync } from 'node:fs';
 import { sunlitFraction } from '../lib/sunlit';
@@ -8,11 +8,12 @@ const START = new Date('2028-03-01T00:00:00Z');
 const HOURS_18_6_YR = Math.round(18.6 * 365.25 * 24);
 const HOURS_1_YR = 365 * 24;
 const SITES = [
-  { id: 'point-a', reference: 81 },
-  { id: 'point-b', reference: 82 },
-  { id: 'point-c', reference: 85 },
-  { id: 'point-d', reference: 86 },
-  { id: 'malapert-m1', reference: 74 },
+  // PGDA 69 averages, sampled by backend/scripts/pgda_illumination.py (George retired the old 81/82/85/86/74 on #5)
+  { id: 'point-a', reference: 38.4 },
+  { id: 'point-b', reference: 37.0 },
+  { id: 'point-c', reference: 50.4 },
+  { id: 'point-d', reference: 42.8 },
+  { id: 'malapert-m1', reference: 18.8 },
 ];
 
 const readJson = <T>(path: string): T => {
@@ -37,11 +38,11 @@ const rows = SITES.map(({ id, reference }) => {
   return `| ${id} | ${long.toFixed(1)} | ${year.toFixed(1)} | ${reference.toFixed(1)} | ${diff.toFixed(1)} | ${Math.abs(diff) <= GATE_PCT ? 'PASS' : 'FAIL'} |`;
 });
 
-console.log('| Site | 18.6 yr % | 1 yr % | Reference % | Difference | Gate |');
+console.log('| Site | 18.6 yr % | 1 yr % | PGDA 69 % | Difference | Gate |');
 console.log('| --- | --- | --- | --- | --- | --- |');
 rows.forEach((row) => console.log(row));
 console.log(`
 Basis: hourly samples from 2028-03-01T00:00:00Z. 18.6 yr = ${HOURS_18_6_YR} h (gates, PASS when |Difference| <= ${GATE_PCT}); 1 yr = ${HOURS_1_YR} h (information only).
 Sunlit = Sun centre elevation above the mask elevation at the Sun azimuth (strict), the app's sunlitPct rule.
 Observer height: sky() puts the mast 2 m above the 1737.4 km sphere; the masks use the DEM ground + 2 m. The two differ.
-Reference values come from literature whose basis is unverified.`);
+Reference: PGDA product 69 average illumination, Mazarico et al. (2011), Icarus 211, 1066-1081 (LOLA, 60 m grid, nearest pixel).`);

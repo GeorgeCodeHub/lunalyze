@@ -75,7 +75,9 @@ def main() -> int:
     for name in names:
         size = expected_size(args.dest / f"{name}.lbl")
         if size is None:
-            print(f"{name}.img MISMATCH label is not square 16-bit LSB_INTEGER")
+            img = args.dest / f"{name}.img"
+            have = img.stat().st_size if img.exists() else 0
+            print(f"{name}.img MISMATCH actual={have} expected=- (label is not square 16-bit LSB_INTEGER)")
             bad = True
             continue
         before = (args.dest / f"{name}.img").stat().st_size if (args.dest / f"{name}.img").exists() else 0

@@ -1,0 +1,21 @@
+{
+  "map": {
+    "label": "Map of the Moon's south pole with a marker for each place you picked",
+    "labelEmpty": "Map of the Moon's south pole. No places picked yet.",
+    "image": "Shaded relief of the Moon's south pole",
+    "pin": "{{site}}",
+    "approximate": "{{site}} (approximate location)",
+    "lowerBound": "Hills beyond the height map are not counted, so the Sun and Earth may be hidden more often than shown.",
+    "sun": "Sun",
+    "earth": "Earth",
+    "visible": "visible",
+    "hidden": "hidden",
+    "bodyLine": "{{body}} direction: {{status}}",
+    "offMap": "{{site}} is too far from the pole to show on this map.",
+    "credit": "Terrain: NASA LRO LOLA height map, shaded for display.",
+    "legendSolid": "Solid line: in view",
+    "legendDashed": "Dashed line: hidden",
+    "legendApproximate": "Hollow pin: approximate location",
+    "summary": "{{site}}: Sun {{sun}}, Earth {{earth}}"
+  }
+}

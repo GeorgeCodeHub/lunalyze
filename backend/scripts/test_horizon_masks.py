@@ -185,6 +185,15 @@ def test_edge_observer_and_ray_fallback():
     assert np.isfinite(elev).all() and not inc.any()
 
 
+def test_edge_near_field_20m_sampling():
+    n = 200  # even N: pixel centres sit at y = 40 + 80m, so a 2-pixel spike is centred on (x=0, y=1000)
+    a = np.zeros((n, n), np.int16)
+    a[87, 99:101] = 2000  # 1000 m tall; 80 m samples at 960 / 1040 m read half of it by bilinear
+    elev, _ = hm.horizon(-90, 0, [((a, 80.0), 3000.0)])
+    theta = 2 * np.arctan(1000 / (2 * R))
+    approx(float(elev[0]), float(hm.elevation_deg(R + 2, R + 1000, theta)), 0.01)  # the 20 m sample at 1000 m reads full height
+
+
 # --- committed output: criteria 1-6, 17 ---
 
 

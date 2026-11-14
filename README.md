@@ -2,7 +2,7 @@
 
 RGX – Lunar Landing Site Navigator (NASA Space Apps 2026). Which lunar south-pole site, and which week?
 
-**Preview:** _paste the Vercel preview URL here_
+[![checked against JPL Horizons](https://img.shields.io/github/actions/workflow/status/GeorgeCodeHub/rgx-lunar-navigator/ci.yml?branch=main&label=checked%20against%20JPL%20Horizons)](backend/lib/lunar.test.ts)
 
 ## Rules that must never be broken
 
@@ -32,3 +32,10 @@ pnpm check         # lint, tests (incl. the JPL Horizons check), type-check + bu
 - [docs/DESIGN.md](docs/DESIGN.md): design brief, users, screen layout, priorities
 - [docs/DATA_CONTRACT.md](docs/DATA_CONTRACT.md): data shapes and file formats
 - [CODEOWNERS](CODEOWNERS): who owns which folder
+
+## Data credits
+
+- **LRO LOLA polar DEMs** (terrain heights for the horizon masks): `ldem_75s_240m`, `ldem_80s_80m`, `ldem_85s_20m`, data set LRO-L-LOLA-4-GDR-V1.0, NASA LRO LOLA team (D. E. Smith, NASA Goddard Space Flight Center), from the [PDS Geosciences Node](https://pds-geosciences.wustl.edu/lro/lro-l-lola-3-rdr-v1/lrolol_1xxx/data/lola_gdr/polar/img/).
+- **PGDA 69, Lunar Polar Illumination** (average solar illumination, the reference for the horizon-mask gate): Mazarico, E., et al. (2011), Illumination conditions of the lunar polar regions using LOLA topography, Icarus 211, 1066-1081, doi:10.1016/j.icarus.2010.10.030. [pgda.gsfc.nasa.gov/products/69](https://pgda.gsfc.nasa.gov/products/69)
+- **PGDA 90, A New View of the Lunar South Pole from LOLA** (reference south-pole DEM, not an input to the app): Barker, M. K., et al. (2023), Planetary Science Journal 4, 183, doi:10.3847/PSJ/acf3e1; data doi:10.60903/gsfcpgda-lola-spole. [pgda.gsfc.nasa.gov/products/90](https://pgda.gsfc.nasa.gov/products/90)
+- **NASA JPL Horizons** (reference Sun and Earth positions, DE441): astronomy-engine must match all 16 Horizons values (4 sites x 2 dates x Sun and Earth) to < 0.01° in [backend/lib/lunar.test.ts](backend/lib/lunar.test.ts). [ssd.jpl.nasa.gov/api/horizons.api](https://ssd.jpl.nasa.gov/api/horizons.api)

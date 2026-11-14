@@ -74,6 +74,7 @@ export const viewAt = (fx: FixtureFile, site: Site, t: Date, zoom: Zoom, terrain
   return {
     site,
     fixture: true,
+    horizonIncomplete: false,
     metrics: {
       sunElDeg: sun.el,
       sunlitPct: round((100 * hours(sunLane)) / spanH, 1),

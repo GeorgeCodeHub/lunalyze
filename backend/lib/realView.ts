@@ -130,6 +130,7 @@ export const realView = (site: Site, mask: HorizonMask | null, t: Date, zoom: Zo
   return {
     site,
     fixture: false,
+    horizonIncomplete: terrainOn && mask !== null && mask.incomplete.some(Boolean),
     metrics: {
       sunElDeg: sun.el,
       sunlitPct: round((100 * hours(sunLane)) / spanH, 1),

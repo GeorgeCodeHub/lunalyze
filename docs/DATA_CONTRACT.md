@@ -37,7 +37,7 @@ The `fixture` flag stays in the type until G7 removes it.
 - A body is visible when its centre is above the mask bin `elevDeg[floor(az·2)]` (a step lookup, no interpolation). With terrain off, or no mask, the horizon is 0°.
 - `sunElDeg` is the raw Sun elevation, not relative to the horizon.
 - `panelOutputPct` is the exact share of the Sun's disc above the horizon at `t`.
-- Countdowns and lane edges are accurate to about 1 minute.
+- Countdowns and lane edges are accurate to about 1 minute. The scan is hourly, so a set and a rise inside the same hour can be missed.
 - `athensSunPath` is 25 hourly points: 24 h from `t`.
 - `horizonIncomplete` is true when terrain is on and the loaded mask has at least one `incomplete` bin. Today that is `im-1` only (300.5°–56.5°, 233 of 720 bins). Its mask values there are lower bounds: the real horizon may be higher, so the Sun and Earth numbers are upper bounds. Show a caveat.
 
@@ -123,4 +123,4 @@ type HorizonMask = {
 ### `fixtures/<siteId>.json`
 
 Type `FixtureFile` in [backend/lib/fixtureView.ts](../backend/lib/fixtureView.ts): `terrain` (721 points), `sun` and `earth` (709 hourly `[az, el]`), `athensSunPath`, and `view`, a ready `SiteView` for 2028-03-01, zoom `lunarDay`.
-Nothing reads these files now (`useScenario` uses the masks). They go away in G7.
+The app no longer reads these files (`useScenario` uses the masks). They go away in G7.

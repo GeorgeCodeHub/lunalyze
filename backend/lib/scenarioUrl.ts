@@ -15,7 +15,8 @@ const minuteIso = (d: Date): string => `${d.toISOString().slice(0, 16)}Z`;
 const parseSites = (raw: string | null, knownIds: readonly string[]): string[] => {
   if (!raw) return [];
   const ids = raw.split(',');
-  const ok = ids.length <= MAX_SITES && new Set(ids).size === ids.length && ids.every((id) => knownIds.includes(id));
+  const known = new Set(knownIds);
+  const ok = ids.length <= MAX_SITES && new Set(ids).size === ids.length && ids.every((id) => known.has(id));
   return ok ? ids : [];
 };
 

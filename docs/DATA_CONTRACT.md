@@ -1,66 +1,108 @@
 # Data contract
 
-JSON shapes shared by the terrain pipeline (Python) and the app (TypeScript). Change them here first.
+What `src/lib/` (George) gives to `src/components/` (Christina), and the files behind it.
+The types live in [src/lib/types.ts](../src/lib/types.ts). Change them there and here together.
+
+## The one hook components use
+
+```ts
+import { useScenario } from './lib/useScenario';
+
+const { views, loading } = useScenario(siteIds, t, zoom, { terrain });
+// siteIds: string[]   ids from public/data/sites.json, up to 3
+// t: Date             the window starts here
+// zoom: 'day' | 'lunarDay' | 'year'
+// terrain: boolean    false = flat 0° horizon (the flat-or-terrain switch). Default true.
+// views: SiteView[]   one per site, same order as siteIds
+```
+
+- Every number in a `SiteView` is for the window that starts at `t`: 24 h for `day`, 29.53 days for `lunarDay`, 365 days for `year`.
+- `sky.sun`, `sky.earth`, `countdown` and `metrics.sunElDeg` / `panelOutputPct` are for the moment `t`.
+- Play button: call the hook once with the scenario date (lanes, metrics) and once with the playhead time (`sky`, `countdown`). Files are fetched once and cached.
+- A site with no data yet is left out of `views`. Today only `point-a`, `malapert-m1` and `apollo-11` have fixtures.
+- The signature is final. G6/G7 put real data behind it; components do not change.
+
+### `fixture: true` means fake terrain
+
+Fixtures use real Sun and Earth positions but an invented horizon. **Never show a fixture's numbers as real.**
+If `view.fixture` is `true` in a build that is going out, say so on screen. Fixture samples cover
+2028-03-01 to 2028-03-30 and repeat after that, so other dates are not real either.
+
+## Types
 
 ```ts
 type Site = {
-  id: string;
-  name: string;
-  lat: number;
-  lon: number; // east, -180..180
+  id: string; name: string; lat: number; lon: number; // lon east, -180..180
   kind: 'landed' | 'planned' | 'artemis-region' | 'reference';
-  precision: 'exact' | 'proxy';
-  terrainModeled: boolean;
-  blurb: string;
-  source: string;
+  precision: 'exact' | 'proxy';      // proxy: show as "approximate"
+  terrainModeled: boolean;            // false: flat horizon, show the "terrain not modeled" caveat
+  group: 'Apollo' | 'CLPS' | 'Artemis regions' | 'International' | 'Reference points';
+  blurb: string; source: string;
 };
-
-type HorizonMask = {
-  siteId: string;
-  mastM: 1 | 2 | 5;
-  azStepDeg: 0.5;
-  elevDeg: number[];     // 720
-  incomplete: boolean[]; // ray left DEM
-};
-
-type SiteMetrics = {
-  sunlitPct: number;
-  earthPct: number;
-  longestBlackoutH: number;
-  firstOperableDays: number;
-  nextSunset: string | null;
-  nextEarthset: string | null;
+type Body = { az: number; el: number; hidden: boolean };       // degrees; hidden = behind the horizon
+type Countdown = { kind: 'set' | 'rise'; hours: number | null }; // null = no change within one lunar day
+type Interval = [string, string];                              // ISO UTC start, end
+type Zoom = 'day' | 'lunarDay' | 'year';
+type SiteView = {
+  site: Site; fixture: boolean;
+  metrics: { sunElDeg: number; sunlitPct: number; earthPct: number; longestBlackoutH: number; panelOutputPct: number };
+  countdown: { sun: Countdown; earth: Countdown };
+  sky: { terrain: [number, number][]; sun: Body; earth: Body; sunPath: [number, number][];
+         earthPath: [number, number][]; athensSunPath: [number, number][] };
+  lanes: { sun: Interval[]; earth: Interval[]; both: Interval[] };
 };
 ```
 
-## Files
+| Field | Meaning |
+|---|---|
+| `metrics.sunElDeg` | Sun elevation at `t`, degrees |
+| `metrics.sunlitPct`, `earthPct` | share of the window with the Sun / Earth above the horizon |
+| `metrics.longestBlackoutH` | longest period in the window with no Sun and no Earth, hours. Limit: 50 h |
+| `metrics.panelOutputPct` | share of the Sun's disc above the horizon at `t` |
+| `countdown.sun` | body is up → `kind: 'set'`, hours until it goes behind the horizon. Body is down → `kind: 'rise'` |
+| `sky.terrain` | horizon outline, `[az, el]` pairs from azimuth 0 to 360 |
+| `sky.sunPath`, `earthPath` | `[az, el]` from `t` across the window: every 1 h (`day`, `lunarDay`) or 12 h (`year`) |
+| `sky.athensSunPath` | Sun at Athens (37.98N, 23.73E), `[az, el]` every hour for 24 h |
+| `lanes.both` | periods with Sun and Earth together |
 
-| File | Shape | Issue |
-|------|-------|-------|
-| `public/data/sample/*.json` | sample data for Point A, Malapert M1, Apollo 11 (flat horizon, real Sun/Earth) | G3 |
-| `public/data/masks/<siteId>_<mast>m.json` | `HorizonMask`, one per `terrainModeled` site × mast 1/2/5 m | G4 |
-| `sites.json` | `Site[]` (names and blurbs from C6) | C6 |
+All angles are degrees. Azimuth: 0 = north, 90 = east, 0..360. Paths can jump from 360 to 0: start a new line when azimuth jumps by more than 180.
 
-## Sites
+## Drawing: `toXY`
 
-Latitude and east longitude are fixed. The `id` and `kind` columns are proposals made at setup: confirm them in G3.
-`precision` is `proxy` where the site name says so. `terrainModeled` is `false` only for Apollo 11 and Chang'e 4.
+```ts
+import { toXY } from './lib/toXY';
+toXY(az, el, width, height, stretch) // → { x, y } in SVG pixels
+// x = az / 360 * width
+// y = height / 2 - el * stretch * (height / 20)     stretch 1 shows -10°..+10°
+```
 
-| id | name | lat | lon (E) | kind (proposed) | precision | terrainModeled |
-|----|------|-----|---------|-----------------|-----------|----------------|
-| `point-a` | Point A | -89.68 | -166.0 | reference | exact | true |
-| `point-b` | Point B | -89.44 | -141.8 | reference | exact | true |
-| `point-c` | Point C / de Gerlache Rim 2 | -88.71 | -68.7 | artemis-region | proxy | true |
-| `point-d` | Point D / Chang'e-7 target | -88.79 | 124.5 | planned | exact | true |
-| `malapert-m1` | Malapert M1 / Malapert Massif | -86.04 | 2.7 | artemis-region | proxy | true |
-| `im-2` | IM-2 / Mons Mouton | -84.7906 | 29.1958 | landed | exact | true |
-| `haworth` | Haworth | -86.90 | -4.00 | artemis-region | exact | true |
-| `nobile` | Nobile / Griffin-1 | -85.28 | 53.27 | planned | proxy | true |
-| `slater` | Slater | -88.08 | 111.29 | artemis-region | exact | true |
-| `cabeus-b` | Cabeus B | -85.33 | -42.13 | artemis-region | proxy | true |
-| `im-1` | IM-1 Odysseus | -80.13 | 1.44 | landed | exact | true |
-| `apollo-11` | Apollo 11 | 0.6742 | 23.4731 | landed | exact | false |
-| `change-4` | Chang'e 4 | -45.4561 | 177.5886 | landed | exact | false |
+## Files in `public/data/`
 
-Artemis regions: show as circles labelled "approximate".
-Sites with `terrainModeled: false` have no horizon mask; the app uses a flat horizon and shows the "terrain not modeled" caveat.
+| File | Contents | Made by |
+|---|---|---|
+| `sites.json` | `Site[]`, 13 sites | by hand; blurbs in C6 |
+| `fixtures/<siteId>.json` | hourly Sun/Earth for one lunar day from 2028-03-01, fake terrain, `fixture: true` | `npm run fixtures` (`scripts/make_fixtures.ts`) |
+| `masks/<siteId>.json` | real horizon at mast height 2 m | G4, `scripts/horizon_masks.py` |
+| `terrain/<siteId>.bin` + `.json` | terrain crop for the 3D view | G4 |
+
+### `masks/<siteId>.json`
+
+```ts
+type HorizonMask = {
+  siteId: string;
+  mastM: 2;
+  azStepDeg: 0.5;
+  elevDeg: number[];     // 720 values; index i is azimuth i × 0.5°
+  incomplete: boolean[]; // 720 values; true = the ray left the DEM, so the horizon may be higher
+};
+```
+
+### `terrain/<siteId>.bin` and `terrain/<siteId>.json`
+
+- `.bin`: 500 × 500 signed 16-bit integers, little-endian, row by row. A crop of `ldem_80s_80m` centred on the site. Height in metres = value × 0.5, above the 1737.4 km sphere.
+- `.json`: `{ siteId, width: 500, height: 500, pixelM: 80, origin }`. `origin` is the polar-stereographic position of the first pixel in metres. G4 fixes the exact field names when it writes the first file.
+
+### `fixtures/<siteId>.json`
+
+Type `FixtureFile` in [src/lib/fixtureView.ts](../src/lib/fixtureView.ts): `terrain` (721 points), `sun` and `earth` (709 hourly `[az, el]`), `athensSunPath`, and `view`, a ready `SiteView` for 2028-03-01, zoom `lunarDay`.
+Only `useScenario` reads these files. They go away in G7.

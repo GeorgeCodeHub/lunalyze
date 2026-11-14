@@ -300,3 +300,24 @@ test('after a new t has loaded, the next t keeps that view, not the one before i
   r.change({ t: new Date(T.getTime() + 7200e3) });
   expect(r.get().views[0]).toBe(second);
 });
+
+test('terrain off: a modeled site whose mask answers 500 stays in views, with no error and no mask request', async () => {
+  failing.add('/data/masks/point-b.json');
+  const got = (await renderScenario(['point-b', 'point-a'], { terrain: false })).get();
+  expect(got.error).toBeNull();
+  expect(got.views.map((v) => v.site.id)).toEqual(['point-b', 'point-a']);
+  expect(requested.filter((p) => p.startsWith('/data/masks/'))).toEqual([]);
+});
+
+test('terrain off: a modeled site whose mask answers 404 stays in views, with no error', async () => {
+  missing.add('/data/masks/point-b.json');
+  const got = (await renderScenario(['point-b'], { terrain: false })).get();
+  expect(got.error).toBeNull();
+  expect(got.views.map((v) => v.site.id)).toEqual(['point-b']);
+});
+
+test('terrain off: im-1 has a flat sky and is not incomplete', async () => {
+  const view = (await renderScenario(['im-1'], { terrain: false })).get().views[0];
+  expect(view.sky.terrain).toEqual([[0, 0], [360, 0]]);
+  expect(view.horizonIncomplete).toBe(false);
+});

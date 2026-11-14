@@ -221,9 +221,10 @@ describe('a bad mask (criterion 13)', () => {
     const bad = { ...synthetic(0), incomplete: Array(721).fill(false) };
     expect(() => realView(apollo, bad, T, 'day', true)).toThrow('mask must have 720 points, got 721');
   });
-  test('it throws even with terrain off', () => {
+  test('with terrain off the mask is not read: no throw, flat horizon', () => {
     const bad = { ...synthetic(0), elevDeg: [] };
-    expect(() => realView(apollo, bad, T, 'day', false)).toThrow('mask must have 720 points, got 0');
+    expect(() => realView(apollo, bad, T, 'day', false)).not.toThrow();
+    expect(realView(apollo, bad, T, 'day', false).sky.terrain).toEqual([[0, 0], [360, 0]]);
   });
 });
 

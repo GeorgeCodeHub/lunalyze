@@ -9,7 +9,8 @@ import styles from './MapPin.module.css';
 type MapPinProps = { view: SiteView; x: number; y: number };
 
 const LABEL_OFFSET_M = 0.06 * POLAR_MAP.halfWidthM;
-const LABEL_SIZE_M = 0.08 * POLAR_MAP.halfWidthM;
+// Chrome caps font-size at 10000px, so the label is drawn 10 units tall and scaled up to 0.08·H.
+const LABEL_SCALE = (0.08 * POLAR_MAP.halfWidthM) / 10;
 
 const MapPin = ({ view, x, y }: MapPinProps) => {
   const { t } = useTranslation('compare');
@@ -32,10 +33,8 @@ const MapPin = ({ view, x, y }: MapPinProps) => {
       <circle className={styles.pin} cx={x} cy={-y} />
       <text
         className={styles.label}
-        x={labelEnd ? x - LABEL_OFFSET_M : x + LABEL_OFFSET_M}
-        y={-y}
+        transform={`translate(${labelEnd ? x - LABEL_OFFSET_M : x + LABEL_OFFSET_M} ${-y}) scale(${LABEL_SCALE})`}
         textAnchor={labelEnd ? 'end' : 'start'}
-        style={{ fontSize: LABEL_SIZE_M }}
       >
         {name}
       </text>

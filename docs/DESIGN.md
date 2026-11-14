@@ -178,7 +178,7 @@ Each needs both owners to agree, and [DATA_CONTRACT.md](DATA_CONTRACT.md) change
 ## Data and credits
 
 Sun and Earth positions: astronomy-engine, checked against NASA JPL Horizons to within 0.01°.
-Hills: NASA LRO LOLA south-pole height maps (PGDA 69, PGDA 90). Credit both on screen.
+Hills: NASA LRO LOLA polar DEMs (LOLA GDR, PDS Geosciences Node) give the heights. PGDA 69 (average solar illumination, Mazarico et al. 2011) checks the horizon masks; PGDA 90 (south-pole DEM, Barker et al. 2023) is a reference, not an input. Credit both on screen.
 Pictures made with AI carry no NASA logos. NASA pictures are credited.
 
 ## Open questions

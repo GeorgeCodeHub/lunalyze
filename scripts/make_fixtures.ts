@@ -1,6 +1,6 @@
 // Writes public/data/fixtures/<siteId>.json: real Sun/Earth positions, FAKE terrain.
-// Run: npx tsx scripts/make_fixtures.ts
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+// Run: pnpm fixtures
+import { mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
 import { type FixtureFile, LUNAR_DAY_H, viewAt } from '../src/lib/fixtureView';
 import { earthSunPath, sky } from '../src/lib/lunar';
 import type { Site } from '../src/lib/types';
@@ -23,7 +23,23 @@ const silhouette = (site: Site): [number, number][] => {
   });
 };
 
-const sites: Site[] = JSON.parse(readFileSync('public/data/sites.json', 'utf8'));
+const readSites = (): Site[] => {
+  try {
+    return JSON.parse(readFileSync('public/data/sites.json', 'utf8'));
+  } catch (err) {
+    throw new Error(`Cannot read public/data/sites.json (run from the repo root): ${(err as Error).message}`, {
+      cause: err,
+    });
+  }
+};
+
+/** Write to a temp file, then rename: a failed write never leaves a half-written fixture behind. */
+const writeAtomic = (path: string, text: string) => {
+  writeFileSync(`${path}.tmp`, text);
+  renameSync(`${path}.tmp`, path);
+};
+
+const sites = readSites();
 mkdirSync('public/data/fixtures', { recursive: true });
 
 for (const id of SITE_IDS) {
@@ -49,7 +65,7 @@ for (const id of SITE_IDS) {
     athensSunPath: earthSunPath(ATHENS.lat, ATHENS.lon, T0).map(([az, el]): [number, number] => [r3(az), r3(el)]),
   };
   const file: FixtureFile = { ...raw, view: viewAt({ ...raw, view: null as never }, site, T0, 'lunarDay', true) };
-  writeFileSync(`public/data/fixtures/${id}.json`, JSON.stringify(file) + '\n');
+  writeAtomic(`public/data/fixtures/${id}.json`, JSON.stringify(file) + '\n');
   const m = file.view.metrics;
   console.log(`${id}: sunlit ${m.sunlitPct}%  earth ${m.earthPct}%  longest blackout ${m.longestBlackoutH} h (fake terrain)`);
 }

@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { angleDelta, compassPoint, dialAngle, FOV_MAX, FOV_MIN, headingOf, LOOK_DIRECTIONS, lookTurn, POLAR_MAX, POLAR_MIN, tiltedPolar, zoomedFov } from './lookTurn';
+import { angleDelta, compassPoint, dialAngle, FOV_MAX, FOV_MIN, headingOf, LOOK_DIRECTIONS, lookTurn, POLAR_MAX, POLAR_MIN, tiltedPolar, turnStep, zoomedFov } from './lookTurn';
 import { sceneDirection } from './sceneMath';
 
 test('the pad lists up, left, right, down: the order of a cross read top to bottom', () => {
@@ -122,4 +122,22 @@ test.each([
   { from: -90, to: 720, delta: 90 }, // any number of degrees, wrapped
 ])('angleDelta from $from to $to is $delta', ({ from, to, delta }) => {
   expect(angleDelta(from, to)).toBeCloseTo(delta, 9);
+});
+
+test.each([
+  { name: 'starts where the view looks', t: 0, theta: 1, phi: 1 },
+  { name: 'is half way at the middle', t: 0.5, theta: 1.5, phi: 1.25 },
+  { name: 'eases in: a quarter of the time covers a sixteenth of the turn', t: 0.25, theta: 1.0625, phi: 1.03125 },
+  { name: 'ends on the new direction', t: 1, theta: 2, phi: 1.5 },
+  { name: 'holds a time past the end to the end', t: 3, theta: 2, phi: 1.5 },
+])('a face turn $name', ({ t, theta, phi }) => {
+  const step = turnStep({ theta: 1, phi: 1 }, { theta: 2, phi: 1.5 }, t);
+  expect(step.theta).toBeCloseTo(theta, 6);
+  expect(step.phi).toBeCloseTo(phi, 6);
+});
+
+test('a face turn goes round the shorter way, across the back of the circle', () => {
+  // From 3 to -3 radians is 0.283 the short way (through pi), not 6 the long way.
+  expect(turnStep({ theta: 3, phi: 1 }, { theta: -3, phi: 1 }, 0.5).theta).toBeCloseTo(3.141593, 6);
+  expect(turnStep({ theta: 3, phi: 1 }, { theta: -3, phi: 1 }, 1).theta).toBeCloseTo(3.283185, 6);
 });

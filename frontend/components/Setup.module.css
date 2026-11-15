@@ -24,7 +24,7 @@
   text-wrap: balance;
 }
 
-/* Title and subtitle stay close together; the page gap separates them from the panel. */
+/* Title and tagline stay close together; the page gap separates them from the panel. */
 .intro {
   display: grid;
   gap: 16px;
@@ -35,14 +35,6 @@
   margin: 0;
   font-size: 1.1rem;
   line-height: 1.4;
-}
-
-.subtitle {
-  max-width: 54ch;
-  margin: 0;
-  color: var(--color-text-muted);
-  font-size: 0.95rem;
-  line-height: 1.6;
 }
 
 /* The same glass as the Compare screen's cards: a hazy, see-through fill that blends the warm and cool

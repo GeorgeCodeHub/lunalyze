@@ -35,11 +35,13 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* The play button, then the track beside it. With less than 220px left for the track (a phone), the
+   track drops under the button so the dates of its two ends stay on one line. */
 .row {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: start;
-  gap: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 8px 16px;
 }
 
 /* The same height as the Map / Sky / 3D switch above it, not a full-size button. */
@@ -63,6 +65,7 @@
 .track {
   position: relative;
   display: grid;
+  flex: 1 1 220px;
   min-width: 0;
 }
 

@@ -41,6 +41,7 @@
 }
 
 .error {
+  composes: enter from './shared/Section.module.css';
   display: flex;
   align-items: center;
   gap: 10px;
@@ -65,17 +66,21 @@
   min-width: 0;
 }
 
+/* The panels arrive one after another, in reading order, after the scenario bar. */
 .best {
+  --enter-delay: 70ms;
   grid-area: best;
   min-width: 0;
 }
 
 .alternative {
+  --enter-delay: 140ms;
   grid-area: alternative;
   min-width: 0;
 }
 
 .live {
+  --enter-delay: 210ms;
   grid-area: live;
   min-width: 0;
 }

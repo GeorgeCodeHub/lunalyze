@@ -87,6 +87,13 @@
   /* The ground in the 3D view: lunar grey, light enough that hills and shadows read under the fill light. */
   --color-regolith: #9a978f;
 
+  /* Motion: short and settling, never bouncing. Controls answer in --duration-fast; things that
+     arrive (panels, bars, messages) take --duration-enter. global.css turns all of it off for
+     prefers-reduced-motion. */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-fast: 160ms;
+  --duration-enter: 480ms;
+
   /* Pixel monospace for display, plain monospace for everything else. */
   --font-display: 'Geist Pixel', 'Geist Mono', ui-monospace, monospace;
   --font-mono: 'Geist Mono', ui-monospace, 'SF Mono', Menlo, monospace;

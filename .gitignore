@@ -4,5 +4,6 @@ dist
 *.local
 .cto-toolkit/
 backend/dem/
+backend/public/data/dem/
 __pycache__/
 backend/public/data/dem/

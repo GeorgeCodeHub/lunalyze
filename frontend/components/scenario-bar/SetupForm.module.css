@@ -53,9 +53,9 @@
   text-transform: uppercase;
   cursor: pointer;
   transition:
-    background-color 160ms cubic-bezier(0.16, 1, 0.3, 1),
-    border-color 160ms cubic-bezier(0.16, 1, 0.3, 1),
-    box-shadow 160ms cubic-bezier(0.16, 1, 0.3, 1);
+    background-color var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out);
 }
 
 /* The same light as every button: on hover or keyboard focus, a Sun-to-Earth edge (a ring over the

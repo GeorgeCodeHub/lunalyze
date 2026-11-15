@@ -23,9 +23,10 @@
   text-transform: uppercase;
   cursor: pointer;
   transition:
-    background-color 160ms cubic-bezier(0.16, 1, 0.3, 1),
-    box-shadow 160ms cubic-bezier(0.16, 1, 0.3, 1),
-    color 160ms cubic-bezier(0.16, 1, 0.3, 1);
+    background-color var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out);
 }
 
 /* Hover and focus: the same light as every control. */
@@ -33,6 +34,10 @@
 .option:focus-visible {
   color: var(--color-text);
   box-shadow: var(--glow-hover);
+}
+
+.option:active {
+  transform: scale(0.96);
 }
 
 .option[aria-pressed='true'] {

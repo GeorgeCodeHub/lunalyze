@@ -19,9 +19,9 @@
   background: var(--color-glass);
   cursor: pointer;
   transition:
-    background-color 160ms cubic-bezier(0.16, 1, 0.3, 1),
-    border-color 160ms cubic-bezier(0.16, 1, 0.3, 1),
-    box-shadow 160ms cubic-bezier(0.16, 1, 0.3, 1);
+    background-color var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out);
 }
 
 .input::before {
@@ -34,8 +34,8 @@
   border: 2px solid var(--color-text);
   border-radius: 50%;
   transition:
-    transform 160ms cubic-bezier(0.16, 1, 0.3, 1),
-    background-color 160ms cubic-bezier(0.16, 1, 0.3, 1);
+    transform var(--duration-fast) var(--ease-out),
+    background-color var(--duration-fast) var(--ease-out);
 }
 
 .input:checked {

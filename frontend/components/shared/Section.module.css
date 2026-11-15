@@ -50,9 +50,10 @@
   white-space: nowrap;
   cursor: pointer;
   transition:
-    background-color 160ms cubic-bezier(0.16, 1, 0.3, 1),
-    border-color 160ms cubic-bezier(0.16, 1, 0.3, 1),
-    box-shadow 160ms cubic-bezier(0.16, 1, 0.3, 1);
+    background-color var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out);
 }
 
 /* Hover and keyboard focus light the button the way the side panel's resize edge lights up: its edge
@@ -71,7 +72,7 @@
     linear-gradient(var(--color-bg) 0 0);
   mask-composite: exclude;
   pointer-events: none;
-  transition: opacity 160ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity var(--duration-fast) var(--ease-out);
 }
 
 .button:hover,
@@ -85,9 +86,28 @@
   opacity: 1;
 }
 
+/* Pressed: the button sinks a little under the finger. */
+.button:active {
+  transform: scale(0.97);
+}
+
+/* Something arriving on screen: it fades in while rising a few pixels. A parent sets --enter-delay
+   to stagger siblings. `backwards` holds it hidden through the delay. */
+@keyframes enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+.enter {
+  animation: enter var(--duration-enter) var(--ease-out) var(--enter-delay, 0ms) backwards;
+}
+
 /* A panel is glass: a see-through fill, warm in one corner and a pale haze in the rest, that blurs the
    page's light behind it. Its warm edge comes from the border token; around it, a faint blue-purple glow. */
 .panel {
+  composes: enter;
   border: 1px solid var(--color-glass-border);
   border-radius: var(--radius-panel);
   background: linear-gradient(150deg, var(--tint-sun), var(--tint-haze) 60%);

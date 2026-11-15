@@ -87,6 +87,7 @@
 }
 
 .error {
+  composes: enter from './shared/Section.module.css';
   display: flex;
   align-items: center;
   gap: 10px;
@@ -112,14 +113,17 @@
 
 /* The side panel: the Compare / Single switch, then the cards. */
 .side {
+  composes: enter from './shared/Section.module.css';
   display: grid;
   align-content: start;
   gap: 16px;
   min-width: 0;
 }
 
-/* The side panel and its resize handle. */
+/* The side panel and its resize handle. The panels arrive one after another, in reading order, after
+   the scenario bar: the side panel, then the live view. */
 .sideWrap {
+  --enter-delay: 70ms;
   position: relative;
   grid-area: side;
   min-width: 0;
@@ -136,6 +140,7 @@
 }
 
 .live {
+  --enter-delay: 140ms;
   grid-area: live;
   min-width: 0;
 }

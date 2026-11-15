@@ -1,5 +1,7 @@
+/* The tiles size their figures from this box's width (see MetricCard). */
 .metrics {
   min-width: 0;
+  container-type: inline-size;
 }
 
 .title {

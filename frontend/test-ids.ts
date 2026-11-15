@@ -14,7 +14,6 @@ export const testIds = {
   hero: { image: 'hero-image', credit: 'hero-credit' },
   compare: {
     root: 'compare',
-    startOver: 'compare-start-over',
     error: 'compare-error',
     live: 'compare-live',
     liveSwitch: 'compare-live-switch',

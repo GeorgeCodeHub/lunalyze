@@ -1,8 +1,9 @@
+/* The button sits at the end; what it reports ("Link copied") appears just before it. */
 .copy {
   display: flex;
-  flex-wrap: wrap;
+  flex-flow: row-reverse wrap;
   align-items: center;
-  gap: 8px 14px;
+  gap: 8px 12px;
 }
 
 .button {

@@ -7,7 +7,10 @@ import '@fontsource/geist-mono/400.css';
 import '@fontsource/geist-mono/500.css';
 import '@fontsource/geist-pixel/400.css';
 import './styles/global.css';
+import { watchInputModality } from './inputModality';
 import { queryClient } from './queryClient';
+
+watchInputModality(); // the focus outline is for the keyboard: see styles/global.css
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

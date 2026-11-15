@@ -42,13 +42,15 @@
 
 .facts div {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 16px;
   padding-top: 8px;
   border-top: 1px solid var(--color-rule);
 }
 
+/* The value keeps its own width, up to 60% of the row; the label wraps in what is left. */
 .facts dd {
+  max-width: 60%;
   margin: 0;
   color: var(--color-text);
   text-align: right;

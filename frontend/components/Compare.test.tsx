@@ -69,7 +69,7 @@ const Harness = ({ search, changes }: HarnessProps) => {
     setScenario(next);
   };
 
-  return <Compare scenario={scenario} onChange={change} onBack={() => {}} />;
+  return <Compare scenario={scenario} onChange={change} />;
 };
 
 /** Renders the Compare screen for a link and waits for the data. changes: every scenario it asked for. */
@@ -218,10 +218,12 @@ test('coordinates typed in the toolbar are used on Enter; bad ones show an error
   expect(cards()).toEqual(['best:im-2:ready', 'yourChoice:point-a:ready']);
 });
 
-test('the toolbar has no Copy link button', async () => {
+test('the Share button sits in the page header, once, and not in the toolbar', async () => {
   await mount(WEEK);
 
-  expect(all(testIds.scenarioBar.copyLink)).toHaveLength(0);
+  expect(all(testIds.scenarioBar.copyLink)).toHaveLength(1);
+  expect(all(testIds.scenarioBar.copyLink, one(testIds.scenarioBar.root))).toHaveLength(0);
+  expect(one(testIds.scenarioBar.copyLink).dataset.status).toBe('idle');
 });
 
 test('typed coordinates: the best option still shows, and the other card says why it is empty', async () => {

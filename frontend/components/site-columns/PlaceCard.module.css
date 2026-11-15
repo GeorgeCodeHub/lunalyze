@@ -15,8 +15,8 @@
   position: relative;
   border-color: transparent;
   box-shadow:
-    0 -6px 28px -14px var(--glow-sun-strong),
-    0 14px 36px -18px var(--glow-earth-strong);
+    0 0 36px -16px var(--glow-violet),
+    0 14px 34px -20px var(--glow-earth-strong);
 }
 
 .card[data-role='best']::before {

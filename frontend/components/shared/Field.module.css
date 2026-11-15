@@ -97,3 +97,91 @@ input[type='date'].control {
   color: var(--color-error);
   font-size: 0.85rem;
 }
+
+/* Dropdown lists. Where the browser can draw a select's list in the page (appearance: base-select),
+   the list opens under its field as a menu, in the app's own look, and covers no other field. Other
+   browsers keep their own list. The control stays a native select either way. */
+@supports (appearance: base-select) {
+  select.control,
+  select.control::picker(select) {
+    appearance: base-select;
+  }
+
+  /* The field itself: one line of text, cut off where the field's padding starts so long names
+     never run under the arrow. The app's own arrow stays; the browser's is not drawn. */
+  select.control {
+    display: flex;
+    align-items: center;
+    overflow: clip;
+    overflow-clip-margin: content-box;
+    white-space: nowrap;
+  }
+
+  select.control::picker-icon {
+    display: none;
+  }
+
+  /* Open: the arrow points up. */
+  select.control:open {
+    background-image:
+      var(--icon-chevron-up),
+      linear-gradient(var(--color-glass-border), var(--color-glass-border));
+  }
+
+  /* The list: the same colour and edge as the field it belongs to, lifted by a small shadow. */
+  select.control::picker(select) {
+    max-height: min(360px, 60vh);
+    margin-top: 6px;
+    padding: 6px;
+    overflow-y: auto;
+    border: 1px solid var(--color-glass-border);
+    border-radius: var(--radius-control);
+    background: var(--color-menu);
+    color: var(--color-text);
+    box-shadow: 0 10px 24px -12px var(--shadow-menu);
+  }
+
+  select.control option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 40px;
+    padding: 6px 12px;
+    border-radius: 2px;
+    background: transparent;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+
+  select.control option:hover,
+  select.control option:focus-visible {
+    background: var(--color-glass-hover);
+  }
+
+  /* The chosen one: a tick (the browser's) and a lit ground. */
+  select.control option:checked {
+    background: var(--color-glass-strong);
+  }
+
+  select.control option::checkmark {
+    color: var(--color-sun);
+  }
+
+  /* A group: its name small and quiet, its places under it. */
+  select.control optgroup {
+    padding-top: 8px;
+    background: transparent;
+    color: var(--color-text-muted);
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  select.control optgroup option {
+    color: var(--color-text);
+    letter-spacing: 0;
+    text-transform: none;
+  }
+}

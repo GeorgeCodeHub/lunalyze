@@ -7,6 +7,7 @@ import { useAllSites } from '../useAllSites';
 import DataCredits from './DataCredits';
 import LiveView from './LiveView';
 import RankingChart from './site-picker/RankingChart';
+import CopyLinkButton from './scenario-bar/CopyLinkButton';
 import ScenarioBar from './scenario-bar/ScenarioBar';
 import IconAlert from './shared/IconAlert';
 import { timeFrame } from './shared/timeFrame';
@@ -19,12 +20,12 @@ import HowChosen from './site-columns/HowChosen';
 import WhyBest from './site-columns/WhyBest';
 import styles from './Compare.module.css';
 
-type CompareProps = { scenario: Scenario; onChange: (next: Scenario) => void; onBack: () => void };
+type CompareProps = { scenario: Scenario; onChange: (next: Scenario) => void };
 
 // The Compare screen once a place is picked: the tool's best option on one side, the place it is
 // compared with on the other, and the live view between them. This is the one place that asks for
 // data; every number below comes from useScenario, and the regions only draw what they are handed.
-const Compare = ({ scenario, onChange, onBack }: CompareProps) => {
+const Compare = ({ scenario, onChange }: CompareProps) => {
   const { t } = useTranslation('compare');
   const { t: tCommon } = useTranslation();
   const playheadH = usePlaybackStore((s) => s.offsetH);
@@ -67,9 +68,7 @@ const Compare = ({ scenario, onChange, onBack }: CompareProps) => {
     <div className={styles.page} data-testid={testIds.compare.root}>
       <header className={styles.top}>
         <h1 className={styles.brand}>{tCommon('appTitle')}</h1>
-        <button type="button" className={styles.startOver} onClick={onBack} data-testid={testIds.compare.startOver}>
-          {t('screen.startOver')}
-        </button>
+        <CopyLinkButton />
       </header>
       <ScenarioBar scenario={scenario} onChange={change} />
       {error && (

@@ -1,13 +1,15 @@
 /* Every colour and font in the app is defined here once. CSS Modules use var(--…) only.
-   Direction: a black-and-white instrument panel. Contrast targets WCAG 2.1 AA on --color-bg. */
+   Direction: a glowing jellyfish in the dark. A violet-black ground, warm cream text, a peach light
+   and a blue-purple light. The colours were read by eye from the reference image.
+   Contrast targets WCAG 2.1 AA on --color-bg. */
 :root {
-  --color-bg: #0a0a0a;
-  --color-panel: #0e0e0e;
-  --color-text: #ededed; /* 16.9:1 */
-  --color-text-muted: #b4b4b4; /* 9.5:1 on the page, 5.5:1 on a panel's lightest corner */
-  --color-text-faint: #a3a3a3; /* 7.8:1 on the page, 4.6:1 on a panel's lightest corner */
-  --color-invert-bg: #ededed;
-  --color-invert-text: #0a0a0a;
+  --color-bg: #08070c;
+  --color-panel: #0d0c13;
+  --color-text: #f1ece7; /* 17.1:1 */
+  --color-text-muted: #b4b4b4; /* 9.7:1 on the page, 5.7:1 on a panel's lightest corner */
+  --color-text-faint: #a3a3a3; /* 8.0:1 on the page, 4.7:1 on a panel's lightest corner */
+  --color-invert-bg: #f1ece7;
+  --color-invert-text: #08070c;
 
   /* Lines: --color-line and stronger mark control edges (at least 3:1); --color-rule is decoration only. */
   --color-rule: rgb(255 255 255 / 16%);
@@ -30,38 +32,46 @@
   --color-glass: rgb(255 214 170 / 6%);
   --color-glass-hover: rgb(255 214 170 / 11%);
   --color-glass-strong: rgb(255 214 170 / 17%);
-  /* A panel's see-through fill: the Sun's tone in one corner, Earth's in the other, and a pale haze
-     between them where the two blend. */
+  /* A panel's see-through fill, the same on every page: the warm tone in one corner, fading into a
+     pale haze. */
   --tint-sun: rgb(255 194 125 / 14%);
-  --tint-earth: rgb(127 178 255 / 13%);
   --tint-haze: rgb(255 255 255 / 7%);
+  /* The Moon's warm haze, faint, as the light behind the Compare screen: the landing page's own light. */
+  --haze-soft: rgb(205 175 150 / 9%);
   --color-glass-border: rgb(255 210 165 / 50%); /* 4.1:1 */
   --color-glass-border-strong: rgb(255 226 196 / 82%);
   --blur-glass: blur(18px) saturate(1.2);
   --radius-control: 4px;
   --radius-panel: 8px;
-  /* Dropdown arrow in the text colour (#ededed). */
-  --icon-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1.5l5 5 5-5' stroke='%23ededed' stroke-width='1.5'/%3E%3C/svg%3E");
-  --icon-calendar: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14' fill='none' stroke='%23ededed' stroke-width='1.3'%3E%3Crect x='1.5' y='2.5' width='11' height='10' rx='1'/%3E%3Cpath d='M1.5 5.5h11M4.5 1v3M9.5 1v3'/%3E%3C/svg%3E");
+  /* Field icons in the text colour (#f1ece7): the dropdown arrow, the same arrow pointing up while
+     the list is open, and the calendar. */
+  --icon-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1.5l5 5 5-5' stroke='%23f1ece7' stroke-width='1.5'/%3E%3C/svg%3E");
+  --icon-chevron-up: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 6.5l5-5 5 5' stroke='%23f1ece7' stroke-width='1.5'/%3E%3C/svg%3E");
+  --icon-calendar: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14' fill='none' stroke='%23f1ece7' stroke-width='1.3'%3E%3Crect x='1.5' y='2.5' width='11' height='10' rx='1'/%3E%3Cpath d='M1.5 5.5h11M4.5 1v3M9.5 1v3'/%3E%3C/svg%3E");
+  /* A dropdown's list: the colour a field has on a panel, solid so nothing shows through, and the
+     small dark shadow that lifts it off the page. */
+  --color-menu: #2a2527;
+  --shadow-menu: rgb(0 0 0 / 55%);
 
   --color-focus: #ffc27d; /* the warm tone of the palette, 12.5:1 */
   --color-error: #ff9e94; /* 9.1:1, always paired with an icon and text */
   --color-good: #8fe3ad; /* 12.9:1, always paired with a tick and a word */
 
-  /* The Sun and Earth keep one colour each everywhere (map, charts, strips, timeline): a warm peach
-     light and a pearly blue. They also differ by marker shape and label, so the colour is never the
+  /* The Sun and Earth keep one colour each everywhere (map, charts, strips, timeline): the jellyfish's warm
+     peach light and the blue-purple of its bell. They also differ by marker shape and label, so the colour is never the
      only signal. Checked with the chart palette validator: apart for colour-blind readers, and
      saturated enough to read as colours. They are brighter than its dark-mode band, on purpose: they glow. */
-  --color-sun: #ffc27d; /* 12.5:1 */
-  --color-earth: #7fb2ff; /* 9.2:1 */
+  --color-sun: #ffc27d; /* 12.7:1 */
+  --color-earth: #8c9bff; /* 7.9:1 */
   /* The soft light behind and around chart marks and the best option's edge. Decoration only. */
-  --glow-sun: rgb(255 194 125 / 22%);
-  --glow-earth: rgb(127 178 255 / 22%);
-  --glow-sun-strong: rgb(255 194 125 / 55%);
-  --glow-earth-strong: rgb(127 178 255 / 55%);
+  --glow-sun: rgb(255 194 125 / 13%);
+  --glow-earth: rgb(140 155 255 / 13%);
+  --glow-sun-strong: rgb(255 194 125 / 28%);
+  --glow-earth-strong: rgb(140 155 255 / 28%);
+  /* The deeper purple of the bell's shadows: the glow around every card. */
+  --glow-violet: rgb(138 110 255 / 24%);
   /* Ambient light on the page and under panels: fainter than the light on chart marks. */
-  --glow-sun-soft: rgb(255 194 125 / 12%);
-  --glow-earth-soft: rgb(127 178 255 / 12%);
+  --glow-sun-soft: rgb(255 194 125 / 7%);
   --color-pin: #ffffff;
   --color-map-bg: #0b1220;
   /* The ground in the horizon strip: a fill dark enough that the Sun and Earth read on top of it. */

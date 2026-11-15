@@ -18,9 +18,10 @@
   padding-right: 0;
 }
 
+/* 1.45rem where the card has room; smaller in a narrow card, so "11d 12h" stays inside its tile. */
 .value {
   grid-row: 1;
-  font-size: 1.45rem;
+  font-size: clamp(1.05rem, 6.8cqi, 1.45rem);
   font-weight: 500;
   line-height: 1.15;
   font-variant-numeric: tabular-nums;

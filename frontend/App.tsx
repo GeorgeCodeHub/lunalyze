@@ -1,40 +1,23 @@
-import { useEffect, useState } from 'react';
 import Compare from './components/Compare';
 import Setup from './components/Setup';
-import { readScenario, type Scenario, writeScenarioUrl } from './scenario';
+import type { Scenario } from './scenario';
 import { usePlaybackStore } from './stores/compare';
+import { useScenarioLink } from './useScenarioLink';
 
 const App = () => {
-  const [scenario, setScenario] = useState(() => readScenario(window.location.search));
-  const [editing, setEditing] = useState(false);
+  const { scenario, write } = useScenarioLink();
   const resetPlayback = usePlaybackStore((s) => s.reset);
 
   // A setup answer: a new entry in the browser history, so Back returns to the setup step.
   const start = (next: Scenario) => {
-    writeScenarioUrl('push', next);
     resetPlayback();
-    setScenario(next);
-    setEditing(false);
+    write('push', next);
   };
+
+  if (!scenario) return <Setup initial={null} onSubmit={start} />;
 
   // An edit on the Compare screen: the link follows along, without filling the history.
-  const change = (next: Scenario) => {
-    writeScenarioUrl('replace', next);
-    setScenario(next);
-  };
-
-  useEffect(() => {
-    const onPop = () => {
-      setScenario(readScenario(window.location.search));
-      setEditing(false);
-    };
-    window.addEventListener('popstate', onPop);
-    return () => window.removeEventListener('popstate', onPop);
-  }, []);
-
-  if (!scenario || editing) return <Setup initial={scenario} onSubmit={start} />;
-
-  return <Compare scenario={scenario} onChange={change} onBack={() => setEditing(true)} />;
+  return <Compare scenario={scenario} onChange={(next) => write('replace', next)} />;
 };
 
 export default App;

@@ -46,6 +46,12 @@ optgroup {
   outline-offset: 3px;
 }
 
+/* A field that was clicked or tapped shows its own lit edge only. The outline around it is for
+   keyboard focus (Tab); inputModality.ts records which of the two the person used last. */
+:root[data-modality='pointer'] :is(input, select, textarea):focus-visible {
+  outline: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

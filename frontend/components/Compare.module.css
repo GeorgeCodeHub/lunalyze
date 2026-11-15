@@ -7,17 +7,17 @@
   padding: 20px 16px 40px;
 }
 
-/* The page's own light, behind everything and fixed to the window: warm from the upper left, cool
-   from the right, warm again low down. The glass panels scroll over it, so it shows through them. */
+/* The page's own light, behind everything and fixed to the window: the same warm
+   haze as the landing page's Moon, from the right, with a little more warmth upper left and low down. The glass panels scroll over it, so it shows through them. */
 .page::before {
   content: '';
   position: fixed;
   z-index: -1;
   inset: 0;
   background:
+    radial-gradient(ellipse 60% 90% at 100% 40%, var(--haze-soft), transparent 72%),
     radial-gradient(ellipse 50% 55% at 8% 0%, var(--glow-sun-soft), transparent 70%),
-    radial-gradient(ellipse 45% 60% at 100% 35%, var(--glow-earth-soft), transparent 70%),
-    radial-gradient(ellipse 55% 45% at 30% 100%, var(--glow-sun-soft), transparent 70%);
+    radial-gradient(ellipse 55% 45% at 30% 100%, var(--haze-soft), transparent 70%);
   pointer-events: none;
 }
 
@@ -38,10 +38,6 @@
   line-height: 1.1;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-}
-
-.startOver {
-  composes: button from './shared/Section.module.css';
 }
 
 .error {
@@ -98,10 +94,15 @@
   }
 }
 
-/* A wide screen puts the live view between the two places. */
-@media (min-width: 1180px) {
+/* A wide screen keeps the two places together on the left, to be compared line by line, and gives
+   the live view the larger share on the right. A wider gap sets the live view apart from the pair. */
+@media (min-width: 1240px) {
   .board {
-    grid-template-areas: 'best live alternative';
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr) minmax(0, 1fr);
+    grid-template-areas: 'best alternative live';
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.5fr);
+  }
+
+  .live {
+    margin-left: 8px;
   }
 }

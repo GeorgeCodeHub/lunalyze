@@ -28,7 +28,7 @@
 
 .column[data-best='true'] .button {
   border-color: var(--color-sun);
-  background: linear-gradient(150deg, var(--glow-sun), transparent 60%, var(--glow-earth));
+  background: linear-gradient(150deg, var(--glow-sun), transparent 70%);
   box-shadow: 0 8px 22px -14px var(--glow-earth-strong);
 }
 

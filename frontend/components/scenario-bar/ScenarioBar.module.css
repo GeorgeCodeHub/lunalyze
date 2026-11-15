@@ -10,21 +10,13 @@
   composes: visuallyHidden from '../shared/Section.module.css';
 }
 
-/* Place, coordinates, date, hour, stay and time span. On a phone the place, the coordinates, the date
-   and the time span each take a full row (their words need it), with the hour and the stay side by
-   side. Wider screens put them three across, then all six in one row. */
+/* Place, coordinates, date, hour and stay. On a phone each takes a full row (their words need it).
+   Wider screens put them three across, then all in one row. */
 .fields {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   align-items: start;
   gap: 12px;
-}
-
-.fields > :nth-child(1),
-.fields > :nth-child(2),
-.fields > :nth-child(3),
-.fields > :last-child {
-  grid-column: 1 / -1;
 }
 
 .actions {
@@ -38,13 +30,6 @@
 @media (min-width: 560px) {
   .fields {
     grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  .fields > :nth-child(1),
-  .fields > :nth-child(2),
-  .fields > :nth-child(3),
-  .fields > :last-child {
-    grid-column: auto;
   }
 }
 

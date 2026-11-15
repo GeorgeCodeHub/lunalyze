@@ -2,6 +2,7 @@
   display: grid;
   gap: 8px;
   min-width: 0;
+  container-type: inline-size;
 }
 
 .place {
@@ -69,4 +70,11 @@
 
 .axis span:last-child {
   justify-content: flex-end;
+}
+
+/* Five dates run into each other on a narrow timeline (a phone): keep the start, the middle and the end. */
+@container (max-width: 360px) {
+  .axis span:nth-child(even) {
+    visibility: hidden;
+  }
 }

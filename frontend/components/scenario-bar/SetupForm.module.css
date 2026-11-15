@@ -28,12 +28,17 @@
   text-transform: uppercase;
 }
 
+/* The date over the time on a phone (side by side the date's year is cut off), in one row from 560px. */
 .when {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 170px);
   gap: 12px;
 }
 
+@media (min-width: 560px) {
+  .when {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 170px);
+  }
+}
 
 /* Outlined glass button: 2px light border, bold capitals, arrow at the end, and the warm light inside
    that follows the mouse. */

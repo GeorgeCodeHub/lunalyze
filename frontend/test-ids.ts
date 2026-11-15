@@ -3,6 +3,7 @@ export const testIds = {
   setup: {
     form: 'setup-form',
     siteSelect: 'setup-site-select',
+    siteOption: 'setup-site-option',
     siteError: 'setup-site-error',
     coords: 'setup-coords',
     coordsError: 'setup-coords-error',
@@ -15,6 +16,7 @@ export const testIds = {
   when: { open: 'when-open-calendar', calendar: 'when-calendar', month: 'when-month', prevMonth: 'when-prev-month', nextMonth: 'when-next-month', day: 'when-day' },
   compare: {
     root: 'compare',
+    back: 'compare-back',
     error: 'compare-error',
     live: 'compare-live',
     liveSwitch: 'compare-live-switch',

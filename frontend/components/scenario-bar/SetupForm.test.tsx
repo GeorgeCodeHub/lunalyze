@@ -5,6 +5,7 @@ import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import '../../i18n';
 import { DEFAULT_START, type Scenario } from '../../scenario';
 import { testIds } from '../../test-ids';
+import { PICKER_GROUPS } from '../site-picker/siteIds';
 import SetupForm from './SetupForm';
 
 let container: HTMLDivElement;
@@ -12,14 +13,13 @@ let root: Root;
 
 const all = (id: string) => [...container.querySelectorAll(`[data-testid="${id}"]`)];
 const one = <E extends Element>(id: string) => container.querySelector(`[data-testid="${id}"]`) as E;
-const siteSelect = () => one<HTMLSelectElement>(testIds.setup.siteSelect);
+const siteSelect = () => one<HTMLButtonElement>(testIds.setup.siteSelect);
+const pickSite = (id: string) =>
+  act(() => container.querySelector<HTMLInputElement>(`[data-testid="${testIds.setup.siteOption}"][data-site-id="${id}"]`)?.click());
 const coordsInput = () => one<HTMLInputElement>(testIds.setup.coords);
 
-const setValue = (select: HTMLSelectElement, value: string) =>
-  act(() => {
-    select.value = value;
-    select.dispatchEvent(new Event('change', { bubbles: true }));
-  });
+// Picks a choice in a SelectField menu: the field's radio holding that value.
+const setValue = (field: Element, value: string) => act(() => field.querySelector<HTMLInputElement>(`input[value="${value}"]`)?.click());
 // Sets the value through the native setter so React sees a real change, as when the user types.
 const valueSetter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
 const type = (input: HTMLInputElement, value: string) =>
@@ -55,9 +55,9 @@ test('asks for one place: a site list and a coordinates field, then the hour and
 
   expect(all(testIds.setup.siteSelect)).toHaveLength(1);
   expect(all(testIds.setup.coords)).toHaveLength(1);
-  expect(siteSelect().querySelectorAll('optgroup')).toHaveLength(5);
-  expect(one<HTMLSelectElement>(testIds.setup.hour).options).toHaveLength(24);
-  expect(one<HTMLSelectElement>(testIds.setup.stay).options).toHaveLength(5);
+  expect(all(testIds.setup.siteOption)).toHaveLength(PICKER_GROUPS.flatMap((g) => g.ids).length);
+  expect(one(testIds.setup.hour).querySelectorAll('input')).toHaveLength(24);
+  expect(one(testIds.setup.stay).querySelectorAll('input')).toHaveLength(5);
 });
 
 test('asks for a place before submitting, and moves focus to the site list', () => {
@@ -77,7 +77,7 @@ test('submits the picked site, a 24-hour UTC start and the stay', () => {
   const onSubmit = vi.fn<(s: Scenario) => void>();
   render(onSubmit);
 
-  setValue(siteSelect(), 'malapert-m1');
+  pickSite('malapert-m1');
   setValue(one(testIds.setup.hour), '18');
   setValue(one(testIds.setup.stay), '14');
   submit();
@@ -99,7 +99,7 @@ test.each([
   const onSubmit = vi.fn<(s: Scenario) => void>();
   render(onSubmit);
 
-  setValue(siteSelect(), 'point-a');
+  pickSite('point-a');
   setValue(one(testIds.setup.hour), hourValue);
   submit();
 
@@ -110,7 +110,7 @@ test('accepts the shortest and longest stay', () => {
   const onSubmit = vi.fn<(s: Scenario) => void>();
   render(onSubmit);
 
-  setValue(siteSelect(), 'point-a');
+  pickSite('point-a');
   setValue(one(testIds.setup.stay), '1');
   submit();
   setValue(one(testIds.setup.stay), '30');
@@ -133,9 +133,9 @@ test('starts from a shared scenario: its first place, date, hour and stay; the r
   const onSubmit = vi.fn<(s: Scenario) => void>();
   render(onSubmit, shared);
 
-  expect(siteSelect().value).toBe('');
+  expect(siteSelect().dataset.siteId).toBe('');
   expect(coordsInput().value).toBe('-85.25, 31.4');
-  expect(one<HTMLSelectElement>(testIds.setup.hour).value).toBe('23');
+  expect(one<HTMLElement>(testIds.setup.hour).dataset.value).toBe('23');
   submit();
 
   // The hills switch and the other compared places are not asked here, so they stay. The time span is
@@ -158,9 +158,9 @@ test('changing the landing place keeps the other compared places, without repeat
   const onSubmit = vi.fn<(s: Scenario) => void>();
   render(onSubmit, shared);
 
-  setValue(siteSelect(), 'nobile');
+  pickSite('nobile');
   submit();
-  setValue(siteSelect(), 'im-2');
+  pickSite('im-2');
   submit();
 
   expect(onSubmit.mock.calls.map(([s]) => s.places.map((p) => (p.kind === 'site' ? p.id : '')))).toEqual([
@@ -173,7 +173,7 @@ test('an empty date falls back to the default start instead of an invalid date',
   const onSubmit = vi.fn<(s: Scenario) => void>();
   render(onSubmit);
 
-  setValue(siteSelect(), 'point-a');
+  pickSite('point-a');
   type(one(testIds.setup.date), '');
   submit();
 
@@ -215,11 +215,11 @@ test.each(['90.01, 0', '-85, -180.01', '-77.99, 0', '0, 0', '-85', '-85, 31, 2',
 test('typing coordinates clears the picked site, and picking a site clears them', () => {
   render();
 
-  setValue(siteSelect(), 'haworth');
+  pickSite('haworth');
   type(coordsInput(), '-85, 31');
-  expect(siteSelect().value).toBe('');
+  expect(siteSelect().dataset.siteId).toBe('');
 
-  setValue(siteSelect(), 'point-a');
+  pickSite('point-a');
   expect(coordsInput().value).toBe('');
 });
 

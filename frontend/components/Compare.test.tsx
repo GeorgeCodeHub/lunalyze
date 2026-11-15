@@ -97,7 +97,7 @@ const Harness = ({ search, changes }: HarnessProps) => {
     setScenario(next);
   };
 
-  return <Compare scenario={scenario} onChange={change} />;
+  return <Compare scenario={scenario} onChange={change} onBack={() => {}} />;
 };
 
 /** Renders the Compare screen for a link and waits for the data. changes: every scenario it asked for. */

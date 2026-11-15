@@ -4,6 +4,7 @@ import { DEFAULT_START, DEFAULT_STAY, type Scenario, type Stay, STAYS, uniquePla
 import { testIds } from '../../test-ids';
 import IconAlert from '../shared/IconAlert';
 import IconArrow from '../shared/IconArrow';
+import SelectField from '../shared/SelectField';
 import { STAY_KEY } from '../shared/stayKeys';
 import WhenFields from '../shared/WhenFields';
 import { draftFrom, placeFrom } from '../site-picker/placeDrafts';
@@ -22,7 +23,7 @@ const SetupForm = ({ initial, onSubmit }: SetupFormProps) => {
   const [stay, setStay] = useState<Stay>(initial?.stay ?? DEFAULT_STAY);
   const [checked, setChecked] = useState(false); // errors show only after the first submit
 
-  const siteRef = useRef<HTMLSelectElement>(null);
+  const siteRef = useRef<HTMLButtonElement>(null);
   const coordsRef = useRef<HTMLInputElement>(null);
   const place = placeFrom(draft);
   const errorVisible = checked && place === null;
@@ -86,22 +87,14 @@ const SetupForm = ({ initial, onSubmit }: SetupFormProps) => {
       </fieldset>
 
       <fieldset className={styles.step}>
-        <legend className={styles.question}>
-          <label htmlFor="setup-stay">{t('setup.stay.label')}</label>
-        </legend>
-        <select
-          id="setup-stay"
-          className={fieldStyles.control}
-          value={stay}
-          data-testid={testIds.setup.stay}
-          onChange={(e) => setStay(Number(e.target.value) as Stay)}
-        >
-          {STAYS.map((s) => (
-            <option key={s} value={s}>
-              {t(`setup.stay.${STAY_KEY[s]}`)}
-            </option>
-          ))}
-        </select>
+        <legend className={styles.question}>{t('setup.stay.label')}</legend>
+        <SelectField
+          label={t('bar.stay')}
+          value={String(stay)}
+          options={STAYS.map((s) => ({ value: String(s), label: t(`setup.stay.${STAY_KEY[s]}`) }))}
+          onChange={(value) => setStay(STAYS.find((s) => String(s) === value) ?? stay)}
+          testId={testIds.setup.stay}
+        />
       </fieldset>
 
       <button type="submit" className={styles.submit} data-testid={testIds.setup.submit}>

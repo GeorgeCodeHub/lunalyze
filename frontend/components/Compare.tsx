@@ -113,9 +113,8 @@ const Compare = ({ scenario, onChange, onBack }: CompareProps) => {
       <div className={styles.stars} aria-hidden="true" />
       <header className={styles.top}>
         <div className={styles.start}>
-          <button type="button" className={styles.back} onClick={onBack} data-testid={testIds.compare.back}>
+          <button type="button" className={styles.back} onClick={onBack} aria-label={t('screen.back')} title={t('screen.back')} data-testid={testIds.compare.back}>
             <IconArrow />
-            {t('screen.back')}
           </button>
           <h1 className={styles.brand}>{tCommon('appTitle')}</h1>
         </div>

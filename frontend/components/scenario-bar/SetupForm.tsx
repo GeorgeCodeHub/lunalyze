@@ -54,8 +54,10 @@ const SetupForm = ({ initial, onSubmit }: SetupFormProps) => {
 
   return (
     <form className={styles.form} noValidate onSubmit={submit} data-testid={testIds.setup.form}>
-      <fieldset className={styles.step}>
-        <legend className={styles.question}>{t('setup.where.label')}</legend>
+      <div role="group" aria-labelledby="setup-where" className={styles.step}>
+        <h3 id="setup-where" className={styles.question}>
+          {t('setup.where.label')}
+        </h3>
         <SitePicker
           draft={draft}
           onChange={setDraft}
@@ -70,10 +72,12 @@ const SetupForm = ({ initial, onSubmit }: SetupFormProps) => {
             {t('setup.where.error')}
           </p>
         )}
-      </fieldset>
+      </div>
 
-      <fieldset className={styles.step}>
-        <legend className={styles.question}>{t('setup.when.label')}</legend>
+      <div role="group" aria-labelledby="setup-when" className={styles.step}>
+        <h3 id="setup-when" className={styles.question}>
+          {t('setup.when.label')}
+        </h3>
         <div className={styles.when}>
           <WhenFields
             date={date}
@@ -84,10 +88,12 @@ const SetupForm = ({ initial, onSubmit }: SetupFormProps) => {
             hourTestId={testIds.setup.hour}
           />
         </div>
-      </fieldset>
+      </div>
 
-      <fieldset className={styles.step}>
-        <legend className={styles.question}>{t('setup.stay.label')}</legend>
+      <div role="group" aria-labelledby="setup-stay" className={styles.step}>
+        <h3 id="setup-stay" className={styles.question}>
+          {t('setup.stay.label')}
+        </h3>
         <SelectField
           label={t('bar.stay')}
           value={String(stay)}
@@ -95,7 +101,7 @@ const SetupForm = ({ initial, onSubmit }: SetupFormProps) => {
           onChange={(value) => setStay(STAYS.find((s) => String(s) === value) ?? stay)}
           testId={testIds.setup.stay}
         />
-      </fieldset>
+      </div>
 
       <button type="submit" className={styles.submit} data-testid={testIds.setup.submit}>
         <span className={styles.submitLabel}>{t('setup.submit')}</span>

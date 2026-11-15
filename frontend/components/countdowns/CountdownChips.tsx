@@ -6,17 +6,16 @@ import styles from './CountdownChips.module.css';
 
 type CountdownChipsProps = { now: SiteView }; // the moment the playhead is on
 
+// The next sunrise or sunset and Earthrise or Earthset, counted from the moment the playhead is on.
+// Shown beside the place's timeline, so the playhead they count from is in sight.
 const CountdownChips = ({ now }: CountdownChipsProps) => {
   const { t } = useTranslation('compare');
 
   return (
-    <section className={styles.countdowns} data-testid={testIds.countdowns.root}>
-      <h3 className={styles.title}>{t('countdown.title')}</h3>
-      <ul className={styles.list}>
-        <CountdownChip body="sun" countdown={now.countdown.sun} />
-        <CountdownChip body="earth" countdown={now.countdown.earth} />
-      </ul>
-    </section>
+    <ul className={styles.list} aria-label={t('countdown.title')} data-testid={testIds.countdowns.root}>
+      <CountdownChip body="sun" countdown={now.countdown.sun} />
+      <CountdownChip body="earth" countdown={now.countdown.earth} />
+    </ul>
   );
 };
 

@@ -134,7 +134,7 @@ test('shows the best of the south-pole places on one side and the setup place on
   expect(all(testIds.compare.error)).toHaveLength(0);
 });
 
-test('a card shows three numbers and two next events; the rest sits in its details, closed at first', async () => {
+test('a card shows three numbers, its details stay closed at first, and next events sit by each timeline', async () => {
   await mount(WEEK);
 
   for (const card of all(testIds.siteColumns.column)) {
@@ -147,8 +147,12 @@ test('a card shows three numbers and two next events; the rest sits in its detai
       'longestBlackoutH',
     ]);
     expect(all(testIds.metricCards.card, details).map((m) => m.dataset.metric)).toEqual(['panelOutputPct', 'sunElDeg']);
-    expect(all(testIds.countdowns.chip, card).map((chip) => chip.dataset.body)).toEqual(['sun', 'earth']);
+    expect(all(testIds.countdowns.chip, card)).toHaveLength(0); // what happens next is in the live view
   }
+  // Each place's timeline carries its next Sun and Earth event, beside the place's name.
+  const timelines = all(testIds.timeline.root, one(testIds.compare.live));
+  expect(timelines.map((tl) => tl.dataset.siteId)).toEqual(['im-2', 'malapert-m1']);
+  for (const tl of timelines) expect(all(testIds.countdowns.chip, tl).map((chip) => chip.dataset.body)).toEqual(['sun', 'earth']);
   // Malapert M1 is an approximate location: the caveat stays on the face of its card, as a short mark.
   expect(all(testIds.siteColumns.caveat).map((caveat) => caveat.dataset.kind)).toEqual(['approximate']);
 });
@@ -160,6 +164,11 @@ test('says why the best option won: of the 10 ranked places, the shortest dark p
   expect(why).toHaveLength(1); // only the best option explains itself
   expect(why[0].dataset.reason).toBe('dark');
   expect(why[0].dataset.checked).toBe('10'); // 11 mapped places, IM-1 left out: its horizon is incomplete
+  // The best option fits, so its reason is its fit line: the 50-hour line is not repeated on its card.
+  const [bestFit, yourFit] = all(testIds.siteColumns.fit);
+  expect(bestFit.dataset.fit).toBe('fits');
+  expect(bestFit.contains(why[0])).toBe(true);
+  expect(all(testIds.siteColumns.why, yourFit)).toHaveLength(0);
 });
 
 test('a 30-day stay: the best option is the only place that fits, and the setup place is risky', async () => {

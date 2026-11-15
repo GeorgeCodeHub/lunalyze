@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import type { SiteView } from '../../../backend/lib/types';
 import type { Stay } from '../../scenario';
 import { testIds } from '../../test-ids';
-import CountdownChips from '../countdowns/CountdownChips';
 import MetricCards from '../metric-cards/MetricCards';
 import type { TimeFrame } from '../shared/timeFrame';
 import { usePosition } from '../shared/usePosition';
@@ -25,14 +24,15 @@ type PlaceCardProps = {
   frame: TimeFrame;
   stay: Stay;
   terrain: boolean;
-  foot?: ReactNode; // the last line of the card's face: why the best option won
+  why?: ReactNode; // why the best option won: in the fit line when it fits, else the last line of the face
   how?: ReactNode; // the best option's details add how it was chosen
 };
 
-// One place, made to be read in a glance: what it is and where, the verdict, three numbers, what happens next.
+// One place, made to be read in a glance: what it is and where, the verdict, three numbers.
+// What happens next at the moment shown sits with the place's timeline, in the live view.
 // Both cards carry the same blocks in the same order, so the eye compares them straight across.
 // Everything else is one step away, in Details.
-const PlaceCard = ({ role, alsoYours, view, stayView, now, frame, stay, terrain, foot, how }: PlaceCardProps) => {
+const PlaceCard = ({ role, alsoYours, view, stayView, now, frame, stay, terrain, why, how }: PlaceCardProps) => {
   const { t: tSites } = useTranslation('sites');
   const position = usePosition();
 
@@ -57,11 +57,10 @@ const PlaceCard = ({ role, alsoYours, view, stayView, now, frame, stay, terrain,
         alsoYours={alsoYours}
         risky={fit.status === 'risky'}
       />
-      <FitLabel fit={fit} lanes={stayView.lanes} startMs={frame.startMs} stayH={frame.stayH} />
+      <FitLabel fit={fit} lanes={stayView.lanes} startMs={frame.startMs} stayH={frame.stayH} why={why} />
       <MetricCards view={view} zoom={frame.zoom} />
-      <CountdownChips now={now} />
       <SiteCaveats view={view} terrain={terrain} />
-      {foot}
+      {fit.status === 'risky' && why /* no place fits: the reason, "the closest", goes under the numbers */}
       <PlaceDetails view={view} now={now} fit={fit} stay={stay} terrain={terrain}>
         {how}
       </PlaceDetails>

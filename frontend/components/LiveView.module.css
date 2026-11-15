@@ -42,7 +42,7 @@
 }
 
 /* The map is square. It grows with the live view, but leaves 290px of the window's height for the
-   title, the legend, the play button and the time slider, so they are on screen together with the
+   title, the play button, the time slider and the legend, so they are on screen together with the
    map. On a short window it keeps a readable 420px. */
 .map {
   display: grid;
@@ -53,9 +53,10 @@
   margin: 0 auto;
 }
 
-/* The play button and scrubber sit between the picture and the timelines: they drive both. */
+/* The play button and scrubber sit at the top, under the title: they drive the picture and the
+   timelines, and are in sight as soon as the live view is. */
 .time {
-  padding: 16px 0;
+  padding: 12px 0;
   border-top: 1px solid var(--color-rule);
   border-bottom: 1px solid var(--color-rule);
 }

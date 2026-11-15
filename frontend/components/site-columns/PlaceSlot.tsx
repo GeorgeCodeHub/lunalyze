@@ -37,7 +37,7 @@ const PlaceSlot = ({ column, role, alsoYours, frame, stay, terrain, foot, how }:
       frame={frame}
       stay={stay}
       terrain={terrain}
-      foot={foot}
+      why={foot}
       how={how}
     />
   );

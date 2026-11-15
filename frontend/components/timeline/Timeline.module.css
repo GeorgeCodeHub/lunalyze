@@ -4,6 +4,16 @@
   min-width: 0;
 }
 
+/* The place's name, with what happens next at the far end; it drops below on a narrow screen. */
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  min-width: 0;
+}
+
 .place {
   margin: 0;
   font-size: 0.85rem;

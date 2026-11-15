@@ -2,6 +2,7 @@ import { lazy, Suspense, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { SiteView } from '../../backend/lib/types';
 import { testIds } from '../test-ids';
+import CountdownChips from './countdowns/CountdownChips';
 import HorizonStrip from './horizon-strip/HorizonStrip';
 import Segmented from './shared/Segmented';
 import type { TimeFrame } from './shared/timeFrame';
@@ -22,8 +23,9 @@ type Mode = 'map' | 'sky' | '3d';
 
 const TITLE_ID = 'live-view-title';
 
-// The middle of the screen: both places at the moment the playhead is on, as a map or as the sky from
-// each place, with the play button and one timeline for each place underneath. Press play and all of it moves.
+// The right of the screen: the play button and time slider first, so they are in sight with the
+// picture; then both places at the moment the playhead is on, as a map, the sky or in 3D; then one
+// timeline for each place, with what happens next. Press play and all of it moves.
 const LiveView = ({ places, loading, frame }: LiveViewProps) => {
   const { t } = useTranslation('compare');
   const { t: tSites } = useTranslation('sites');
@@ -50,6 +52,9 @@ const LiveView = ({ places, loading, frame }: LiveViewProps) => {
         </p>
       ) : (
         <>
+          <div className={styles.time}>
+            <TimeControls frame={frame} />
+          </div>
           {mode === 'map' && (
             <div className={styles.map}>
               <p className={styles.hint}>{t('live.mapHint')}</p>
@@ -77,9 +82,6 @@ const LiveView = ({ places, loading, frame }: LiveViewProps) => {
               </Suspense>
             </Terrain3DBoundary>
           )}
-          <div className={styles.time}>
-            <TimeControls frame={frame} />
-          </div>
           <div className={styles.timelines}>
             <h3 className={styles.subtitle}>{t('timeline.title')}</h3>
             {places.map((place, i) => (
@@ -89,6 +91,7 @@ const LiveView = ({ places, loading, frame }: LiveViewProps) => {
                 frame={frame}
                 siteName={nameOf(place.view)}
                 axis={i === places.length - 1}
+                aside={<CountdownChips now={place.now} />}
               />
             ))}
             <p className={styles.note}>{t('timeline.legend')}</p>

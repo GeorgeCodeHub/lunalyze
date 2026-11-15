@@ -20,7 +20,7 @@ type TerrainCanvasProps = {
   sky: SiteView['sky']; // at the playhead time
   colours: { sun: string; earth: string; ground: string; sky: string };
   facing: [number, number, number]; // where the view turns on mount and on each "face" button
-  look: { direction: LookAction | null; n: number }; // the latest press on the compass's keys or the zoom
+  look: { direction: LookAction | null; degrees?: number; n: number }; // the latest press on the compass's keys or the zoom
   onHeading: (degrees: number) => void; // the bearing the view faces, as it changes
   portal: RefObject<HTMLElement | null>; // where the labels attach: fixed from the first render
 };

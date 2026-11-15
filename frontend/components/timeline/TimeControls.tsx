@@ -35,8 +35,9 @@ const TimeControls = ({ frame }: TimeControlsProps) => {
   const { stepH, tickMs } = PLAYBACK[frame.zoom];
   const { offsetH, endH, stayH, startMs } = frame;
   const shown = t('playback.utc', { time: formatDateTime(frame.nowMs) });
+  // Seen on the track (its end labels and the shaded stay); said aloud with the time for screen readers.
   const sinceLanding = offsetH === 0 ? t('playback.atLanding') : t('playback.afterLanding', { time: duration(offsetH) });
-  const inStay = offsetH <= stayH;
+  const stayPart = t(offsetH <= stayH ? 'playback.inStay' : 'playback.afterStay');
   // The share of the track the stay covers, for the shaded band (0 to 1).
   const stayShare = endH > 0 ? Math.min(1, stayH / endH) : 1;
 
@@ -75,9 +76,6 @@ const TimeControls = ({ frame }: TimeControlsProps) => {
         </div>
         <p className={styles.readout} data-testid={testIds.timeline.readout} data-offset-h={offsetH} aria-live="off">
           <strong className={styles.readoutTime}>{shown}</strong>
-          <span className={styles.readoutSince}>
-            {sinceLanding} · {t(inStay ? 'playback.inStay' : 'playback.afterStay')}
-          </span>
         </p>
       </div>
       <div className={styles.row}>
@@ -96,7 +94,7 @@ const TimeControls = ({ frame }: TimeControlsProps) => {
               max={endH}
               step={1}
               value={offsetH}
-              aria-valuetext={`${shown}, ${sinceLanding}`}
+              aria-valuetext={`${shown}, ${sinceLanding}, ${stayPart}`}
               aria-describedby={`${HINT_ID} ${KEYS_ID}`}
               title={t('playback.keys')}
               data-testid={testIds.timeline.scrubber}

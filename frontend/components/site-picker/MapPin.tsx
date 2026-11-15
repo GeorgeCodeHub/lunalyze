@@ -3,6 +3,7 @@ import { mapDirection } from '../../../backend/lib/projectPolar';
 import type { SiteView } from '../../../backend/lib/types';
 import type { SiteId } from '../../i18n';
 import { testIds } from '../../test-ids';
+import { useSiteName } from '../shared/useSiteName';
 import BodyLine from './BodyLine';
 import { MARK_PX } from './mapUnits';
 import styles from './MapPin.module.css';
@@ -13,12 +14,13 @@ type MapPinProps = { view: SiteView; x: number; y: number; k: number; labelEnd?:
 
 const MapPin = ({ view, x, y, k, labelEnd }: MapPinProps) => {
   const { t } = useTranslation('compare');
+  const nameOf = useSiteName();
 
   const { site, sky, horizonIncomplete } = view;
-  const name = t(`${site.id as SiteId}.name`, { ns: 'sites' });
+  const name = nameOf(site);
   const sun = mapDirection(sky.sun.az, site.lon);
   const earth = mapDirection(sky.earth.az, site.lon);
-  const short = t(`${site.id as SiteId}.short`, { ns: 'sites' }); // long names run off the map
+  const short = site.kind === 'typed' ? name : t(`${site.id as SiteId}.short`, { ns: 'sites' }); // long names run off the map
   const nameOnLeft = labelEnd ?? x > 0;
   const labelOffset = MARK_PX.labelGap * k;
   // Chrome caps font-size at 10000px, so the label is drawn 10 units tall and scaled to MARK_PX.label.

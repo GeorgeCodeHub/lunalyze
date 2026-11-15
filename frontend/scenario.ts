@@ -27,9 +27,13 @@ export const DEFAULT_START = new Date('2028-03-01T00:00:00Z');
 const isZoom = (v: string | null): v is Zoom => ZOOMS.includes(v as Zoom);
 const asStay = (v: string | null): Stay | null => STAYS.find((s) => String(s) === v) ?? null;
 
-/** True for a latitude and longitude on the Moon's map. */
+// Typed coordinates are limited to the south pole region the live map shows, where the hills come from the LOLA
+// DEMs. The copy in setup.where.coordsHint and coordsError gives the same numbers.
+export const MAX_LAT = -78;
+
+/** True for a latitude and longitude the tool can work out: from MAX_LAT to the south pole, any longitude. */
 export const validCoords = (lat: number, lon: number) =>
-  Number.isFinite(lat) && Number.isFinite(lon) && Math.abs(lat) <= 90 && Math.abs(lon) <= 180;
+  Number.isFinite(lat) && Number.isFinite(lon) && lat >= -90 && lat <= MAX_LAT && Math.abs(lon) <= 180;
 
 /** A place as written in the URL. Two places with the same token are the same place. */
 export const placeToken = (p: Place) => (p.kind === 'site' ? encodeURIComponent(p.id) : `@${p.lat}:${p.lon}`);
@@ -40,6 +44,9 @@ const readPlace = (token: string): Place | null => {
   const [lat, lon] = token.slice(1).split(':').map((v) => (v.trim() === '' ? NaN : Number(v)));
   return validCoords(lat, lon) ? { kind: 'coords', lat, lon } : null;
 };
+
+/** The id useScenario takes for a place: a site id, or @latitude:longitude for typed coordinates. */
+export const placeId = (p: Place) => (p.kind === 'site' ? p.id : placeToken(p));
 
 /** The ids of the listed sites among the places; typed coordinates have none. */
 export const siteIdsOf = (places: (Place | null)[]): string[] => places.flatMap((place) => (place?.kind === 'site' ? [place.id] : []));

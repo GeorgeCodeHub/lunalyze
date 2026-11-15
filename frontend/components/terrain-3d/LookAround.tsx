@@ -9,7 +9,7 @@ import { FOV_MAX, FOV_MIN, headingOf, type LookAction, lookTurn, POLAR_MAX, POLA
 type LookAroundProps = {
   eyeY: number;
   facing: [number, number, number];
-  look: { direction: LookAction | null; n: number };
+  look: { direction: LookAction | null; degrees?: number; n: number }; // degrees: a free turn left (+) or right (-), from the compass
   lon: number;
   onHeading: (degrees: number) => void;
 };
@@ -34,10 +34,10 @@ const LookAround = ({ eyeY, facing, look, lon, onHeading }: LookAroundProps) => 
   // A press on the pad or the zoom buttons: turn from where the view looks now, or zoom, by one step.
   useEffect(() => {
     const c = controls.current;
-    if (!c || look.direction === null) return;
+    if (!c || (look.direction === null && !look.degrees)) return;
     const camera = c.object as PerspectiveCamera;
     const turn = lookTurn(look.direction);
-    c.setAzimuthalAngle(c.getAzimuthalAngle() + turn.azimuth);
+    c.setAzimuthalAngle(c.getAzimuthalAngle() + turn.azimuth + ((look.degrees ?? 0) * Math.PI) / 180);
     c.setPolarAngle(tiltedPolar(c.getPolarAngle(), turn.polar));
     camera.fov = zoomedFov(camera.fov, look.direction);
     camera.updateProjectionMatrix();

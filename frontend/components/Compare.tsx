@@ -1,7 +1,7 @@
 import { type CSSProperties, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useScenario } from '../../backend/lib/useScenario';
-import { MAX_PICKS, type Place, placeToken, type Scenario, siteIdsOf } from '../scenario';
+import { MAX_PICKS, type Place, placeId, placeToken, type Scenario } from '../scenario';
 import { usePlaybackStore } from '../stores/compare';
 import { testIds } from '../test-ids';
 import { useAllSites } from '../useAllSites';
@@ -17,6 +17,7 @@ import { buildColumns } from './site-columns/columnModel';
 import { pickPlaces } from './site-columns/pickPlaces';
 import { rankSites } from './site-columns/rankSites';
 import SidePanel, { type SideEntry } from './site-columns/SidePanel';
+import { liveKeys, SIDE_VIEW_START, type SideView } from './site-columns/sideView';
 import HowChosen from './site-columns/HowChosen';
 import WhyBest from './site-columns/WhyBest';
 import styles from './Compare.module.css';
@@ -31,6 +32,7 @@ const Compare = ({ scenario, onChange }: CompareProps) => {
   const { t: tCommon } = useTranslation();
   const playheadH = usePlaybackStore((s) => s.offsetH);
   const [sideWidth, setSideWidth] = useState<number | null>(null); // px; null: the default quarter of the window
+  const [sideView, setSideView] = useState<SideView>(SIDE_VIEW_START); // compare or single: the live view follows it
   const pause = usePlaybackStore((s) => s.pause);
   // Every listed place over the Moon day from landing: the tool ranks them, and those lanes cover the stay.
   const all = useAllSites(scenario.start, scenario.terrain);
@@ -41,21 +43,26 @@ const Compare = ({ scenario, onChange }: CompareProps) => {
     ranking.order.map(({ view }) => view.site.id),
   );
   // The best option first, when there is one; then up to 2 places the person picked (3 at most).
-  const onScreen = [picks.best, ...picks.compared.map((c) => c.place)].flatMap((place) => place ?? []);
-  const siteIds = siteIdsOf(onScreen);
+  const places = [picks.best, ...picks.compared.map((c) => c.place)].flatMap((place) => place ?? []);
+  const siteIds = places.map(placeId);
   const opts = { terrain: scenario.terrain };
   // The two places on screen (DATA_CONTRACT, "Play button"). shown: the time span picked, for the numbers,
   // lanes and paths. now: the playhead moment, for the map, sky and 3D view; they are the same at any
   // zoom, so the cheapest one is asked.
   const shown = useScenario(siteIds, scenario.start, scenario.zoom, opts);
   const now = useScenario(siteIds, new Date(frame.nowMs), 'day', opts);
+  // Typed coordinates are not among the listed places, so their Moon day from landing is asked for here.
+  const typedIds = places.flatMap((place) => (place.kind === 'coords' ? [placeId(place)] : []));
+  const typed = useScenario(typedIds, scenario.start, 'lunarDay', opts);
+  const stay = { views: [...all.views, ...typed.views], loading: all.loading || typed.loading };
 
-  const columns = buildColumns(onScreen, shown, all, now);
+  // The cards: the best option first, when there is one; then the places compared with it.
+  const columns = buildColumns(places, shown, stay, now);
   const best = picks.best ? columns[0] : undefined;
   const others = picks.best ? columns.slice(1) : columns;
   const ready = columns.flatMap((column) => (column.kind === 'ready' ? [column] : []));
   const loading = all.loading || columns.some((column) => column.kind === 'loading');
-  const error = all.error ?? shown.error ?? now.error;
+  const error = all.error ?? shown.error ?? now.error ?? typed.error;
 
   const yourPlaces = scenario.places.slice(0, MAX_PICKS);
 
@@ -97,6 +104,9 @@ const Compare = ({ scenario, onChange }: CompareProps) => {
   const sideNow = sideWidth ?? Math.min(window.innerWidth / 4, 420);
   const boardStyle = (sideWidth === null ? {} : { '--side-width': `${sideWidth}px` }) as CSSProperties;
 
+  // The live view shows every place in Compare, and only the side panel's place in Single.
+  const shownKeys = new Set(liveKeys(sideView, columns.map((column) => column.key)));
+
   const change = (next: Scenario) => {
     if (next.zoom !== scenario.zoom) pause(); // the play pace belongs to the time span, so a new span starts paused
     onChange(next);
@@ -118,7 +128,7 @@ const Compare = ({ scenario, onChange }: CompareProps) => {
       <main className={styles.board} style={boardStyle}>
         <div className={styles.sideWrap}>
           <div className={styles.side} data-testid={testIds.compare.side}>
-            <SidePanel entries={entries} pending={best ? undefined : <BestPending loading={all.loading} />} />
+            <SidePanel entries={entries} pending={best ? undefined : <BestPending loading={all.loading} />} view={sideView} onView={setSideView} />
           </div>
           <div className={styles.handle}>
             <ResizeHandle
@@ -132,7 +142,7 @@ const Compare = ({ scenario, onChange }: CompareProps) => {
           </div>
         </div>
         <div className={styles.live}>
-          <LiveView places={ready} loading={loading} frame={frame} />
+          <LiveView places={ready.filter((column) => shownKeys.has(column.key))} loading={loading} frame={frame} />
         </div>
       </main>
       <DataCredits />

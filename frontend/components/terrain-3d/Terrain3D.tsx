@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import type { SiteView } from '../../../backend/lib/types';
 import { testIds } from '../../test-ids';
-import { siteNameKey } from '../site-picker/siteIds';
+import { useSiteName } from '../shared/useSiteName';
 import TerrainNote from './TerrainNote';
 import TerrainScene from './TerrainScene';
 import styles from './Terrain3D.module.css';
@@ -12,9 +12,9 @@ type Terrain3DProps = { places: { view: SiteView; now: SiteView }[] };
 // The ground around each place, lit by the Sun at the playhead time. A place with no terrain data gets a note instead.
 const Terrain3D = ({ places }: Terrain3DProps) => {
   const { t } = useTranslation('compare');
-  const { t: tSites } = useTranslation('sites');
+  const name = useSiteName();
 
-  const nameOf = (view: SiteView) => tSites(siteNameKey(view.site.id));
+  const nameOf = (view: SiteView) => name(view.site);
 
   return (
     <div className={styles.root} data-testid={testIds.terrain3d.root}>

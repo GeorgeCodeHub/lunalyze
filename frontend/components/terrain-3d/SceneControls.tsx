@@ -11,11 +11,12 @@ type SceneControlsProps = {
   onFace: (body: 'sun' | 'earth') => void;
   onNorth: () => void;
   onLook: (action: LookAction) => void;
+  onTurn: (degrees: number) => void; // a free turn from dragging the compass: left positive
 };
 
 // The controls drawn over a ready 3D picture, in opposite corners so they never meet: small Face the Sun /
 // Face Earth pills in the top-left (in the sky), and a map's zoom and compass in the bottom-right.
-const SceneControls = ({ heading, onFace, onNorth, onLook }: SceneControlsProps) => {
+const SceneControls = ({ heading, onFace, onNorth, onLook, onTurn }: SceneControlsProps) => {
   const { t } = useTranslation('compare');
 
   return (
@@ -30,7 +31,7 @@ const SceneControls = ({ heading, onFace, onNorth, onLook }: SceneControlsProps)
       </div>
       <div className={styles.lookControls}>
         <ZoomPill onZoom={onLook} />
-        <Compass heading={heading} onNorth={onNorth} onLook={onLook} />
+        <Compass heading={heading} onNorth={onNorth} onLook={onLook} onTurn={onTurn} />
       </div>
     </>
   );

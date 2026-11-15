@@ -28,7 +28,7 @@ const TerrainScene = ({ view, now, siteName }: TerrainSceneProps) => {
     sky: cssColor('--color-sky'),
   }));
   const [facing, setFacing] = useState(() => facingDirection(now.sky.sun, view.site.lon));
-  const [look, setLook] = useState<{ direction: LookAction | null; n: number }>({ direction: null, n: 0 });
+  const [look, setLook] = useState<{ direction: LookAction | null; degrees?: number; n: number }>({ direction: null, n: 0 });
   const [heading, setHeading] = useState(0); // the bearing the view faces, whole degrees
 
   const boxRef = useRef<HTMLElement>(null);
@@ -92,6 +92,7 @@ const TerrainScene = ({ view, now, siteName }: TerrainSceneProps) => {
             onFace={face}
             onNorth={faceNorth}
             onLook={(action) => setLook((last) => ({ direction: action, n: last.n + 1 }))}
+            onTurn={(degrees) => setLook((last) => ({ direction: null, degrees, n: last.n + 1 }))}
           />
         )}
       </div>

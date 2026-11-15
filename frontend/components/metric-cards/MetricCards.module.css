@@ -20,18 +20,12 @@
   list-style: none;
 }
 
-/* A narrow card: two numbers on a row, the third under them; narrower still, one under the other. The
-   rows of each tile still line up within its row (figure, bar, label, note). */
-@container (max-width: 299px) {
-  .tiles {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    grid-template-rows: none;
-    grid-auto-rows: auto;
-  }
-}
-
+/* The three numbers stay on one line. Only when the card is too narrow for three (below 200px) do they
+   stand one under another; never two and one. */
 @container (max-width: 199px) {
   .tiles {
     grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: none;
+    grid-auto-rows: auto;
   }
 }

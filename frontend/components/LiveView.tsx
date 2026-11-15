@@ -7,8 +7,8 @@ import LiveLegend from './LiveLegend';
 import InfoTip from './shared/InfoTip';
 import Segmented from './shared/Segmented';
 import type { TimeFrame } from './shared/timeFrame';
+import { useSiteName } from './shared/useSiteName';
 import PolarMap from './site-picker/PolarMap';
-import { siteNameKey } from './site-picker/siteIds';
 import Terrain3DBoundary from './terrain-3d/Terrain3DBoundary';
 import TimeControls from './timeline/TimeControls';
 import Timeline from './timeline/Timeline';
@@ -32,15 +32,15 @@ const HELP = { map: 'live.helpMap', sky: 'horizon.legend', '3d': 'terrain3d.lege
 // timeline for each place, with what happens next. Press play and all of it moves.
 const LiveView = ({ places, loading, frame }: LiveViewProps) => {
   const { t } = useTranslation('compare');
-  const { t: tSites } = useTranslation('sites');
-  const [mode, setMode] = useState<Mode>('map');
+  const [mode, setMode] = useState<Mode>('3d'); // the ground in 3D first: the easiest picture to read
+  const name = useSiteName();
 
   const modes = [
     { value: 'map' as const, label: t('live.map') },
     { value: 'sky' as const, label: t('live.sky') },
     { value: '3d' as const, label: t('live.threeD') },
   ];
-  const nameOf = (view: SiteView) => tSites(siteNameKey(view.site.id));
+  const nameOf = (view: SiteView) => name(view.site);
 
   return (
     <section className={styles.live} aria-labelledby={TITLE_ID} aria-busy={loading} data-testid={testIds.compare.live}>

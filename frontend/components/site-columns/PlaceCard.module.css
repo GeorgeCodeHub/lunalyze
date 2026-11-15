@@ -12,6 +12,11 @@
   background: var(--color-glass);
 }
 
+/* The best option stands out by a slightly lighter fill; its edge is the same as every card's. */
+.card[data-role='best'] {
+  background: var(--color-glass-hover);
+}
+
 /* The Compare view: tighter, so every place fits on screen at once. */
 .card[data-compact='true'] {
   gap: 16px;

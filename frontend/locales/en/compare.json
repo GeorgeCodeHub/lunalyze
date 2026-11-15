@@ -12,8 +12,8 @@
       "or": "or",
       "coords": "Your coordinates",
       "coordsExample": "−85.3, 31.4",
-      "coordsHint": "Type the latitude, then the longitude, in degrees. Use a minus sign for south and west.",
-      "coordsError": "Type the latitude (−90 to 90), a comma, then the longitude (−180 to 180).",
+      "coordsHint": "Type the latitude, then the longitude, in degrees. The tool covers the south pole region: latitude −78 to −90. Use a minus sign for south and west.",
+      "coordsError": "Type a latitude from −78 to −90 (the south pole region), a comma, then the longitude (−180 to 180).",
       "error": "Choose a place from the list, or type your coordinates."
     },
     "when": {
@@ -75,7 +75,6 @@
     "loading": "Calculating the positions of the Sun and Earth…",
     "typedTitle": "Your coordinates",
     "remove": "Remove {{site}} from the comparison",
-    "typedBody": "The tool cannot calculate results for typed coordinates yet. Choose a place from the list at the top.",
     "unknownBody": "This place is not on our list. Choose a place from the list at the top.",
     "missingBody": "We have no hill data for this place yet. Set Hills to Ignored to see it with a flat horizon."
   },
@@ -248,7 +247,7 @@
     "west": "W",
     "faceSun": "Face Sun",
     "faceEarth": "Face Earth",
-    "compassLabel": "Facing {{direction}}. Press to face north. The arrow keys turn the view.",
+    "compassLabel": "Facing {{direction}}. Drag the ring to turn the view, or press to face north. The arrow keys turn the view too.",
     "point_n": "N",
     "point_ne": "NE",
     "point_e": "E",
@@ -269,7 +268,7 @@
     "zoomIn": "Zoom in",
     "zoomOut": "Zoom out",
     "hiddenLabel": "{{body}}, hidden",
-    "legend": "You stand at the site. Drag to look around, or use the compass and the arrow keys; scroll or use − and + to zoom. Press the compass to face north. Hills are drawn taller than they are, and the Sun and Earth twice their size. A see-through Sun or Earth is hidden behind the hills.",
+    "legend": "You stand at the site. Drag the picture or the compass ring to look around; scroll or use − and + to zoom. Press the compass to face north. Hills are drawn taller than they are, and the Sun and Earth twice their size. A see-through Sun or Earth is hidden behind the hills.",
     "lowerBound": "Our height map ends before the hills around this place end. The Sun and Earth may be hidden more often than the terrain view shows.",
     "approximate": "Approximate location.",
     "unavailable": "The terrain view could not start in this browser. The map and sky views still work."
@@ -293,7 +292,7 @@
     "resize": "Width of the places panel"
   },
   "details": {
-    "summary": "Details",
+    "summary": "How the tool judged this place",
     "group": "Group"
   }
 }

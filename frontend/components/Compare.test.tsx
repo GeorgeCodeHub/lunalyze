@@ -1,9 +1,11 @@
 // @vitest-environment happy-dom
 import { readFileSync } from 'node:fs';
+import { deflateSync } from 'node:zlib';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, useState } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { TILE } from '../../backend/lib/horizon';
 import '../i18n';
 import { readScenario, type Scenario } from '../scenario';
 import { usePlaybackStore } from '../stores/compare';
@@ -30,6 +32,8 @@ vi.mock('./terrain-3d/Terrain3D', async (importActual) => {
 vi.mock('@react-three/drei', () => ({ OrbitControls: () => null, Html: () => null }));
 
 // The real data files are served from backend/public/, so the numbers below are the app's own.
+// The DEM tiles are not in git, so they are answered with flat ground at 0 m.
+const FLAT_TILE = deflateSync(new Uint8Array(TILE * TILE * 2));
 const failing = new Set<string>(); // paths answered 500
 let container: HTMLDivElement;
 let root: Root;
@@ -42,6 +46,7 @@ beforeEach(() => {
   vi.stubGlobal('fetch', async (url: string) => {
     const path = new URL(url, 'http://localhost').pathname;
     if (failing.has(path)) return new Response('', { status: 500 });
+    if (path.startsWith('/data/dem/')) return new Response(FLAT_TILE);
     try {
       return new Response(readFileSync('backend/public' + path, 'utf8'), { headers: { 'content-type': 'application/json' } });
     } catch {
@@ -161,6 +166,9 @@ test('Compare shows every place small, at once; Single shows one in full, with a
   expect(mode().dataset.value).toBe('single');
   expect(cards()).toEqual(['best:im-2:ready']);
   expect(pressed(testIds.compare.sidePlace)).toEqual(['true', 'false']);
+  // The live view follows: only the place shown in full.
+  const liveTimelines = () => all(testIds.timeline.root, one(testIds.compare.live)).map((tl) => tl.dataset.siteId);
+  expect(liveTimelines()).toEqual(['im-2']);
   const details = () => one<HTMLDetailsElement>(testIds.siteColumns.details);
   expect(details().open).toBe(false);
   expect(metrics(details())).toEqual(['panelOutputPct=0', 'sunElDeg=-1.361']);
@@ -168,11 +176,13 @@ test('Compare shows every place small, at once; Single shows one in full, with a
   await act(async () => (one(testIds.compare.sidePlace).querySelectorAll('button')[1] as HTMLButtonElement).click());
   expect(cards()).toEqual(['yourChoice:malapert-m1:ready']);
   expect(pressed(testIds.compare.sidePlace)).toEqual(['false', 'true']);
+  expect(liveTimelines()).toEqual(['malapert-m1']);
   expect(metrics(details())).toEqual(['panelOutputPct=0', 'sunElDeg=-3.001']);
 
-  // Back to Compare: both small cards again.
+  // Back to Compare: both small cards again, and both places in the live view.
   await act(async () => (mode().querySelectorAll('button')[0] as HTMLButtonElement).click());
   expect(cards()).toEqual(['best:im-2:ready', 'yourChoice:malapert-m1:ready']);
+  expect(liveTimelines()).toEqual(['im-2', 'malapert-m1']);
 });
 
 test('says why the best option won: of the 10 ranked places, the shortest dark period in a week', async () => {
@@ -291,14 +301,19 @@ test('coordinates typed in the toolbar are used on Enter; bad ones show an error
   expect(coords().getAttribute('aria-invalid')).toBe('true');
   expect(changes).toHaveLength(0);
 
+  await typeAndEnter('-65, 15'); // on the Moon, but north of the south pole region the tool covers
+  expect(all(testIds.scenarioBar.coordsError)).toHaveLength(1);
+  expect(changes).toHaveLength(0);
+
   await typeAndEnter('-85.3, 31.4');
   expect(all(testIds.scenarioBar.coordsError)).toHaveLength(0);
-  // The coordinates join the listed place picked before them: 2 places, beside the best option.
+  // The coordinates join the listed place picked before them: 2 places, beside the best option. Typed
+  // coordinates get results of their own.
   expect(changes.at(-1)?.places).toEqual([
     { kind: 'coords', lat: -85.3, lon: 31.4 },
     { kind: 'site', id: 'malapert-m1' },
   ]);
-  expect(cards()).toEqual(['best:im-2:ready', 'yourChoice:-:typed', 'yourChoice:malapert-m1:ready']);
+  expect(cards()).toEqual(['best:im-2:ready', 'yourChoice:@-85.3:31.4:ready', 'yourChoice:malapert-m1:ready']);
   expect(coords().value).toBe('-85.3, 31.4');
   expect(ticked()).toEqual(['malapert-m1']);
 
@@ -317,23 +332,49 @@ test('the Share button sits in the page header, once, and not in the toolbar', a
   expect(one(testIds.scenarioBar.copyLink).dataset.status).toBe('idle');
 });
 
-test('typed coordinates: the best option still shows, and the other card says why it is empty', async () => {
+test('typed coordinates get their own results beside the best option; off the DEMs they carry the not-modeled caveat', async () => {
   await mount('?sites=@-85.3:31.4&date=2028-03-01T00:00Z&zoom=lunarDay&stay=7');
 
-  expect(cards()).toEqual(['best:im-2:ready', 'yourChoice:-:typed']);
+  expect(cards()).toEqual(['best:im-2:ready', 'yourChoice:@-85.3:31.4:ready']);
+  const typedCard = all(testIds.siteColumns.column)[1];
+  expect(metrics(typedCard).length).toBeGreaterThan(0);
+  expect(all(testIds.siteColumns.caveat, typedCard)).toHaveLength(0);
   // The toolbar shows the coordinates in their field, and offers every listed place in its menu.
   expect(one<HTMLInputElement>(testIds.scenarioBar.coords).value).toBe('-85.3, 31.4');
   expect(ticked()).toEqual([]);
   expect(options()).toHaveLength(13);
 });
 
-test('the live view opens on the map and switches to the sky from each place; both have one timeline per place', async () => {
+test('typed coordinates show in the live view: a 3D scene of their own and a pin on the map', async () => {
+  await mount('?sites=@-85.3:31.4&date=2028-03-01T00:00Z&zoom=lunarDay&stay=7');
+
+  const live = one(testIds.compare.live);
+  await vi.waitFor(
+    async () => {
+      await act(async () => {}); // let the lazy chunk and the DEM tiles land
+      expect(all(testIds.terrain3d.scene, live).map((s) => s.dataset.siteId)).toEqual(['im-2', '@-85.3:31.4']);
+      expect(all(testIds.terrain3d.scene, live)[1].dataset.status).toBe('ready');
+    },
+    { timeout: 5000 },
+  );
+
+  await act(async () => one(testIds.compare.liveSwitch).querySelectorAll('button')[0].click());
+  expect(all(testIds.polarMap.pin, live).map((p) => p.dataset.siteId)).toEqual(['im-2', '@-85.3:31.4']);
+  expect(all(testIds.polarMap.offMap, live)).toHaveLength(0);
+});
+
+test('the live view switches to the map and the sky, each with every place; both have one timeline per place', async () => {
   await mount(WEEK);
 
   const live = one(testIds.compare.live);
+  expect(all(testIds.polarMap.pin, live)).toHaveLength(0); // it opens in 3D
+
+  await act(async () => one(testIds.compare.liveSwitch).querySelectorAll('button')[0].click());
+
   expect(one(testIds.compare.liveSwitch).dataset.value).toBe('map');
   expect(all(testIds.polarMap.pin, live).map((p) => p.dataset.siteId)).toEqual(['im-2', 'malapert-m1']);
   expect(all(testIds.horizonStrip.root, live)).toHaveLength(0);
+  expect(all(testIds.terrain3d.root, live)).toHaveLength(0);
   expect(all(testIds.timeline.root, live).map((t) => t.dataset.siteId)).toEqual(['im-2', 'malapert-m1']);
   expect(all(testIds.timeline.lane, live).map((l) => `${l.dataset.lane}:${l.dataset.bars}`)).toEqual([
     'sun:2', 'earth:2', // IM-2
@@ -400,17 +441,19 @@ test('a site list that fails to load shows the error, no best option, and no liv
   expect(all(testIds.compare.error)).toHaveLength(1);
   expect(cards()).toEqual(['best:-:unranked', 'yourChoice:malapert-m1:missing']);
   expect(all(testIds.polarMap.pin)).toHaveLength(0);
+  expect(all(testIds.terrain3d.scene)).toHaveLength(0);
   expect(all(testIds.timeline.root)).toHaveLength(0);
 });
 
-test('the live view has a third mode, 3D, that loads the terrain panel with one scene per place', async () => {
+test('the live view opens in 3D, with one terrain scene per place; each button sets its own mode', async () => {
   await mount(WEEK);
 
   const live = one(testIds.compare.live);
   const buttons = () => [...one(testIds.compare.liveSwitch).querySelectorAll('button')];
   expect(buttons()).toHaveLength(3);
-  expect(all(testIds.terrain3d.root, live)).toHaveLength(0);
-  // Each button, in order, sets its own mode.
+  expect(one(testIds.compare.liveSwitch).dataset.value).toBe('3d');
+  expect(buttons().map((b) => b.getAttribute('aria-pressed'))).toEqual(['false', 'false', 'true']);
+  // Each button, in order, sets its own mode, ending back on 3D.
   const values: string[] = [];
   for (const i of [0, 1, 2]) {
     await act(async () => buttons()[i].click());
@@ -433,13 +476,11 @@ test('the live view has a third mode, 3D, that loads the terrain panel with one 
 });
 
 test('when the 3D panel throws, the live view shows a notice and the rest of the screen stays', async () => {
+  const logged = vi.spyOn(console, 'error').mockImplementation(() => {}); // React logs the expected render error
+  panel.broken = true; // before the screen opens: 3D is the first picture it draws
   await mount(WEEK);
   const live = one(testIds.compare.live);
-  const timelines = all(testIds.timeline.root, live).length;
-  const logged = vi.spyOn(console, 'error').mockImplementation(() => {}); // React logs the expected render error
-  panel.broken = true;
 
-  await act(async () => one(testIds.compare.liveSwitch).querySelectorAll('button')[2].click());
   await vi.waitFor(async () => {
     await act(async () => {});
     expect(all(testIds.terrain3d.unavailable, live)).toHaveLength(1);
@@ -449,7 +490,11 @@ test('when the 3D panel throws, the live view shows a notice and the rest of the
   expect(all(testIds.terrain3d.unavailable, live)[0].getAttribute('role')).toBe('alert');
   expect(all(testIds.terrain3d.root, live)).toHaveLength(0);
   expect(one(testIds.compare.liveSwitch).dataset.value).toBe('3d');
-  expect(all(testIds.timeline.root, live)).toHaveLength(timelines);
-  expect(timelines).toBe(2);
+  expect(all(testIds.timeline.root, live)).toHaveLength(2);
   expect(all(testIds.siteColumns.column)).toHaveLength(2);
+
+  // The other pictures still work.
+  await act(async () => one(testIds.compare.liveSwitch).querySelectorAll('button')[0].click());
+  expect(all(testIds.terrain3d.unavailable, live)).toHaveLength(0);
+  expect(all(testIds.polarMap.pin, live).map((p) => p.dataset.siteId)).toEqual(['im-2', 'malapert-m1']);
 });

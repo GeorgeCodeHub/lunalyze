@@ -1,8 +1,8 @@
 import { useTranslation } from 'react-i18next';
 import { onPolarMap, POLAR_MAP, projectPolar } from '../../../backend/lib/projectPolar';
 import type { SiteView } from '../../../backend/lib/types';
-import type { SiteId } from '../../i18n';
 import { testIds } from '../../test-ids';
+import { useSiteName } from '../shared/useSiteName';
 import MapPin from './MapPin';
 import { useBoxSize } from '../shared/useBoxSize';
 import { MAP_BOX_FALLBACK, MAP_HALF, mapView, toMapUnits } from './mapUnits';
@@ -18,6 +18,7 @@ const H = MAP_HALF;
 const PolarMap = ({ views, legend = true, credit = true }: PolarMapProps) => {
   const { t } = useTranslation('compare');
   const [boxRef, box] = useBoxSize<SVGSVGElement>(MAP_BOX_FALLBACK);
+  const name = useSiteName();
 
   const placed = views.map((view) => {
     const metres = projectPolar(view.site.lat, view.site.lon);
@@ -30,7 +31,7 @@ const PolarMap = ({ views, legend = true, credit = true }: PolarMapProps) => {
   // The map fills its box, centred on the places; marks keep their size on screen (k: map units per pixel).
   const shown = mapView(pins.map(({ y }) => -y), box.w, box.h); // SVG y runs down
 
-  const nameOf = (view: SiteView) => t(`${view.site.id as SiteId}.name`, { ns: 'sites' });
+  const nameOf = (view: SiteView) => name(view.site);
   const status = (hidden: boolean) => t(hidden ? 'map.hidden' : 'map.visible');
 
   return (

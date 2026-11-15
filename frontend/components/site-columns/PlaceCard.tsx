@@ -6,7 +6,8 @@ import { testIds } from '../../test-ids';
 import MetricCards from '../metric-cards/MetricCards';
 import type { TimeFrame } from '../shared/timeFrame';
 import { usePosition } from '../shared/usePosition';
-import { siteNameKey, siteShortKey } from '../site-picker/siteIds';
+import { useSiteName } from '../shared/useSiteName';
+import { siteShortKey } from '../site-picker/siteIds';
 import FitLabel from './FitLabel';
 import type { Role } from './pickPlaces';
 import PlaceDetails from './PlaceDetails';
@@ -37,11 +38,12 @@ type PlaceCardProps = {
 const PlaceCard = ({ role, alsoYours, view, stayView, now, frame, stay, terrain, why, how, onRemove, compact = false }: PlaceCardProps) => {
   const { t: tSites } = useTranslation('sites');
   const position = usePosition();
+  const nameOf = useSiteName();
 
   const { site } = view;
   const titleId = `place-card-${site.id}`;
   const fit = stayFit(stayView.lanes, frame.startMs, frame.stayH);
-  const name = tSites(siteNameKey(site.id));
+  const name = nameOf(site); // "Your coordinates" for typed coordinates
 
 
   return (
@@ -56,7 +58,7 @@ const PlaceCard = ({ role, alsoYours, view, stayView, now, frame, stay, terrain,
     >
       <PlaceHeader
         titleId={titleId}
-        title={compact ? tSites(siteShortKey(site.id)) : name}
+        title={compact && site.kind !== 'typed' ? tSites(siteShortKey(site.id)) : name}
         meta={position(site.lat, site.lon)}
         role={role}
         alsoYours={alsoYours}

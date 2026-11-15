@@ -1,14 +1,15 @@
 // The data contract between backend/lib (George) and frontend/components (Christina). See docs/DATA_CONTRACT.md.
 
 // Display text (site name, blurb, group label) lives in frontend/locales/<lang>/sites.json, keyed by id.
+// A typed point (kind 'typed') has the id `@lat:lon` and no name: it is not in sites.json.
 export type Site = {
   id: string;
   lat: number;
   lon: number; // east, -180..180
-  kind: 'landed' | 'planned' | 'artemis-region' | 'reference';
+  kind: 'landed' | 'planned' | 'artemis-region' | 'reference' | 'typed';
   precision: 'exact' | 'proxy';
   terrainModeled: boolean;
-  group: 'Apollo' | 'CLPS' | 'Artemis regions' | 'International' | 'Reference points';
+  group: 'Apollo' | 'CLPS' | 'Artemis regions' | 'International' | 'Reference points' | 'Typed coordinates';
   source: string;
 };
 

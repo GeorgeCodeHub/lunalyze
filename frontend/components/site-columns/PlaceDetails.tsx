@@ -4,6 +4,7 @@ import type { SiteView } from '../../../backend/lib/types';
 import type { Stay } from '../../scenario';
 import { testIds } from '../../test-ids';
 import { formatDateTime, formatUpTo } from '../shared/formatTime';
+import IconChevron from '../shared/IconChevron';
 import { STAY_KEY } from '../shared/stayKeys';
 import { groupLabelKey } from '../site-picker/siteIds';
 import { caveatKinds } from './caveats';
@@ -38,7 +39,12 @@ const PlaceDetails = ({ view, now, fit, stay, terrain, children }: PlaceDetailsP
 
   return (
     <details className={styles.details} data-testid={testIds.siteColumns.details}>
-      <summary className={styles.summary}>{t('details.summary')}</summary>
+      <summary className={styles.summary}>
+        <span className={styles.title}>{t('details.summary')}</span>
+        <span className={styles.chevron}>
+          <IconChevron />
+        </span>
+      </summary>
       <div className={styles.body}>
         {risky && <p>{risky}</p>}
         <p>{t(`fit.stay.${STAY_KEY[stay]}`)}</p>

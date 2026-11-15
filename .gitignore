@@ -5,3 +5,4 @@ dist
 .cto-toolkit/
 backend/dem/
 __pycache__/
+backend/public/data/dem/

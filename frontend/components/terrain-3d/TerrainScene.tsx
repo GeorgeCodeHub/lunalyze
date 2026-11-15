@@ -3,8 +3,9 @@ import { useTranslation } from 'react-i18next';
 import type { SiteView } from '../../../backend/lib/types';
 import { useTerrain } from '../../../backend/lib/useTerrain';
 import { testIds } from '../../test-ids';
-import BodyGlyph from '../shared/BodyGlyph';
 import IconAlert from '../shared/IconAlert';
+import type { LookAction } from './lookTurn';
+import SceneControls from './SceneControls';
 import TerrainCanvas from './TerrainCanvas';
 import TerrainNote from './TerrainNote';
 import { facingDirection } from './sceneMath';
@@ -27,6 +28,8 @@ const TerrainScene = ({ view, now, siteName }: TerrainSceneProps) => {
     sky: cssColor('--color-sky'),
   }));
   const [facing, setFacing] = useState(() => facingDirection(now.sky.sun, view.site.lon));
+  const [look, setLook] = useState<{ direction: LookAction | null; n: number }>({ direction: null, n: 0 });
+  const [heading, setHeading] = useState(0); // the bearing the view faces, whole degrees
 
   const boxRef = useRef<HTMLElement>(null);
   const status = error ? 'error' : loading || !grid ? 'loading' : 'ready';
@@ -40,6 +43,7 @@ const TerrainScene = ({ view, now, siteName }: TerrainSceneProps) => {
     status === 'ready' ? { role: 'img', 'aria-label': `${t('terrain3d.label', { site: siteName })} ${state}` } : {};
 
   const face = (body: 'sun' | 'earth') => setFacing(facingDirection(now.sky[body], view.site.lon));
+  const faceNorth = () => setFacing(facingDirection({ az: 0, el: 0 }, view.site.lon));
 
   return (
     <section className={styles.entry}>
@@ -68,20 +72,27 @@ const TerrainScene = ({ view, now, siteName }: TerrainSceneProps) => {
             </p>
           )}
           {status === 'ready' && grid && (
-            <TerrainCanvas grid={grid} site={view.site} sky={now.sky} colours={colours} facing={facing} portal={boxRef} />
+            <TerrainCanvas
+              grid={grid}
+              site={view.site}
+              sky={now.sky}
+              colours={colours}
+              facing={facing}
+              look={look}
+              onHeading={(degrees) => setHeading(Math.round(degrees))}
+              portal={boxRef}
+            />
           )}
         </figure>
         {/* Beside the figure, not inside it: the figure is an image to screen readers, so buttons in it
-            would be hidden. Drawn over the picture's bottom corner. */}
+            would be hidden. Drawn over the picture's corners. */}
         {status === 'ready' && (
-          <div className={styles.faceButtons}>
-            {(['sun', 'earth'] as const).map((body) => (
-              <button key={body} type="button" className={styles.faceButton} data-testid={testIds.terrain3d.face} data-body={body} onClick={() => face(body)}>
-                <BodyGlyph body={body} />
-                {t(body === 'sun' ? 'terrain3d.faceSun' : 'terrain3d.faceEarth')}
-              </button>
-            ))}
-          </div>
+          <SceneControls
+            heading={heading}
+            onFace={face}
+            onNorth={faceNorth}
+            onLook={(action) => setLook((last) => ({ direction: action, n: last.n + 1 }))}
+          />
         )}
       </div>
       {view.horizonIncomplete && <TerrainNote text={t('terrain3d.lowerBound')} />}

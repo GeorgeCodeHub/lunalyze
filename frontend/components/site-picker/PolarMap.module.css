@@ -2,10 +2,13 @@
   margin: 0;
 }
 
+/* The map fills its container's width; its height is --map-height (set by the live view) or a 16:10
+   box. PolarMap measures the box and shows the map to fit it, so nothing is stretched. */
 .svg {
   display: block;
   width: 100%;
-  aspect-ratio: 1;
+  height: var(--map-height, auto);
+  aspect-ratio: 16 / 10;
   background: var(--color-map-bg);
 }
 

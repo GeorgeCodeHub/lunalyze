@@ -20,7 +20,8 @@
   cursor: pointer;
   transition:
     background-color 160ms cubic-bezier(0.16, 1, 0.3, 1),
-    border-color 160ms cubic-bezier(0.16, 1, 0.3, 1);
+    border-color 160ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 160ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .input::before {
@@ -40,7 +41,12 @@
 .input:checked {
   border-color: var(--color-glass-border-strong);
   background: var(--color-glass-strong);
-  box-shadow: 0 0 16px -6px var(--glow-sun-strong);
+}
+
+/* Hover and focus: the same light as every control. */
+.switch:hover .input,
+.input:focus-visible {
+  box-shadow: var(--glow-hover);
 }
 
 .input:checked::before {

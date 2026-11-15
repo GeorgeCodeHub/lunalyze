@@ -6,6 +6,7 @@ import { testIds } from '../../test-ids';
 import { formatDateTime, formatDay } from '../shared/formatTime';
 import IconPause from '../shared/IconPause';
 import IconPlay from '../shared/IconPlay';
+import InfoTip from '../shared/InfoTip';
 import { PLAYBACK, type TimeFrame } from '../shared/timeFrame';
 import { useDuration } from '../shared/useDuration';
 import styles from './TimeControls.module.css';
@@ -66,9 +67,12 @@ const TimeControls = ({ frame }: TimeControlsProps) => {
   return (
     <section className={styles.controls} aria-labelledby={TITLE_ID}>
       <div className={styles.top}>
-        <h3 id={TITLE_ID} className={styles.title}>
-          {t('playback.title')}
-        </h3>
+        <div className={styles.name}>
+          <h3 id={TITLE_ID} className={styles.title}>
+            {t('playback.title')}
+          </h3>
+          <InfoTip label={t('playback.help')} text={t('playback.hint')} />
+        </div>
         <p className={styles.readout} data-testid={testIds.timeline.readout} data-offset-h={offsetH} aria-live="off">
           <strong className={styles.readoutTime}>{shown}</strong>
           <span className={styles.readoutSince}>
@@ -106,7 +110,7 @@ const TimeControls = ({ frame }: TimeControlsProps) => {
           </p>
         </div>
       </div>
-      <p id={HINT_ID} className={styles.hint}>
+      <p id={HINT_ID} className={styles.visuallyHidden}>
         {t('playback.hint')}
       </p>
       <p id={KEYS_ID} className={styles.visuallyHidden}>

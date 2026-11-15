@@ -27,6 +27,14 @@
   composes: title from './shared/Section.module.css';
 }
 
+/* The timelines' key, always in view, in small letters under the graphs. */
+.key {
+  margin: 0;
+  color: var(--color-text-faint);
+  font-size: 0.7rem;
+  line-height: 1.4;
+}
+
 .note {
   composes: note from './shared/Section.module.css';
 }
@@ -35,22 +43,27 @@
   composes: note from './shared/Section.module.css';
 }
 
+/* The sky from each place: side by side when the live view has room (each at least 320px), one under
+   the other when it has not. Dragging the side panel narrower makes room. The legend spans them all. */
 .picture {
   display: grid;
-  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+  align-items: start;
+  gap: 16px;
   min-width: 0;
 }
 
-/* The map is square. It grows with the live view, but leaves 420px of the window's height for the
-   title, the hint, the legend and the time player under it, so the player is on screen together with
-   the map. On a short window it keeps a readable 360px. */
+.picture > .note {
+  grid-column: 1 / -1;
+}
+
+/* The map fills the frame's width; its height leaves room for the title, the top row and the time player
+   above it, so the whole frame fits on screen (320px at least, 960px at most). */
 .map {
+  --map-height: clamp(320px, calc(100vh - 320px), 960px);
   display: grid;
   gap: 12px;
-  width: 100%;
-  max-width: min(880px, max(360px, calc(100vh - 420px)));
   min-width: 0;
-  margin: 0 auto;
 }
 
 /* The view area: one frame for the picture and its controls, like a map app's viewport. */
@@ -64,24 +77,27 @@
   border-radius: var(--radius-panel);
 }
 
-/* Map, Sky or 3D: floating in the frame's top corner, on a solid ground so it reads over any picture. */
-.switch {
-  position: absolute;
-  z-index: 2;
-  top: 16px;
-  right: 16px;
-  border-radius: var(--radius-control);
-  background: var(--color-menu);
-  box-shadow: 0 8px 20px -12px var(--shadow-menu);
+/* The frame's top row, at the right: the legend, then Map / Sky / 3D at the far end. When the live
+   view is narrow the legend drops under the switch instead of running into it. */
+.toolbar {
+  display: flex;
+  flex-wrap: wrap-reverse;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px 24px;
+  min-width: 0;
 }
 
-/* The time player along the frame's bottom edge, like a video player's bar: it drives the picture
-   above and the timelines below. */
+.switch {
+  flex: none;
+  margin-left: auto;
+}
+
+/* The time player, right under the top row: the main control of every picture, so it comes first. */
 .time {
-  margin: 0 -16px -16px;
+  margin: 0 -16px;
   padding: 16px;
-  border-top: 1px solid var(--color-rule);
-  border-radius: 0 0 var(--radius-panel) var(--radius-panel);
+  border-block: 1px solid var(--color-rule);
   background: var(--color-glass);
 }
 

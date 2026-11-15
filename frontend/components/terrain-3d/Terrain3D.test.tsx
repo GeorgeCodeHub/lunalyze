@@ -159,6 +159,39 @@ test('data-sun-hidden and data-earth-hidden follow now.sky, and the label for a 
   expect(requested.filter((p) => p.endsWith('.bin'))).toHaveLength(1);
 });
 
+test.each([
+  { failingIds: [], ready: 2, zoom: ['out', 'in', 'out', 'in'] },
+  { failingIds: ['point-a'], ready: 1, zoom: ['out', 'in'] },
+  { failingIds: ['point-a', 'point-b'], ready: 0, zoom: [] },
+])('the map-style controls: − + and a compass on each ready scene (failing: $failingIds)', async ({ failingIds, ready, zoom }) => {
+  for (const id of failingIds) failing.add(`/data/terrain/${id}.json`);
+  await render([place('point-a'), place('point-b')]);
+  await settle();
+
+  expect(all(testIds.terrain3d.scene).filter((s) => s.dataset.status === 'ready')).toHaveLength(ready);
+  expect(all(testIds.terrain3d.zoom).map((b) => b.dataset.direction)).toEqual(zoom);
+  const compasses = all(testIds.terrain3d.compass);
+  expect(compasses).toHaveLength(ready);
+  // Before the camera reports, the compass reads north.
+  for (const c of compasses) expect([c.dataset.point, c.dataset.heading]).toEqual(['n', '0']);
+  // Every control is a named button beside the picture (the picture is an image to screen readers).
+  for (const b of [...all(testIds.terrain3d.zoom), ...compasses]) {
+    expect(b.tagName).toBe('BUTTON');
+    expect(b.getAttribute('aria-label')).toBeTruthy();
+    expect(all(testIds.terrain3d.scene).some((scene) => scene.contains(b))).toBe(false);
+  }
+  // Pressing, and the compass's arrow keys: turning and zooming are the canvas's job, the scenes stay as they were.
+  for (const b of [...all(testIds.terrain3d.zoom), ...compasses]) act(() => b.click());
+  for (const c of compasses) {
+    for (const key of ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Enter', 'a']) {
+      act(() => {
+        c.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true }));
+      });
+    }
+  }
+  expect(all(testIds.terrain3d.scene).filter((s) => s.dataset.status === 'ready')).toHaveLength(ready);
+});
+
 test('a ready scene gets a "face" button for the Sun and Earth, outside the picture; a failed one gets none', async () => {
   failing.add('/data/terrain/point-a.json');
   await render([place('point-a'), place('point-b')]);

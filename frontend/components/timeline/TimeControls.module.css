@@ -18,6 +18,12 @@
   composes: title from '../shared/Section.module.css';
 }
 
+.name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 /* The moment shown, large, so it is the first thing read; how far into the mission, beside it. */
 .readout {
   display: flex;
@@ -120,6 +126,17 @@
   background: var(--color-text);
 }
 
+/* Hover and focus: the handle takes the same light as every control. */
+.range:hover::-webkit-slider-thumb,
+.range:focus-visible::-webkit-slider-thumb {
+  box-shadow: var(--glow-hover);
+}
+
+.range:hover::-moz-range-thumb,
+.range:focus-visible::-moz-range-thumb {
+  box-shadow: var(--glow-hover);
+}
+
 .ends {
   display: flex;
   justify-content: space-between;
@@ -128,11 +145,4 @@
   color: var(--color-text-faint);
   font-size: 0.7rem;
   letter-spacing: 0.06em;
-}
-
-.hint {
-  margin: 0;
-  color: var(--color-text-muted);
-  font-size: 0.78rem;
-  line-height: 1.5;
 }

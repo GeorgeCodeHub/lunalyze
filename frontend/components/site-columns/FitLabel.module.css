@@ -8,15 +8,29 @@
   composes: visuallyHidden from '../shared/Section.module.css';
 }
 
-/* One quiet line in the same spot on both cards. Fits: a green tick and the rule it meets.
-   Risky: when the dark period starts and ends (the Risky tag is in the header). */
+/* The verdict as a ribbon across the card, edge to edge (it reaches past the card's 20px padding), in
+   the same spot on every card, in the palette's own light. Fits: a wash from the Sun's peach to Earth's
+   blue-purple, a tick, and the reason or the rule it meets. Risky: a plain haze with dashed edges (dashed
+   is "hidden" everywhere on the screen) and when the dark period starts and ends; the Risky tag with its
+   warning mark is in the header. */
 .line {
   display: flex;
   align-items: baseline;
+  justify-self: stretch;
   gap: 12px;
-  margin: 0;
+  margin: 0 -20px;
+  padding: 12px 20px;
   font-size: 0.9rem;
   line-height: 1.4;
+}
+
+.fit[data-fit='fits'] .line {
+  background: linear-gradient(90deg, var(--glow-sun), var(--glow-earth));
+}
+
+.fit[data-fit='risky'] .line {
+  border-block: 1px dashed var(--color-line);
+  background: var(--color-hover);
 }
 
 .text {

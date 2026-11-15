@@ -139,17 +139,41 @@ describe('empty, credit, image (criteria 11, 12, 13)', () => {
       expect((await mount(views)).all(testIds.polarMap.credit)).toHaveLength(1);
     }
   });
-  test('the image href is BASE_URL + POLAR_MAP.path and fills the viewBox', async () => {
+  test('the image href is BASE_URL + POLAR_MAP.path and covers the whole map', async () => {
     const m = await mount([]);
     const img = m.one(testIds.polarMap.image) as Element;
     expect(img.getAttribute('href')).toBe(import.meta.env.BASE_URL + POLAR_MAP.path);
     expect(img.getAttribute('href')).toBe('/data/map/south-pole-hillshade.png');
     const H = POLAR_MAP.halfWidthM / 1000; // the map is drawn in kilometres
-    expect(m.one(testIds.polarMap.svg)?.getAttribute('viewBox')).toBe(`${-H} ${-H} ${2 * H} ${2 * H}`);
+    // No pins: the map's full width, around the pole, in the 480 × 300 box it has before it is measured.
+    const height = (2 * H * 300) / 480;
+    expect(m.one(testIds.polarMap.svg)?.getAttribute('viewBox')).toBe(`${-H} ${-height / 2} ${2 * H} ${height}`);
     expect([img.getAttribute('x'), img.getAttribute('y'), img.getAttribute('width'), img.getAttribute('height')]).toEqual([
       String(-H), String(-H), String(2 * H), String(2 * H),
     ]);
   });
+});
+
+describe('the part of the map shown', () => {
+  const H = POLAR_MAP.halfWidthM / 1000;
+  // The viewBox as numbers [x, top, width, height], and every pin's SVG y.
+  const shown = async (ids: string[]) => {
+    const m = await mount(ids.map((id) => view(id)));
+    return {
+      vb: (m.one(testIds.polarMap.svg)?.getAttribute('viewBox') ?? '').split(' ').map(Number),
+      dots: m.all(testIds.polarMap.pinDot).map((d) => Number(d.getAttribute('cy'))),
+    };
+  };
+
+  test.each([[[]], [['point-a']], [['im-2']], [['point-a', 'im-2']], [['haworth', 'nobile', 'slater']], [sites.map((s) => s.id)]])(
+    'places %j: the 480 × 300 box shape (before it is measured), with every pin inside',
+    async (ids) => {
+      const { vb, dots } = await shown(ids);
+      expect(vb[2] / vb[3]).toBeCloseTo(480 / 300, 9);
+      expect(vb[2]).toBeGreaterThanOrEqual(2 * H - 1e-9); // the map's full width at least
+      for (const y of dots) expect(y > vb[1] && y < vb[1] + vb[3]).toBe(true);
+    },
+  );
 });
 
 describe('many views', () => {

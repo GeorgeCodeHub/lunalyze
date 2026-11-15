@@ -79,6 +79,11 @@
   --glow-violet: rgb(138 110 255 / 24%);
   /* Ambient light on the page and under panels: fainter than the light on chart marks. */
   --glow-sun-soft: rgb(255 214 170 / 7%);
+  /* The one hover and focus light for every control: a soft halo from the Sun's peach and Earth's
+     blue-purple. Buttons with an edge also light their edge in the same two colours. */
+  --glow-hover:
+    0 0 16px -6px var(--glow-sun-strong),
+    0 0 20px -6px var(--glow-earth-strong);
   --color-pin: #ffffff;
   --color-map-bg: #0b1220;
   /* The ground in the horizon strip: a fill dark enough that the Sun and Earth read on top of it. */

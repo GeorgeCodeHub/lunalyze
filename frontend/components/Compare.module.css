@@ -190,4 +190,35 @@
     bottom: 0;
     display: flex;
   }
+
+  /* While the edge is hovered, focused or dragged, the panel's right edge lights up near the handle: a
+     line on the border that runs from the Sun's peach to Earth's blue-purple and fades out above and
+     below the grip, with a soft halo around it. This is also the handle's keyboard focus mark. */
+  .sideWrap::before,
+  .sideWrap::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 160ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .sideWrap::after {
+    right: -1px;
+    width: 2px;
+    background: linear-gradient(to bottom, transparent 20%, var(--color-sun) 40%, var(--color-earth) 60%, transparent 80%);
+  }
+
+  .sideWrap::before {
+    right: -24px;
+    width: 48px;
+    background: radial-gradient(ellipse 50% 24% at 50% 50%, var(--glow-sun-strong), var(--glow-earth) 50%, transparent 100%);
+  }
+
+  .sideWrap:has(.handle :hover, .handle :focus-visible, .handle :active)::before,
+  .sideWrap:has(.handle :hover, .handle :focus-visible, .handle :active)::after {
+    opacity: 1;
+  }
 }

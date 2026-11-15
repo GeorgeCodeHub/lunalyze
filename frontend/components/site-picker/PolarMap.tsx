@@ -4,15 +4,20 @@ import type { SiteView } from '../../../backend/lib/types';
 import type { SiteId } from '../../i18n';
 import { testIds } from '../../test-ids';
 import MapPin from './MapPin';
-import { MAP_HALF, toMapUnits } from './mapUnits';
+import { useBoxSize } from '../shared/useBoxSize';
+import { MAP_BOX_FALLBACK, MAP_HALF, mapView, toMapUnits } from './mapUnits';
 import styles from './PolarMap.module.css';
 
-type PolarMapProps = { views: SiteView[] };
+// legend: the map's own key under it. Off in the live view, which shows one legend for every picture.
+// credit: the ground image's credit under the map. Off in the live view, whose footer credits the height maps.
+type PolarMapProps = { views: SiteView[]; legend?: boolean; credit?: boolean };
 
 const H = MAP_HALF;
 
-const PolarMap = ({ views }: PolarMapProps) => {
+
+const PolarMap = ({ views, legend = true, credit = true }: PolarMapProps) => {
   const { t } = useTranslation('compare');
+  const [boxRef, box] = useBoxSize<SVGSVGElement>(MAP_BOX_FALLBACK);
 
   const placed = views.map((view) => {
     const metres = projectPolar(view.site.lat, view.site.lon);
@@ -22,6 +27,8 @@ const PolarMap = ({ views }: PolarMapProps) => {
   const offMap = placed.filter(({ onMap }) => !onMap);
   const anyProxy = pins.some(({ view }) => view.site.precision === 'proxy');
   const leftmost = Math.min(...pins.map(({ x }) => x));
+  // The map fills its box, centred on the places; marks keep their size on screen (k: map units per pixel).
+  const shown = mapView(pins.map(({ y }) => -y), box.w, box.h); // SVG y runs down
 
   const nameOf = (view: SiteView) => t(`${view.site.id as SiteId}.name`, { ns: 'sites' });
   const status = (hidden: boolean) => t(hidden ? 'map.hidden' : 'map.visible');
@@ -31,7 +38,8 @@ const PolarMap = ({ views }: PolarMapProps) => {
       <svg
         className={styles.svg}
         data-testid={testIds.polarMap.svg}
-        viewBox={`${-H} ${-H} ${2 * H} ${2 * H}`}
+        ref={boxRef}
+        viewBox={`${shown.x} ${shown.y} ${shown.width} ${shown.height}`}
         role="img"
         aria-label={views.length === 0 ? t('map.labelEmpty') : t('map.label')}
       >
@@ -46,7 +54,7 @@ const PolarMap = ({ views }: PolarMapProps) => {
           <title>{t('map.image')}</title>
         </image>
         {pins.map(({ view, x, y }) => (
-          <MapPin key={view.site.id} view={view} x={x} y={y} labelEnd={pins.length > 1 ? x === leftmost : undefined} />
+          <MapPin key={view.site.id} view={view} x={x} y={y} k={shown.k} labelEnd={pins.length > 1 ? x === leftmost : undefined} />
         ))}
       </svg>
       <figcaption className={styles.caption}>
@@ -55,7 +63,7 @@ const PolarMap = ({ views }: PolarMapProps) => {
             {t('map.offMap', { site: nameOf(view) })}
           </p>
         ))}
-        {pins.length > 0 && (
+        {legend && pins.length > 0 && (
           <ul className={styles.legend} data-testid={testIds.polarMap.legend}>
             <li>
               <span className={styles.sun} aria-hidden="true">
@@ -87,7 +95,7 @@ const PolarMap = ({ views }: PolarMapProps) => {
             </li>
           ))}
         </ul>
-        <p data-testid={testIds.polarMap.credit}>{t('map.credit')}</p>
+        {credit && <p data-testid={testIds.polarMap.credit}>{t('map.credit')}</p>}
       </figcaption>
     </figure>
   );

@@ -45,7 +45,7 @@ const Compare = ({ scenario, onChange }: CompareProps) => {
   const siteIds = siteIdsOf(onScreen);
   const opts = { terrain: scenario.terrain };
   // The two places on screen (DATA_CONTRACT, "Play button"). shown: the time span picked, for the numbers,
-  // lanes and paths. now: the playhead moment, for the sky and countdowns; they are the same at any
+  // lanes and paths. now: the playhead moment, for the map, sky and 3D view; they are the same at any
   // zoom, so the cheapest one is asked.
   const shown = useScenario(siteIds, scenario.start, scenario.zoom, opts);
   const now = useScenario(siteIds, new Date(frame.nowMs), 'day', opts);

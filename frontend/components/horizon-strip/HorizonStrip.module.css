@@ -4,8 +4,13 @@
   min-width: 0;
 }
 
+/* The place's name, on one line: cut short with … rather than pushing the picture down. */
 .title {
   composes: title from '../shared/Section.module.css';
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .note {
@@ -92,11 +97,8 @@
   justify-content: flex-end;
 }
 
+/* Each place's "Sun: hidden, Earth: in view" is for screen readers: the picture shows it, and the live
+   view's one legend says how to read it. */
 .statuses {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px 20px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
+  composes: visuallyHidden from '../shared/Section.module.css';
 }

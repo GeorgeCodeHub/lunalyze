@@ -148,15 +148,13 @@ test('Compare shows every place small, at once; Single shows one in full, with a
     expect(card.dataset.compact).toBe('true');
     expect(all(testIds.siteColumns.details, card)).toHaveLength(0); // no details on a small card
     expect(all(testIds.metricCards.card, card).map((m) => m.dataset.metric)).toEqual(['sunlitPct', 'earthPct', 'longestBlackoutH']);
-    expect(all(testIds.countdowns.chip, card)).toHaveLength(0); // what happens next is in the live view
   }
   // Malapert M1 is an approximate location: the mark sits beside its coordinates, in the card's header.
   expect(all(testIds.siteColumns.caveat).map((caveat) => caveat.dataset.kind)).toEqual(['approximate']);
   expect(one(testIds.siteColumns.caveat).closest('header')).not.toBeNull();
-  // Each place's timeline carries its next Sun and Earth event, beside the place's name.
+  // One timeline per place, in the live view.
   const timelines = all(testIds.timeline.root, one(testIds.compare.live));
   expect(timelines.map((tl) => tl.dataset.siteId)).toEqual(['im-2', 'malapert-m1']);
-  for (const tl of timelines) expect(all(testIds.countdowns.chip, tl).map((chip) => chip.dataset.body)).toEqual(['sun', 'earth']);
 
   // Single: the best option first, in full, with its details closed; the switch shows the other place.
   await act(async () => (mode().querySelectorAll('button')[1] as HTMLButtonElement).click());

@@ -4,17 +4,14 @@ import type { SiteView } from '../../../backend/lib/types';
 import type { SiteId } from '../../i18n';
 import { testIds } from '../../test-ids';
 import BodyLine from './BodyLine';
-import { MAP_HALF } from './mapUnits';
+import { MARK_PX } from './mapUnits';
 import styles from './MapPin.module.css';
 
 // labelEnd: the name is written to the left of the pin, ending at it. Default: left for a pin right of the pole.
-type MapPinProps = { view: SiteView; x: number; y: number; labelEnd?: boolean };
+// k: map units per CSS pixel, so the pin and its name keep their size on screen at any map size.
+type MapPinProps = { view: SiteView; x: number; y: number; k: number; labelEnd?: boolean };
 
-const LABEL_OFFSET = 0.06 * MAP_HALF;
-// Chrome caps font-size at 10000px, so the label is drawn 10 units tall and scaled up to 0.08·H.
-const LABEL_SCALE = (0.08 * MAP_HALF) / 10;
-
-const MapPin = ({ view, x, y, labelEnd }: MapPinProps) => {
+const MapPin = ({ view, x, y, k, labelEnd }: MapPinProps) => {
   const { t } = useTranslation('compare');
 
   const { site, sky, horizonIncomplete } = view;
@@ -23,6 +20,9 @@ const MapPin = ({ view, x, y, labelEnd }: MapPinProps) => {
   const earth = mapDirection(sky.earth.az, site.lon);
   const short = t(`${site.id as SiteId}.short`, { ns: 'sites' }); // long names run off the map
   const nameOnLeft = labelEnd ?? x > 0;
+  const labelOffset = MARK_PX.labelGap * k;
+  // Chrome caps font-size at 10000px, so the label is drawn 10 units tall and scaled to MARK_PX.label.
+  const labelScale = (MARK_PX.label * k) / 10;
   const title = [
     site.precision === 'proxy' ? t('map.approximate', { site: name }) : t('map.pin', { site: name }),
     ...(horizonIncomplete ? [t('map.lowerBound')] : []),
@@ -31,12 +31,12 @@ const MapPin = ({ view, x, y, labelEnd }: MapPinProps) => {
   return (
     <g data-testid={testIds.polarMap.pin} data-site-id={site.id} data-precision={site.precision}>
       <title>{title}</title>
-      <BodyLine body="sun" status={sky.sun.hidden ? 'hidden' : 'visible'} x={x} y={y} dx={sun.dx} dy={sun.dy} />
-      <BodyLine body="earth" status={sky.earth.hidden ? 'hidden' : 'visible'} x={x} y={y} dx={earth.dx} dy={earth.dy} />
-      <circle className={styles.pin} data-testid={testIds.polarMap.pinDot} cx={x} cy={-y} />
+      <BodyLine body="sun" status={sky.sun.hidden ? 'hidden' : 'visible'} x={x} y={y} dx={sun.dx} dy={sun.dy} k={k} />
+      <BodyLine body="earth" status={sky.earth.hidden ? 'hidden' : 'visible'} x={x} y={y} dx={earth.dx} dy={earth.dy} k={k} />
+      <circle className={styles.pin} data-testid={testIds.polarMap.pinDot} cx={x} cy={-y} r={MARK_PX.pin * k} />
       <text
         className={styles.label}
-        transform={`translate(${nameOnLeft ? x - LABEL_OFFSET : x + LABEL_OFFSET} ${-y}) scale(${LABEL_SCALE})`}
+        transform={`translate(${nameOnLeft ? x - labelOffset : x + labelOffset} ${-y}) scale(${labelScale})`}
         textAnchor={nameOnLeft ? 'end' : 'start'}
       >
         {short}

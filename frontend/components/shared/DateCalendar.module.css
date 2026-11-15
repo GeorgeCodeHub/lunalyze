@@ -1,0 +1,102 @@
+/* The calendar menu: the same colour, edge and small shadow as the dropdown lists, 6px under its field. */
+.calendar {
+  width: 288px;
+  margin: auto;
+  padding: 12px;
+  border: 1px solid var(--color-glass-border);
+  border-radius: var(--radius-control);
+  background: var(--color-menu);
+  color: var(--color-text);
+  box-shadow: 0 10px 24px -12px var(--shadow-menu);
+}
+
+@supports (anchor-name: --a) {
+  .calendar {
+    position-anchor: var(--calendar-anchor);
+    inset: auto;
+    top: anchor(bottom);
+    left: anchor(left);
+    margin: 6px 0 0;
+    position-try-fallbacks: flip-block;
+  }
+}
+
+/* The month's name between its two arrows. */
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.month {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.step {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 2px;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.step:first-child svg {
+  transform: rotate(180deg);
+}
+
+.step:hover,
+.step:focus-visible {
+  background: var(--color-option-hover);
+  color: var(--color-text);
+}
+
+/* Seven columns: the weekdays' letters, then six weeks of days. */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.weekday {
+  display: grid;
+  place-items: center;
+  height: 24px;
+  color: var(--color-text-faint);
+  font-size: 0.7rem;
+}
+
+/* A day, like a line in a dropdown list: a light wash under the pointer, the warm tone when chosen. */
+.day {
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 2px;
+  background: transparent;
+  color: var(--color-text);
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+
+.day[data-outside='true'] {
+  color: var(--color-text-faint);
+}
+
+.day:hover,
+.day:focus-visible {
+  background: var(--color-option-hover);
+}
+
+.day[aria-pressed='true'] {
+  background: var(--color-option-selected);
+  font-weight: 500;
+}

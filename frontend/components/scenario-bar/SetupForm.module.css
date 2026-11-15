@@ -37,6 +37,7 @@
 
 /* Outlined glass button: 2px light border, bold capitals, arrow at the end. */
 .submit {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -53,12 +54,37 @@
   cursor: pointer;
   transition:
     background-color 160ms cubic-bezier(0.16, 1, 0.3, 1),
-    border-color 160ms cubic-bezier(0.16, 1, 0.3, 1);
+    border-color 160ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 160ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.submit:hover {
-  border-color: var(--color-text);
+/* The same light as every button: on hover or keyboard focus, a Sun-to-Earth edge (a ring over the
+   2px border, its middle masked out) and a soft halo of the same two colours. */
+.submit::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  padding: 2px;
+  border-radius: inherit;
+  background: linear-gradient(120deg, var(--color-sun), var(--color-earth));
+  opacity: 0;
+  mask:
+    linear-gradient(var(--color-bg) 0 0) content-box,
+    linear-gradient(var(--color-bg) 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+  transition: opacity 160ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.submit:hover,
+.submit:focus-visible {
   background: var(--color-glass-hover);
+  box-shadow: var(--glow-hover);
+}
+
+.submit:hover::before,
+.submit:focus-visible::before {
+  opacity: 1;
 }
 
 .submit:active .submitLabel {

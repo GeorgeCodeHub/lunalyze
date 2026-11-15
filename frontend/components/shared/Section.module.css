@@ -33,6 +33,7 @@
 
 /* An outlined glass button, the quiet sibling of the setup step's submit button. */
 .button {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -54,10 +55,34 @@
     box-shadow 160ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.button:hover {
-  border-color: var(--color-glass-border-strong);
+/* Hover and keyboard focus light the button the way the side panel's resize edge lights up: its edge
+   runs from the Sun's peach to Earth's blue-purple (a ring over the border, its middle masked out),
+   with a soft halo of the same two colours around it. */
+.button::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  padding: 1px;
+  border-radius: inherit;
+  background: linear-gradient(120deg, var(--color-sun), var(--color-earth));
+  opacity: 0;
+  mask:
+    linear-gradient(var(--color-bg) 0 0) content-box,
+    linear-gradient(var(--color-bg) 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+  transition: opacity 160ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.button:hover,
+.button:focus-visible {
   background: var(--color-glass-hover);
-  box-shadow: 0 0 16px -6px var(--glow-sun-strong);
+  box-shadow: var(--glow-hover);
+}
+
+.button:hover::before,
+.button:focus-visible::before {
+  opacity: 1;
 }
 
 /* A panel is glass: a see-through fill, warm in one corner and a pale haze in the rest, that blurs the

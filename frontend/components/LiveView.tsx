@@ -2,8 +2,9 @@ import { lazy, Suspense, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { SiteView } from '../../backend/lib/types';
 import { testIds } from '../test-ids';
-import CountdownChips from './countdowns/CountdownChips';
 import HorizonStrip from './horizon-strip/HorizonStrip';
+import LiveLegend from './LiveLegend';
+import InfoTip from './shared/InfoTip';
 import Segmented from './shared/Segmented';
 import type { TimeFrame } from './shared/timeFrame';
 import PolarMap from './site-picker/PolarMap';
@@ -22,6 +23,9 @@ type LiveViewProps = { places: { view: SiteView; now: SiteView }[]; loading: boo
 type Mode = 'map' | 'sky' | '3d';
 
 const TITLE_ID = 'live-view-title';
+
+// How to read each picture: behind the frame's "i" button, shown only when asked for.
+const HELP = { map: 'live.helpMap', sky: 'horizon.legend', '3d': 'terrain3d.legend' } as const;
 
 // The right of the screen: the play button and time slider first, so they are in sight with the
 // picture; then both places at the moment the playhead is on, as a map, the sky or in 3D; then one
@@ -54,13 +58,22 @@ const LiveView = ({ places, loading, frame }: LiveViewProps) => {
           {/* The view area, framed like a map app's viewport: the picture, the view switch floating in
               its top corner, and the time player along its bottom edge. */}
           <div className={styles.stage}>
-            <div className={styles.switch}>
-              <Segmented label={t('live.switch')} options={modes} value={mode} onChange={setMode} testId={testIds.compare.liveSwitch} />
+            {/* The frame's top row: the one legend for every picture, and the switch at the far end. In
+                the row rather than over the picture, so neither covers a title or a horizon. */}
+            <div className={styles.toolbar}>
+              <LiveLegend approximate={mode === 'map' && places.some(({ now }) => now.site.precision === 'proxy')} />
+              <InfoTip label={t('live.help')} text={t(HELP[mode])} testId={testIds.compare.help} />
+              <div className={styles.switch}>
+                <Segmented label={t('live.switch')} options={modes} value={mode} onChange={setMode} testId={testIds.compare.liveSwitch} />
+              </div>
+            </div>
+            {/* The time player comes next, at the top: it is the main control of every picture. */}
+            <div className={styles.time}>
+              <TimeControls frame={frame} />
             </div>
             {mode === 'map' && (
               <div className={styles.map}>
-                <PolarMap views={places.map((place) => place.now)} />
-                <p className={styles.hint}>{t('live.mapHint')}</p>
+                <PolarMap views={places.map((place) => place.now)} legend={false} credit={false} />
               </div>
             )}
             {mode === 'sky' && (
@@ -68,7 +81,6 @@ const LiveView = ({ places, loading, frame }: LiveViewProps) => {
                 {places.map((place) => (
                   <HorizonStrip key={place.view.site.id} view={place.view} now={place.now} siteName={nameOf(place.view)} />
                 ))}
-                <p className={styles.note}>{t('horizon.legend')}</p>
               </div>
             )}
             {mode === '3d' && (
@@ -84,9 +96,6 @@ const LiveView = ({ places, loading, frame }: LiveViewProps) => {
                 </Suspense>
               </Terrain3DBoundary>
             )}
-            <div className={styles.time}>
-              <TimeControls frame={frame} />
-            </div>
           </div>
           <div className={styles.timelines}>
             <h3 className={styles.subtitle}>{t('timeline.title')}</h3>
@@ -97,10 +106,9 @@ const LiveView = ({ places, loading, frame }: LiveViewProps) => {
                 frame={frame}
                 siteName={nameOf(place.view)}
                 axis={i === places.length - 1}
-                aside={<CountdownChips now={place.now} />}
               />
             ))}
-            <p className={styles.note}>{t('timeline.legend')}</p>
+            <p className={styles.key}>{t('timeline.legend')}</p>
           </div>
         </>
       )}

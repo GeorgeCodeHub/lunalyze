@@ -1,21 +1,22 @@
+/* Sizes come from MapPin (radius) and are in screen pixels here (stroke), so they hold at any map size. */
 .pin {
-  r: 1.8%;
   fill: var(--color-pin);
   stroke: var(--color-map-bg);
-  stroke-width: 0.5%;
+  stroke-width: 2px;
+  vector-effect: non-scaling-stroke;
 }
 
 g[data-precision='proxy'] .pin {
   fill: var(--color-map-bg);
   stroke: var(--color-pin);
-  stroke-width: 0.6%;
+  stroke-width: 2.5px;
 }
 
 .label {
   fill: var(--color-pin);
   stroke: var(--color-map-bg);
   font-size: 10px;
-  stroke-width: 0.225em; /* 0.9% of the map width at the scaled-up size */
+  stroke-width: 0.225em; /* a dark halo around the letters, so the name reads over any ground */
   paint-order: stroke;
   stroke-linejoin: round;
   dominant-baseline: middle;

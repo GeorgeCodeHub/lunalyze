@@ -30,7 +30,6 @@ const Terrain3D = ({ places }: Terrain3DProps) => {
           />
         ),
       )}
-      {places.some(({ view }) => view.site.terrainModeled) && <p className={styles.legend}>{t('terrain3d.legend')}</p>}
     </div>
   );
 };

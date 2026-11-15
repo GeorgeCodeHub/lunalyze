@@ -1,6 +1,10 @@
+/* The ground around each place: side by side when the live view has room (each at least 320px), one
+   under the other when it has not, so two places can be compared at a glance. The legend spans them all. */
 .root {
   display: grid;
-  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+  align-items: start;
+  gap: 16px;
   min-width: 0;
 }
 
@@ -10,8 +14,13 @@
   min-width: 0;
 }
 
+/* The place's name, on one line: cut short with … rather than pushing the picture down. */
 .title {
   composes: title from '../shared/Section.module.css';
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .note {
@@ -25,10 +34,6 @@
 .note svg {
   flex: none;
   margin-top: 2px;
-}
-
-.legend {
-  composes: note from '../shared/Section.module.css';
 }
 
 .box {
@@ -96,11 +101,12 @@
   min-width: 0;
 }
 
-/* Face the Sun / Face Earth: floating in the picture's bottom-left corner, like a map's controls. */
+/* Face the Sun / Face Earth: small pills in the picture's top-left corner, in the sky, away from the
+   zoom and compass in the bottom-right. */
 .faceButtons {
   position: absolute;
   z-index: 1;
-  bottom: 12px;
+  top: 12px;
   left: 12px;
   display: flex;
   flex-wrap: wrap;
@@ -109,5 +115,132 @@
 
 .faceButton {
   composes: button from '../shared/Section.module.css';
+}
+
+/* Small: written through .faceButtons so it wins over the shared button's size, whatever order the
+   stylesheets load in (this one loads later, with the 3D view). */
+.faceButtons .faceButton {
+  gap: 8px;
+  min-height: 28px;
+  padding: 0 12px;
+  background: var(--color-menu);
   color: var(--color-text);
+  font-size: 0.62rem;
+}
+
+/* A map's controls in the picture's bottom-right corner: the zoom pill, then the compass. */
+.lookControls {
+  position: absolute;
+  z-index: 1;
+  right: 12px;
+  bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.zoom,
+.compassDial {
+  border: 1px solid var(--color-glass-border);
+  background: var(--color-menu);
+  box-shadow: 0 8px 20px -12px var(--shadow-menu);
+  transition: box-shadow 160ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* The same light as every control. */
+.zoom:hover,
+.zoom:focus-within,
+.compassDial:hover,
+.compassDial:focus-visible {
+  box-shadow: var(--glow-hover);
+}
+
+/* − and + side by side in one pill, drawn with two short lines so no text sits on them. */
+.zoom {
+  display: flex;
+  overflow: hidden;
+  height: 32px;
+  border-radius: 16px;
+}
+
+.zoomButton {
+  position: relative;
+  width: 36px;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.zoomButton + .zoomButton {
+  border-left: 1px solid var(--color-rule);
+}
+
+.zoomButton:hover,
+.zoomButton:focus-visible {
+  background: var(--color-glass-hover);
+  color: var(--color-text);
+}
+
+.zoomButton::before,
+.zoomButton[data-direction='in']::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 12px;
+  height: 2px;
+  border-radius: 1px;
+  background: currentColor;
+  transform: translate(-50%, -50%);
+}
+
+.zoomButton[data-direction='in']::after {
+  width: 2px;
+  height: 12px;
+}
+
+/* The compass: 56px round. A ring of ticks every 45° and a red north mark turn with the view (--north,
+   set by Compass); the direction faced sits still in the middle. */
+.compassDial {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  padding: 0;
+  border-radius: 50%;
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.dial {
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  background: repeating-conic-gradient(from -2deg, var(--color-line) 0 4deg, transparent 4deg 45deg);
+  mask: radial-gradient(circle, transparent 0 62%, var(--color-bg) 64%);
+  transform: rotate(var(--north, 0deg));
+  transition: transform 120ms linear;
+}
+
+.needle {
+  position: absolute;
+  top: -1px;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-right: 5px solid transparent;
+  border-bottom: 8px solid var(--color-error);
+  border-left: 5px solid transparent;
+  transform: translateX(-50%);
+}
+
+.headingLetter {
+  position: relative;
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
 }

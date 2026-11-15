@@ -1,0 +1,62 @@
+.wrap {
+  display: inline-flex;
+  flex: none;
+}
+
+/* A small round button with an "i", quiet until the pointer or keyboard reaches it. */
+.button {
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 1px solid var(--color-glass-border);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: help;
+  transition:
+    border-color 160ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 160ms cubic-bezier(0.16, 1, 0.3, 1),
+    color 160ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.button:hover,
+.button:focus-visible {
+  border-color: var(--color-glass-border-strong);
+  color: var(--color-text);
+  box-shadow: var(--glow-hover);
+}
+
+/* The explanation: the same colour, edge and small shadow as a dropdown's list. */
+.tip {
+  max-width: min(44ch, calc(100vw - 32px));
+  margin: auto;
+  padding: 12px 16px;
+  border: 1px solid var(--color-glass-border);
+  border-radius: var(--radius-control);
+  background: var(--color-menu);
+  color: var(--color-text);
+  font-size: 0.8rem;
+  line-height: 1.5;
+  box-shadow: 0 10px 24px -12px var(--shadow-menu);
+}
+
+/* Where the browser can place it by its button: under it, or over it when there is no room below.
+   Elsewhere it opens in the middle of the window. */
+@supports (anchor-name: --a) {
+  .button {
+    anchor-name: var(--info-anchor);
+  }
+
+  .tip {
+    position-anchor: var(--info-anchor);
+    inset: auto;
+    margin: 8px 0 0;
+    position-area: block-end span-inline-start;
+    position-try-fallbacks:
+      flip-block,
+      flip-inline,
+      flip-block flip-inline;
+  }
+}

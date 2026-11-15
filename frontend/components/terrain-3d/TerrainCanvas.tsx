@@ -8,6 +8,7 @@ import type { TerrainGrid } from '../../../backend/lib/useTerrain';
 import { testIds } from '../../test-ids';
 import CompassPoint from './CompassPoint';
 import LookAround from './LookAround';
+import type { LookAction } from './lookTurn';
 import SkyMarker from './SkyMarker';
 import TerrainMesh from './TerrainMesh';
 import { EXAGGERATION, eyeHeight, sceneDirection } from './sceneMath';
@@ -19,6 +20,8 @@ type TerrainCanvasProps = {
   sky: SiteView['sky']; // at the playhead time
   colours: { sun: string; earth: string; ground: string; sky: string };
   facing: [number, number, number]; // where the view turns on mount and on each "face" button
+  look: { direction: LookAction | null; n: number }; // the latest press on the compass's keys or the zoom
+  onHeading: (degrees: number) => void; // the bearing the view faces, as it changes
   portal: RefObject<HTMLElement | null>; // where the labels attach: fixed from the first render
 };
 
@@ -38,7 +41,7 @@ const GL = { logarithmicDepthBuffer: true };
 const scale = (v: [number, number, number], k: number): [number, number, number] => [v[0] * k, v[1] * k, v[2] * k];
 
 // The view from the site: the ground lit by the Sun at the playhead time, the Sun and Earth far off, and the compass on the horizon.
-const TerrainCanvas = ({ grid, site, sky, colours, facing, portal }: TerrainCanvasProps) => {
+const TerrainCanvas = ({ grid, site, sky, colours, facing, look, onHeading, portal }: TerrainCanvasProps) => {
   const { t } = useTranslation('compare');
 
   const { sun, earth } = sky;
@@ -109,7 +112,7 @@ const TerrainCanvas = ({ grid, site, sky, colours, facing, portal }: TerrainCanv
           portal={portal}
         />
       ))}
-      <LookAround eyeY={eyeY} facing={facing} />
+      <LookAround eyeY={eyeY} facing={facing} look={look} lon={site.lon} onHeading={onHeading} />
     </Canvas>
   );
 };

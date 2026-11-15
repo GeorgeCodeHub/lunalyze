@@ -1,6 +1,7 @@
-/* A grab area on the panel's edge, wider than the line so it is easy to catch. The line and the grip
-   are hidden until the pointer is over the panel (the panel sets --resize-handle-shown to 1), over the
-   handle, or the handle has keyboard focus. */
+/* A grab area on the panel's edge, wider than the edge so it is easy to catch. There is no line and no
+   focus box of its own: while it is hovered, focused or dragged, the panel's border glows instead
+   (see Compare.module.css). The grip shows when the pointer is over the panel (the panel sets
+   --resize-handle-shown to 1), over the handle, or the handle has keyboard focus. */
 .handle {
   position: relative;
   width: 24px;
@@ -9,18 +10,8 @@
   touch-action: none;
 }
 
-.handle::before {
-  content: '';
-  position: absolute;
-  top: 8px;
-  bottom: 8px;
-  left: 50%;
-  width: 2px;
-  border-radius: 1px;
-  background: var(--color-glass-border-strong);
-  opacity: 0;
-  transform: translateX(-50%);
-  transition: opacity 160ms cubic-bezier(0.16, 1, 0.3, 1);
+.handle:focus-visible {
+  outline: none;
 }
 
 /* The grip in the middle of the edge: a small pill the eye finds first. */
@@ -40,7 +31,6 @@
 
 .handle:hover .grip,
 .handle:focus-visible .grip,
-.handle:hover::before,
-.handle:focus-visible::before {
+.handle:active .grip {
   opacity: 1;
 }

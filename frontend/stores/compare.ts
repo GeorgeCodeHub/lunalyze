@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 
 // The playhead of the Compare screen: how many hours after the landing time the screen is showing.
-// The horizon strips, countdown chips, timelines and the map all read it, so it lives in a store.
+// The horizon strips, the 3D view, the timelines and the map all read it, so it lives in a store.
 // A state machine: paused or playing; the named actions are the only transitions.
 type PlaybackState =
   | { status: 'paused'; offsetH: number }

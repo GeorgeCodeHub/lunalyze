@@ -32,7 +32,10 @@
   "when": {
     "date": "Date",
     "time": "Time (UTC)",
-    "hour": "{{hour}}:00 UTC"
+    "hour": "{{hour}}:00 UTC",
+    "openCalendar": "Choose a date in the calendar",
+    "prevMonth": "Previous month",
+    "nextMonth": "Next month"
   },
   "hero": {
     "alt": "The full Moon. NASA made this image from Lunar Reconnaissance Orbiter data.",
@@ -100,7 +103,7 @@
     }
   },
   "horizon": {
-    "title": "The sky from {{site}}",
+    "title": "{{site}}",
     "label": "The view from {{site}}: the hills on the horizon, the Sun and the Earth.",
     "north": "North",
     "east": "East",
@@ -115,18 +118,6 @@
     "hidden": "Hidden",
     "status": "{{body}}: {{status}}",
     "legend": "Thin lines: the paths of the Sun and Earth during the time span shown. Grey: the ground and hills."
-  },
-  "countdown": {
-    "title": "Next",
-    "sunset": "Sunset in {{time}}",
-    "sunrise": "Sunrise in {{time}}",
-    "earthset": "Earthset in {{time}}",
-    "earthrise": "Earthrise in {{time}}",
-    "sunStaysUp": "Sun stays in view",
-    "sunStaysDown": "Sun stays hidden",
-    "earthStaysUp": "Earth stays in view",
-    "earthStaysDown": "Earth stays hidden",
-    "noChange": "No change for one Moon day or longer"
   },
   "duration": {
     "days_one": "{{count}} day",
@@ -172,7 +163,8 @@
     "afterStay": "after your stay",
     "start": "Landing · {{date}}",
     "hint": "Press Play or drag the slider to move time. The map, sky and timelines show that moment. The shaded part is your stay.",
-    "keys": "An arrow key moves the time 1 hour. Shift and an arrow key move it 1 day."
+    "keys": "An arrow key moves the time 1 hour. Shift and an arrow key move it 1 day.",
+    "help": "How the time player works"
   },
   "credits": {
     "title": "Data sources",
@@ -227,16 +219,20 @@
   "live": {
     "title": "Live view",
     "switch": "Choose what the live view shows",
+    "legend": "How to read the pictures",
+    "help": "How to read this view",
+    "helpMap": "Each line points from a place to the Sun or Earth at the time shown.",
+    "legendInView": "Solid: in view",
+    "legendHidden": "Dashed: hidden",
     "map": "Map",
     "sky": "Sky",
     "threeD": "3D",
     "threeDLoading": "Loading the terrain view…",
-    "mapHint": "Each line points from a place to the Sun or Earth at the time shown.",
     "loading": "Calculating the positions of the Sun and Earth…",
     "empty": "The live view shows places that have results. Choose a place from the list at the top."
   },
   "terrain3d": {
-    "title": "The ground around {{site}}",
+    "title": "{{site}}",
     "label": "Terrain around {{site}}, lit by the Sun at the time shown",
     "state": "Sun {{sun}}. Earth {{earth}}.",
     "inView": "in view",
@@ -250,10 +246,30 @@
     "east": "E",
     "south": "S",
     "west": "W",
-    "faceSun": "Face the Sun",
+    "faceSun": "Face Sun",
     "faceEarth": "Face Earth",
+    "compassLabel": "Facing {{direction}}. Press to face north. The arrow keys turn the view.",
+    "point_n": "N",
+    "point_ne": "NE",
+    "point_e": "E",
+    "point_se": "SE",
+    "point_s": "S",
+    "point_sw": "SW",
+    "point_w": "W",
+    "point_nw": "NW",
+    "heading_n": "north",
+    "heading_ne": "north-east",
+    "heading_e": "east",
+    "heading_se": "south-east",
+    "heading_s": "south",
+    "heading_sw": "south-west",
+    "heading_w": "west",
+    "heading_nw": "north-west",
+    "zoom": "Zoom",
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out",
     "hiddenLabel": "{{body}}, hidden",
-    "legend": "You stand at the site. Drag to look around, scroll to zoom. Hills are drawn taller than they are, and the Sun and Earth twice their size. A see-through Sun or Earth is hidden behind the hills.",
+    "legend": "You stand at the site. Drag to look around, or use the compass and the arrow keys; scroll or use − and + to zoom. Press the compass to face north. Hills are drawn taller than they are, and the Sun and Earth twice their size. A see-through Sun or Earth is hidden behind the hills.",
     "lowerBound": "Our height map ends before the hills around this place end. The Sun and Earth may be hidden more often than the terrain view shows.",
     "approximate": "Approximate location.",
     "unavailable": "The terrain view could not start in this browser. The map and sky views still work."

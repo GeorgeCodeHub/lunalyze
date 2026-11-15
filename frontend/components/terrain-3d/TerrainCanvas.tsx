@@ -33,6 +33,7 @@ const TerrainCanvas = ({ grid, site, sky, colours, portal }: TerrainCanvasProps)
   const { sun, earth } = sky;
   const sunDir = sceneDirection(sun, site.lon, EXAGGERATION);
   const earthDir = sceneDirection(earth, site.lon, EXAGGERATION);
+
   const bodyLabel = (body: 'sun' | 'earth', hidden: boolean) =>
     hidden ? t('terrain3d.hiddenLabel', { body: t(`terrain3d.${body}`) }) : t(`terrain3d.${body}`);
 

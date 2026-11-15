@@ -7,6 +7,7 @@ import Segmented from './shared/Segmented';
 import type { TimeFrame } from './shared/timeFrame';
 import PolarMap from './site-picker/PolarMap';
 import { siteNameKey } from './site-picker/siteIds';
+import Terrain3DBoundary from './terrain-3d/Terrain3DBoundary';
 import TimeControls from './timeline/TimeControls';
 import Timeline from './timeline/Timeline';
 import styles from './LiveView.module.css';
@@ -64,15 +65,17 @@ const LiveView = ({ places, loading, frame }: LiveViewProps) => {
             </div>
           )}
           {mode === '3d' && (
-            <Suspense
-              fallback={
-                <p className={styles.empty} role="status">
-                  {t('live.threeDLoading')}
-                </p>
-              }
-            >
-              <Terrain3D places={places} />
-            </Suspense>
+            <Terrain3DBoundary>
+              <Suspense
+                fallback={
+                  <p className={styles.empty} role="status">
+                    {t('live.threeDLoading')}
+                  </p>
+                }
+              >
+                <Terrain3D places={places} />
+              </Suspense>
+            </Terrain3DBoundary>
           )}
           <div className={styles.time}>
             <TimeControls frame={frame} />

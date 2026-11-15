@@ -239,7 +239,8 @@
     "hiddenLabel": "{{body}}, hidden",
     "legend": "Drag to turn the view, scroll or pinch to zoom. Hills are drawn taller than they are. A see-through Sun or Earth is hidden behind the hills.",
     "lowerBound": "Our height map ends before the hills around this place end. The Sun and Earth may be hidden more often than the terrain view shows.",
-    "approximate": "Approximate location."
+    "approximate": "Approximate location.",
+    "unavailable": "The terrain view could not start in this browser. The map and sky views still work."
   },
   "caveatShort": {
     "terrainOff": "Hills ignored",

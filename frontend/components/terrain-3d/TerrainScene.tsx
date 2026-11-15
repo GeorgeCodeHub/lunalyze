@@ -25,7 +25,6 @@ const TerrainScene = ({ view, now, siteName }: TerrainSceneProps) => {
   }));
 
   const boxRef = useRef<HTMLElement>(null);
-
   const status = error ? 'error' : loading || !grid ? 'loading' : 'ready';
   const { sun, earth } = now.sky;
   const state = t('terrain3d.state', {

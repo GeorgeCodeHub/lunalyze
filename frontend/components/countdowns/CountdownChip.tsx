@@ -17,8 +17,8 @@ const KEYS = {
   },
 } as const;
 
-// "Sunset in 11 hours 43 minutes". A body that is up counts down to its set, one that is down to its
-// rise. hours null means nothing changes within one Moon day, so the chip says it stays as it is.
+// "Sunset in 11h 43m". A body that is up counts down to its set, one that is down to its rise.
+// hours null means nothing changes within one Moon day, so the chip says it stays as it is.
 const CountdownChip = ({ body, countdown }: CountdownChipProps) => {
   const { t } = useTranslation('compare');
   const duration = useDuration();
@@ -27,7 +27,7 @@ const CountdownChip = ({ body, countdown }: CountdownChipProps) => {
   const text =
     countdown.hours === null
       ? t(countdown.kind === 'set' ? keys.staysUp : keys.staysDown)
-      : t(keys[countdown.kind], { time: duration(countdown.hours) });
+      : t(keys[countdown.kind], { time: duration(countdown.hours, 'short') });
 
   return (
     <li
@@ -36,6 +36,7 @@ const CountdownChip = ({ body, countdown }: CountdownChipProps) => {
       data-body={body}
       data-kind={countdown.kind}
       data-change={countdown.hours === null ? 'none' : 'coming'}
+      title={countdown.hours === null ? t('countdown.noChange') : undefined}
     >
       <BodyGlyph body={body} />
       <span>{text}</span>

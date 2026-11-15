@@ -1,25 +1,28 @@
 import { useTranslation } from 'react-i18next';
-import { mapDirection, POLAR_MAP } from '../../../backend/lib/projectPolar';
+import { mapDirection } from '../../../backend/lib/projectPolar';
 import type { SiteView } from '../../../backend/lib/types';
 import type { SiteId } from '../../i18n';
 import { testIds } from '../../test-ids';
 import BodyLine from './BodyLine';
+import { MAP_HALF } from './mapUnits';
 import styles from './MapPin.module.css';
 
-type MapPinProps = { view: SiteView; x: number; y: number };
+// labelEnd: the name is written to the left of the pin, ending at it. Default: left for a pin right of the pole.
+type MapPinProps = { view: SiteView; x: number; y: number; labelEnd?: boolean };
 
-const LABEL_OFFSET_M = 0.06 * POLAR_MAP.halfWidthM;
+const LABEL_OFFSET = 0.06 * MAP_HALF;
 // Chrome caps font-size at 10000px, so the label is drawn 10 units tall and scaled up to 0.08·H.
-const LABEL_SCALE = (0.08 * POLAR_MAP.halfWidthM) / 10;
+const LABEL_SCALE = (0.08 * MAP_HALF) / 10;
 
-const MapPin = ({ view, x, y }: MapPinProps) => {
+const MapPin = ({ view, x, y, labelEnd }: MapPinProps) => {
   const { t } = useTranslation('compare');
 
   const { site, sky, horizonIncomplete } = view;
   const name = t(`${site.id as SiteId}.name`, { ns: 'sites' });
   const sun = mapDirection(sky.sun.az, site.lon);
   const earth = mapDirection(sky.earth.az, site.lon);
-  const labelEnd = x > 0;
+  const short = t(`${site.id as SiteId}.short`, { ns: 'sites' }); // long names run off the map
+  const nameOnLeft = labelEnd ?? x > 0;
   const title = [
     site.precision === 'proxy' ? t('map.approximate', { site: name }) : t('map.pin', { site: name }),
     ...(horizonIncomplete ? [t('map.lowerBound')] : []),
@@ -33,10 +36,10 @@ const MapPin = ({ view, x, y }: MapPinProps) => {
       <circle className={styles.pin} data-testid={testIds.polarMap.pinDot} cx={x} cy={-y} />
       <text
         className={styles.label}
-        transform={`translate(${labelEnd ? x - LABEL_OFFSET_M : x + LABEL_OFFSET_M} ${-y}) scale(${LABEL_SCALE})`}
-        textAnchor={labelEnd ? 'end' : 'start'}
+        transform={`translate(${nameOnLeft ? x - LABEL_OFFSET : x + LABEL_OFFSET} ${-y}) scale(${LABEL_SCALE})`}
+        textAnchor={nameOnLeft ? 'end' : 'start'}
       >
-        {name}
+        {short}
       </text>
     </g>
   );

@@ -1,7 +1,7 @@
 .fit {
   display: grid;
   justify-items: start;
-  gap: 8px;
+  gap: 10px;
 }
 
 .verdict {
@@ -9,32 +9,37 @@
   align-items: center;
   gap: 10px;
   margin: 0;
-  padding: 8px 12px;
-  border: 1px solid var(--color-invert-bg);
+  padding: 10px 14px;
+  border: 1px solid var(--color-line-strong);
   border-radius: var(--radius-control);
-  font-family: var(--font-display);
-  font-size: 1.15rem;
+  font-size: 1.1rem;
+  font-weight: 500;
   line-height: 1.2;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
-.fit[data-fit='fits'] .verdict {
-  background: var(--color-invert-bg);
-  color: var(--color-invert-text);
+.verdict svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Fits: a solid edge and a green tick. Risky: a dashed edge and a warm warning mark. */
+.fit[data-fit='fits'] .verdict svg {
+  color: var(--color-good);
 }
 
 .fit[data-fit='risky'] .verdict {
   border-style: dashed;
-  border-color: var(--color-line-strong);
+}
+
+.fit[data-fit='risky'] .verdict svg {
+  color: var(--color-error);
 }
 
 .reason {
   margin: 0;
-  font-size: 0.9rem;
-  line-height: 1.5;
-}
-
-.checked {
-  composes: note from '../shared/Section.module.css';
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  line-height: 1.4;
 }

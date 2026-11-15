@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
-import { POLAR_MAP } from '../../../backend/lib/projectPolar';
 import { testIds } from '../../test-ids';
+import { MAP_HALF } from './mapUnits';
 import styles from './BodyLine.module.css';
 
 type BodyLineProps = {
@@ -12,14 +12,14 @@ type BodyLineProps = {
   dy: number;
 };
 
-const LINE_LENGTH_M = 0.25 * POLAR_MAP.halfWidthM;
+const LINE_LENGTH = 0.25 * MAP_HALF;
 
 const BodyLine = ({ body, status, x, y, dx, dy }: BodyLineProps) => {
   const { t } = useTranslation('compare');
 
-  // Projected metres have +y up; SVG has +y down, so y is negated on the way out.
-  const ex = x + LINE_LENGTH_M * dx;
-  const ey = y + LINE_LENGTH_M * dy;
+  // The projection has +y up; SVG has +y down, so y is negated on the way out.
+  const ex = x + LINE_LENGTH * dx;
+  const ey = y + LINE_LENGTH * dy;
 
   return (
     <g data-testid={testIds.polarMap.bodyLine} data-body={body} data-status={status} className={styles.line}>

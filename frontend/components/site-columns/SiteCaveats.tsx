@@ -1,34 +1,30 @@
 import { useTranslation } from 'react-i18next';
 import type { SiteView } from '../../../backend/lib/types';
 import { testIds } from '../../test-ids';
-import Caveat from '../shared/Caveat';
+import IconAlert from '../shared/IconAlert';
+import { caveatKinds } from './caveats';
 import styles from './SiteCaveats.module.css';
 
 type SiteCaveatsProps = { view: SiteView; terrain: boolean };
 
-// Where this place's numbers stop being exact: hills switched off or not mapped, an approximate
-// location, or a height map that ends before the hills do.
+// The caveats in two or three words each, on the face of the card: a drawn mark and a name.
+// The full sentence for each is in the card's details.
 const SiteCaveats = ({ view, terrain }: SiteCaveatsProps) => {
   const { t } = useTranslation('compare');
 
-  const { site, horizonIncomplete } = view;
-  const kinds = [
-    ...(terrain ? [] : (['terrainOff'] as const)),
-    ...(terrain && !site.terrainModeled ? (['terrainNotModeled'] as const) : []),
-    ...(site.precision === 'proxy' ? (['approximate'] as const) : []),
-    ...(horizonIncomplete ? (['horizonIncomplete'] as const) : []),
-  ];
+  const kinds = caveatKinds(view, terrain);
 
   if (kinds.length === 0) return null;
 
   return (
-    <div className={styles.caveats}>
+    <ul className={styles.caveats}>
       {kinds.map((kind) => (
-        <Caveat key={kind} kind={kind} testId={testIds.siteColumns.caveat}>
-          {t(`caveat.${kind}`)}
-        </Caveat>
+        <li key={kind} className={styles.caveat} data-testid={testIds.siteColumns.caveat} data-kind={kind}>
+          <IconAlert />
+          {t(`caveatShort.${kind}`)}
+        </li>
       ))}
-    </div>
+    </ul>
   );
 };
 

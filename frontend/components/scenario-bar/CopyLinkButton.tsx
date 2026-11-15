@@ -21,12 +21,13 @@ const CopyLinkButton = () => {
 
   return (
     <div className={styles.copy}>
-      <span className={styles.status} role="status" data-testid={testIds.scenarioBar.copyStatus}>
-        {status === 'idle' ? '' : t(status === 'copied' ? 'copyLink.copied' : 'copyLink.failed')}
-      </span>
       <button type="button" className={styles.button} onClick={copy} data-status={status} data-testid={testIds.scenarioBar.copyLink}>
         {t('copyLink.action')}
       </button>
+      {/* Always in the page, even when empty: a status region must exist before its words change to be read out. */}
+      <span className={styles.status} role="status" data-testid={testIds.scenarioBar.copyStatus}>
+        {status === 'idle' ? '' : t(status === 'copied' ? 'copyLink.copied' : 'copyLink.failed')}
+      </span>
     </div>
   );
 };

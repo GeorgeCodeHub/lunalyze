@@ -84,9 +84,9 @@ describe('body lines (criteria 7, 9)', () => {
     const earth = m.one(testIds.polarMap.bodyStroke, lineOf(pins(m)[0], 'earth')) as Element;
     expect(num(sun, 'y2')).toBeLessThan(num(sun, 'y1')); // north (away from the pole at ~0 lon) is +y map = up
     expect(num(earth, 'x2')).toBeGreaterThan(num(earth, 'x1')); // east at lon ~0 is +x
-    // line length is 0.25 H
+    // line length is 0.25 H, in map units (kilometres)
     const len = Math.hypot(num(sun, 'x2') - num(sun, 'x1'), num(sun, 'y2') - num(sun, 'y1'));
-    expect(len).toBeCloseTo(0.25 * POLAR_MAP.halfWidthM, 3);
+    expect(len).toBeCloseTo((0.25 * POLAR_MAP.halfWidthM) / 1000, 3);
   });
 });
 
@@ -144,7 +144,7 @@ describe('empty, credit, image (criteria 11, 12, 13)', () => {
     const img = m.one(testIds.polarMap.image) as Element;
     expect(img.getAttribute('href')).toBe(import.meta.env.BASE_URL + POLAR_MAP.path);
     expect(img.getAttribute('href')).toBe('/data/map/south-pole-hillshade.png');
-    const H = POLAR_MAP.halfWidthM;
+    const H = POLAR_MAP.halfWidthM / 1000; // the map is drawn in kilometres
     expect(m.one(testIds.polarMap.svg)?.getAttribute('viewBox')).toBe(`${-H} ${-H} ${2 * H} ${2 * H}`);
     expect([img.getAttribute('x'), img.getAttribute('y'), img.getAttribute('width'), img.getAttribute('height')]).toEqual([
       String(-H), String(-H), String(2 * H), String(2 * H),
@@ -162,9 +162,9 @@ describe('many views', () => {
   test('a pin sits at (x, -y) of the projection: point-a is left of and below the pole in screen terms', async () => {
     const m = await mount([view('point-a')]);
     const c = m.one(testIds.polarMap.pinDot) as Element;
-    // point-a projects to x -2347, y -9415, so SVG y is +9415
-    expect(Number(c.getAttribute('cx'))).toBeCloseTo(-2347.488, 2);
-    expect(Number(c.getAttribute('cy'))).toBeCloseTo(9415.262, 2);
+    // point-a projects to x -2347 m, y -9415 m; the map is drawn in kilometres, and SVG y is +9.415
+    expect(Number(c.getAttribute('cx'))).toBeCloseTo(-2.347488, 5);
+    expect(Number(c.getAttribute('cy'))).toBeCloseTo(9.415262, 5);
   });
 });
 

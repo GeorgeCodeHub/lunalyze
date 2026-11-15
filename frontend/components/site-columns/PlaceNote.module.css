@@ -1,7 +1,12 @@
-/* The same panel as a full column, with a dashed edge: nothing is drawn here yet. */
+/* The same card as a full place, with a dashed edge: nothing is drawn here yet. */
 .note {
-  composes: column from './SiteColumn.module.css';
-  border-style: dashed;
+  display: grid;
+  align-content: start;
+  gap: 20px;
+  min-width: 0;
+  padding: 20px;
+  border: 1px dashed var(--color-line);
+  border-radius: var(--radius-panel);
 }
 
 .body {
@@ -10,4 +15,12 @@
   color: var(--color-text-muted);
   font-size: 0.9rem;
   line-height: 1.6;
+}
+
+.heading {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }

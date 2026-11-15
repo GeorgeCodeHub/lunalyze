@@ -72,21 +72,20 @@ const TimeControls = ({ frame }: TimeControlsProps) => {
           value={offsetH}
           aria-valuetext={`${shown}, ${sinceLanding}`}
           aria-describedby={HINT_ID}
+          title={t('playback.hint')}
           data-testid={testIds.timeline.scrubber}
           onChange={(e) => seek(Number(e.target.value))}
           onKeyDown={onKeyDown}
         />
       </label>
-      <div className={styles.foot}>
-        <p className={styles.readout} data-testid={testIds.timeline.readout} data-offset-h={offsetH}>
-          <span className={styles.readoutLabel}>{t('playback.showing')}</span>
-          <strong className={styles.readoutTime}>{shown}</strong>
-          <span className={styles.readoutSince}>{sinceLanding}</span>
-        </p>
-        <p id={HINT_ID} className={styles.hint}>
-          {t('playback.hint')}
-        </p>
-      </div>
+      <p className={styles.readout} data-testid={testIds.timeline.readout} data-offset-h={offsetH}>
+        <span className={styles.readoutLabel}>{t('playback.showing')}</span>
+        <strong className={styles.readoutTime}>{shown}</strong>
+        <span className={styles.readoutSince}>{sinceLanding}</span>
+      </p>
+      <p id={HINT_ID} className={styles.visuallyHidden}>
+        {t('playback.hint')}
+      </p>
     </div>
   );
 };

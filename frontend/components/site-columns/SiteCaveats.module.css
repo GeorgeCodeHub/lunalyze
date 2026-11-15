@@ -1,7 +1,16 @@
 .caveats {
-  display: grid;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.caveat {
+  display: inline-flex;
+  align-items: center;
   gap: 8px;
-  padding: 12px;
-  border: 1px dashed var(--color-line);
-  border-radius: var(--radius-control);
+  color: var(--color-text-muted);
+  font-size: 0.78rem;
 }

@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { type Scenario, STAYS, ZOOMS } from '../../scenario';
+import { type Scenario, siteIdsOf, STAYS, ZOOMS } from '../../scenario';
 import { testIds } from '../../test-ids';
-import Barcode from '../shared/Barcode';
 import SelectField from '../shared/SelectField';
 import { STAY_KEY } from '../shared/stayKeys';
 import WhenFields from '../shared/WhenFields';
+import PlaceSelect from '../site-picker/PlaceSelect';
 import CopyLinkButton from './CopyLinkButton';
 import TerrainSwitch from './TerrainSwitch';
 import styles from './ScenarioBar.module.css';
@@ -26,6 +26,8 @@ const ScenarioBar = ({ scenario, onChange }: ScenarioBarProps) => {
   const hour = startIso.slice(11, 13);
   const stayOptions = STAYS.map((s) => ({ value: String(s), label: t(`setup.stay.${STAY_KEY[s]}`) }));
   const zoomOptions = ZOOMS.map((z) => ({ value: z, label: t(ZOOM_KEYS[z]) }));
+  // The person's place: the one chosen last. A link can carry a second place after the setup one.
+  const [placeId = ''] = siteIdsOf([scenario.places[1] ?? scenario.places[0]]);
 
   const setStart = (nextDate: string, nextHour: string) => {
     const start = new Date(`${nextDate}T${nextHour}:00:00Z`);
@@ -41,9 +43,9 @@ const ScenarioBar = ({ scenario, onChange }: ScenarioBarProps) => {
     <section className={styles.bar} aria-labelledby={TITLE_ID} data-testid={testIds.scenarioBar.root}>
       <h2 id={TITLE_ID} className={styles.title}>
         {t('bar.title')}
-        <Barcode width="long" />
       </h2>
       <div className={styles.fields}>
+        <PlaceSelect value={placeId} onPick={(id) => onChange({ ...scenario, places: [{ kind: 'site', id }] })} />
         <WhenFields
           date={dateDraft ?? date}
           hour={hour}

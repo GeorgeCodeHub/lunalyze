@@ -1,5 +1,5 @@
-/* Play button and scrubber in one row; under them the time shown, and the keyboard hint at the far end.
-   The time has a row to itself so the scrubber keeps its width while the words change. */
+/* Play button and scrubber in one row; under them the time shown, on a row of its own so the
+   scrubber keeps its width while the words change. */
 .controls {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
@@ -60,18 +60,10 @@
   background: var(--color-text);
 }
 
-.foot {
-  display: flex;
-  flex-wrap: wrap;
-  grid-column: 1 / -1;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 4px 24px;
-}
-
 .readout {
   display: flex;
   flex-wrap: wrap;
+  grid-column: 1 / -1;
   align-items: baseline;
   gap: 4px 12px;
   margin: 0;
@@ -91,6 +83,3 @@
   color: var(--color-text-muted);
 }
 
-.hint {
-  composes: note from '../shared/Section.module.css';
-}

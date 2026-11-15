@@ -4,19 +4,24 @@ import type { SiteView } from '../../../backend/lib/types';
 import type { SiteId } from '../../i18n';
 import { testIds } from '../../test-ids';
 import MapPin from './MapPin';
+import { MAP_HALF, toMapUnits } from './mapUnits';
 import styles from './PolarMap.module.css';
 
 type PolarMapProps = { views: SiteView[] };
 
-const H = POLAR_MAP.halfWidthM;
+const H = MAP_HALF;
 
 const PolarMap = ({ views }: PolarMapProps) => {
   const { t } = useTranslation('compare');
 
-  const placed = views.map((view) => ({ view, ...projectPolar(view.site.lat, view.site.lon) }));
-  const pins = placed.filter(({ x, y }) => onPolarMap(x, y));
-  const offMap = placed.filter(({ x, y }) => !onPolarMap(x, y));
+  const placed = views.map((view) => {
+    const metres = projectPolar(view.site.lat, view.site.lon);
+    return { view, onMap: onPolarMap(metres.x, metres.y), ...toMapUnits(metres) };
+  });
+  const pins = placed.filter(({ onMap }) => onMap);
+  const offMap = placed.filter(({ onMap }) => !onMap);
   const anyProxy = pins.some(({ view }) => view.site.precision === 'proxy');
+  const leftmost = Math.min(...pins.map(({ x }) => x));
 
   const nameOf = (view: SiteView) => t(`${view.site.id as SiteId}.name`, { ns: 'sites' });
   const status = (hidden: boolean) => t(hidden ? 'map.hidden' : 'map.visible');
@@ -41,7 +46,7 @@ const PolarMap = ({ views }: PolarMapProps) => {
           <title>{t('map.image')}</title>
         </image>
         {pins.map(({ view, x, y }) => (
-          <MapPin key={view.site.id} view={view} x={x} y={y} />
+          <MapPin key={view.site.id} view={view} x={x} y={y} labelEnd={pins.length > 1 ? x === leftmost : undefined} />
         ))}
       </svg>
       <figcaption className={styles.caption}>

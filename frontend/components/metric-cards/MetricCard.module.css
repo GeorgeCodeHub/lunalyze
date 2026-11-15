@@ -1,37 +1,38 @@
-.card {
+/* A tile: the figure first, then what it is. Tiles sit side by side, split by a thin rule, and take
+   their four rows from MetricCards' grid. Each part names its row, so a tile without a bar stays level. */
+.tile {
   display: grid;
-  align-content: start;
-  gap: 6px;
+  grid-row: span 4;
+  grid-template-rows: subgrid;
   min-width: 0;
-  padding: 14px;
-  border: 1px solid var(--color-rule);
-  border-radius: var(--radius-control);
-  background: var(--color-glass);
+  padding: 0 12px;
+  border-left: 1px solid var(--color-rule);
 }
 
-.label {
-  color: var(--color-text-muted);
-  font-size: 0.72rem;
-  line-height: 1.4;
+.tile:first-child {
+  padding-left: 0;
+  border-left: 0;
 }
 
-/* The number leads: pixel display type, like a readout. */
+.tile:last-child {
+  padding-right: 0;
+}
+
 .value {
-  font-family: var(--font-display);
-  font-size: 1.5rem;
+  grid-row: 1;
+  font-size: 1.45rem;
+  font-weight: 500;
   line-height: 1.15;
   font-variant-numeric: tabular-nums;
-  overflow-wrap: anywhere;
-}
-
-.note {
-  composes: note from '../shared/Section.module.css';
+  white-space: nowrap;
 }
 
 .meter {
   display: block;
+  grid-row: 2;
   width: 100%;
-  height: 4px;
+  height: 6px;
+  overflow: visible;
 }
 
 .meterTrack {
@@ -40,8 +41,23 @@
 
 .meterFill[data-body='sun'] {
   fill: var(--color-sun);
+  filter: drop-shadow(0 0 3px var(--glow-sun-strong));
 }
 
 .meterFill[data-body='earth'] {
   fill: var(--color-earth);
+  filter: drop-shadow(0 0 3px var(--glow-earth-strong));
+}
+
+.label {
+  grid-row: 3;
+  font-size: 0.8rem;
+  line-height: 1.3;
+}
+
+.note {
+  grid-row: 4;
+  color: var(--color-text-faint);
+  font-size: 0.7rem;
+  line-height: 1.3;
 }

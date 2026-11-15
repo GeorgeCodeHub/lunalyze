@@ -11,10 +11,11 @@ export const DARK_LIMIT_H = 50;
 /**
  * fits: no dark period in the stay is longer than the limit. risky: the longest one, from → to (ms).
  * fromLanding / toEnd: that period starts at the landing time / runs to the end of the stay checked.
+ * darkMs: the length of the longest dark period, for ranking places against each other. It is not shown.
  */
 export type StayFit =
-  | { status: 'fits' }
-  | { status: 'risky'; fromMs: number; toMs: number; fromLanding: boolean; toEnd: boolean };
+  | { status: 'fits'; darkMs: number }
+  | { status: 'risky'; darkMs: number; fromMs: number; toMs: number; fromLanding: boolean; toEnd: boolean };
 
 /**
  * lanes: the Sun and Earth lanes of the Moon-day window that starts at startMs (the landing time).
@@ -36,6 +37,7 @@ export const stayFit = (lanes: Pick<SiteView['lanes'], 'sun' | 'earth'>, startMs
   }
   if (endMs - darkFrom > longest.toMs - longest.fromMs) longest = { fromMs: darkFrom, toMs: endMs };
 
-  if (longest.toMs - longest.fromMs <= DARK_LIMIT_H * HOUR) return { status: 'fits' };
-  return { status: 'risky', ...longest, fromLanding: longest.fromMs === startMs, toEnd: longest.toMs === endMs };
+  const darkMs = longest.toMs - longest.fromMs;
+  if (darkMs <= DARK_LIMIT_H * HOUR) return { status: 'fits', darkMs };
+  return { status: 'risky', darkMs, ...longest, fromLanding: longest.fromMs === startMs, toEnd: longest.toMs === endMs };
 };

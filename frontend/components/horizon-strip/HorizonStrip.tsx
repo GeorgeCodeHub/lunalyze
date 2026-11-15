@@ -34,7 +34,7 @@ const HorizonStrip = ({ view, now, siteName }: HorizonStripProps) => {
 
   return (
     <section className={styles.strip} data-testid={testIds.horizonStrip.root} data-range={range} data-centre={centre}>
-      <h3 className={styles.title}>{t('horizon.title')}</h3>
+      <h3 className={styles.title}>{t('horizon.title', { site: siteName })}</h3>
       <div className={styles.frame}>
         <svg className={styles.svg} viewBox={`0 0 ${W} ${H}`} role="img" aria-label={t('horizon.label', { site: siteName })}>
           <path className={styles.grid} d={`M${W / 4},0 V${H} M${W / 2},0 V${H} M${(3 * W) / 4},0 V${H} M0,${H / 4} H${W} M0,${(3 * H) / 4} H${W}`} />
@@ -65,9 +65,6 @@ const HorizonStrip = ({ view, now, siteName }: HorizonStripProps) => {
         <BodyStatus body="sun" status={sunLooks} />
         <BodyStatus body="earth" status={earthLooks} />
       </ul>
-      <p className={styles.note}>
-        {t('horizon.legend')} {t('horizon.scale', { range: formatNumber(range) })}
-      </p>
     </section>
   );
 };

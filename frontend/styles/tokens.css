@@ -40,11 +40,17 @@
 
   --color-focus: #ffffff;
   --color-error: #ff9e94; /* 9.1:1, always paired with an icon and text */
+  --color-good: #8fe3ad; /* 12.9:1, always paired with a tick and a word */
 
   /* The Sun and Earth keep one colour each everywhere (map, horizon strip, timeline). They also
      differ by marker shape and label, so the colour is never the only signal. */
   --color-sun: #ffe566; /* 15.7:1 */
-  --color-earth: #b3ebff; /* 15.3:1 */
+  --color-earth: #66ccff; /* 11.0:1; deep enough to read as blue beside white */
+  /* The soft light behind and around chart marks. Decoration only: it carries no data. */
+  --glow-sun: rgb(255 229 102 / 22%);
+  --glow-earth: rgb(102 204 255 / 22%);
+  --glow-sun-strong: rgb(255 229 102 / 55%);
+  --glow-earth-strong: rgb(102 204 255 / 55%);
   --color-pin: #ffffff;
   --color-map-bg: #0b1220;
   /* The ground in the horizon strip: a fill dark enough that the Sun and Earth read on top of it. */

@@ -1,15 +1,14 @@
 .timeline {
   display: grid;
-  gap: 10px;
+  gap: 8px;
   min-width: 0;
 }
 
-.title {
-  composes: title from '../shared/Section.module.css';
-}
-
-.note {
-  composes: note from '../shared/Section.module.css';
+.place {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 500;
+  line-height: 1.4;
 }
 
 /* Two columns: lane names, then the tracks. Rows 1 to 3 are the lanes (TimelineLane places its two

@@ -39,6 +39,9 @@ const readPlace = (token: string): Place | null => {
   return validCoords(lat, lon) ? { kind: 'coords', lat, lon } : null;
 };
 
+/** The ids of the listed sites among the places; typed coordinates have none. */
+export const siteIdsOf = (places: (Place | null)[]): string[] => places.flatMap((place) => (place?.kind === 'site' ? [place.id] : []));
+
 /** The places with repeats removed, the first of each kept. */
 export const uniquePlaces = (places: Place[]): Place[] => {
   const seen = new Set<string>();

@@ -1,18 +1,18 @@
 .metrics {
-  display: grid;
-  gap: 10px;
   min-width: 0;
 }
 
 .title {
-  composes: title from '../shared/Section.module.css';
+  composes: visuallyHidden from '../shared/Section.module.css';
 }
 
-/* Two cards across in a narrow column, more when the column is wide. */
-.grid {
+/* Three across, always: the same tile sits in the same spot on both cards. The four rows (figure,
+   bar, label, note) are shared by the tiles, so each line sits level across all three. */
+.tiles {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 8px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: repeat(4, auto);
+  row-gap: 6px;
   margin: 0;
   padding: 0;
   list-style: none;

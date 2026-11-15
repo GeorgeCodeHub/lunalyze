@@ -6,61 +6,43 @@ import { useDuration } from '../shared/useDuration';
 import MetricCard from './MetricCard';
 import styles from './MetricCards.module.css';
 
-// view: the time span shown (shares of time, longest dark period). now: the moment the playhead is on.
-type MetricCardsProps = { view: SiteView; now: SiteView; zoom: Zoom };
+type MetricCardsProps = { view: SiteView; zoom: Zoom }; // view: the time span shown
 
-const SHARE_OF = { day: 'metrics.overDay', lunarDay: 'metrics.overLunarDay', year: 'metrics.overYear' } as const;
-const WITHIN = { day: 'metrics.inDay', lunarDay: 'metrics.inLunarDay', year: 'metrics.inYear' } as const;
+const SPAN = { day: 'metrics.spanDay', lunarDay: 'metrics.spanLunarDay', year: 'metrics.spanYear' } as const;
 
-const MetricCards = ({ view, now, zoom }: MetricCardsProps) => {
+// The three numbers that decide between two places, side by side. Every number is a SiteView.metrics
+// field. The time span they cover is named once, in the toolbar; here it is a heading for screen readers.
+const MetricCards = ({ view, zoom }: MetricCardsProps) => {
   const { t } = useTranslation('compare');
   const duration = useDuration();
 
   const { sunlitPct, earthPct, longestBlackoutH } = view.metrics;
-  const { panelOutputPct, sunElDeg } = now.metrics;
   const percent = (value: number) => t('metrics.percent', { value: formatUpTo(value, 1) });
 
   return (
     <section className={styles.metrics} data-testid={testIds.metricCards.root}>
-      <h3 className={styles.title}>{t('metrics.title')}</h3>
-      <ul className={styles.grid}>
+      <h3 className={styles.title}>{t(SPAN[zoom])}</h3>
+      <ul className={styles.tiles}>
         <MetricCard
           metric="sunlitPct"
           raw={sunlitPct}
-          label={t('metrics.sunlit')}
           value={percent(sunlitPct)}
-          note={t(SHARE_OF[zoom])}
+          label={t('metrics.sunlit')}
           meter={{ pct: sunlitPct, body: 'sun' }}
         />
         <MetricCard
           metric="earthPct"
           raw={earthPct}
-          label={t('metrics.earth')}
           value={percent(earthPct)}
-          note={t(SHARE_OF[zoom])}
+          label={t('metrics.earth')}
           meter={{ pct: earthPct, body: 'earth' }}
         />
         <MetricCard
           metric="longestBlackoutH"
           raw={longestBlackoutH}
+          value={longestBlackoutH > 0 ? duration(longestBlackoutH, 'short') : t('metrics.noBlackout')}
           label={t('metrics.blackout')}
-          value={longestBlackoutH > 0 ? duration(longestBlackoutH) : t('metrics.noBlackout')}
-          note={t(WITHIN[zoom])}
-        />
-        <MetricCard
-          metric="panelOutputPct"
-          raw={panelOutputPct}
-          label={t('metrics.sunVisible')}
-          value={percent(panelOutputPct)}
-          note={t('metrics.atTime')}
-          meter={{ pct: panelOutputPct, body: 'sun' }}
-        />
-        <MetricCard
-          metric="sunElDeg"
-          raw={sunElDeg}
-          label={t('metrics.sunHeight')}
-          value={t('metrics.degrees', { value: formatUpTo(Math.abs(sunElDeg), 1) })}
-          note={t(sunElDeg >= 0 ? 'metrics.aboveLevel' : 'metrics.belowLevel')}
+          note={t('metrics.longest')}
         />
       </ul>
     </section>

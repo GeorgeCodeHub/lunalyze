@@ -52,6 +52,10 @@
      small dark shadow that lifts it off the page. */
   --color-menu: #2a2527;
   --shadow-menu: rgb(0 0 0 / 55%);
+  /* A line in that list. Under the pointer: a plain light wash. The chosen one: the warm tone
+     (text on it 7.0:1). Two different colours, so "here" and "chosen" are not confused. */
+  --color-option-hover: rgb(255 255 255 / 9%);
+  --color-option-selected: rgb(255 194 125 / 24%);
 
   --color-focus: #ffc27d; /* the warm tone of the palette, 12.5:1 */
   --color-error: #ff9e94; /* 9.1:1, always paired with an icon and text */

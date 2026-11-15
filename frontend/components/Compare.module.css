@@ -94,12 +94,13 @@
   }
 }
 
-/* A wide screen keeps the two places together on the left, to be compared line by line, and gives
-   the live view the larger share on the right. A wider gap sets the live view apart from the pair. */
+/* A wide screen keeps the two places together on the left, as two narrow cards to be compared line
+   by line, and gives all the remaining width to the live view: the part a person works with.
+   A wider gap sets the live view apart from the pair. */
 @media (min-width: 1240px) {
   .board {
     grid-template-areas: 'best alternative live';
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.5fr);
+    grid-template-columns: repeat(2, 288px) minmax(0, 1fr);
   }
 
   .live {

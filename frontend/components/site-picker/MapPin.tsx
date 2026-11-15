@@ -3,6 +3,7 @@ import { mapDirection } from '../../../backend/lib/projectPolar';
 import type { SiteView } from '../../../backend/lib/types';
 import type { SiteId } from '../../i18n';
 import { testIds } from '../../test-ids';
+import { useSiteName } from '../shared/useSiteName';
 import BodyLine from './BodyLine';
 import { MAP_HALF } from './mapUnits';
 import styles from './MapPin.module.css';
@@ -16,12 +17,13 @@ const LABEL_SCALE = (0.08 * MAP_HALF) / 10;
 
 const MapPin = ({ view, x, y, labelEnd }: MapPinProps) => {
   const { t } = useTranslation('compare');
+  const nameOf = useSiteName();
 
   const { site, sky, horizonIncomplete } = view;
-  const name = t(`${site.id as SiteId}.name`, { ns: 'sites' });
+  const name = nameOf(site);
   const sun = mapDirection(sky.sun.az, site.lon);
   const earth = mapDirection(sky.earth.az, site.lon);
-  const short = t(`${site.id as SiteId}.short`, { ns: 'sites' }); // long names run off the map
+  const short = site.kind === 'typed' ? name : t(`${site.id as SiteId}.short`, { ns: 'sites' }); // long names run off the map
   const nameOnLeft = labelEnd ?? x > 0;
   const title = [
     site.precision === 'proxy' ? t('map.approximate', { site: name }) : t('map.pin', { site: name }),

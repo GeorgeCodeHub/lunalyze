@@ -5,8 +5,8 @@ import { testIds } from '../test-ids';
 import HorizonStrip from './horizon-strip/HorizonStrip';
 import Segmented from './shared/Segmented';
 import type { TimeFrame } from './shared/timeFrame';
+import { useSiteName } from './shared/useSiteName';
 import PolarMap from './site-picker/PolarMap';
-import { siteNameKey } from './site-picker/siteIds';
 import Terrain3DBoundary from './terrain-3d/Terrain3DBoundary';
 import TimeControls from './timeline/TimeControls';
 import Timeline from './timeline/Timeline';
@@ -26,15 +26,15 @@ const TITLE_ID = 'live-view-title';
 // each place, with the play button and one timeline for each place underneath. Press play and all of it moves.
 const LiveView = ({ places, loading, frame }: LiveViewProps) => {
   const { t } = useTranslation('compare');
-  const { t: tSites } = useTranslation('sites');
   const [mode, setMode] = useState<Mode>('map');
+  const name = useSiteName();
 
   const modes = [
     { value: 'map' as const, label: t('live.map') },
     { value: 'sky' as const, label: t('live.sky') },
     { value: '3d' as const, label: t('live.threeD') },
   ];
-  const nameOf = (view: SiteView) => tSites(siteNameKey(view.site.id));
+  const nameOf = (view: SiteView) => name(view.site);
 
   return (
     <section className={styles.live} aria-labelledby={TITLE_ID} aria-busy={loading} data-testid={testIds.compare.live}>

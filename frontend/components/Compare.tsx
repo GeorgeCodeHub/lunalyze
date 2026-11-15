@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useScenario } from '../../backend/lib/useScenario';
-import { type Scenario, siteIdsOf } from '../scenario';
+import { placeId, type Scenario } from '../scenario';
 import { usePlaybackStore } from '../stores/compare';
 import { testIds } from '../test-ids';
 import { useAllSites } from '../useAllSites';
@@ -38,26 +38,26 @@ const Compare = ({ scenario, onChange }: CompareProps) => {
     scenario.places,
     ranking.order.map(({ view }) => view.site.id),
   );
-  const siteIds = siteIdsOf([picks.best, picks.alternative]);
+  const places = [picks.best, picks.alternative].flatMap((place) => place ?? []);
+  const siteIds = places.map(placeId);
   const opts = { terrain: scenario.terrain };
   // The two places on screen (DATA_CONTRACT, "Play button"). shown: the time span picked, for the numbers,
   // lanes and paths. now: the playhead moment, for the sky and countdowns; they are the same at any
   // zoom, so the cheapest one is asked.
   const shown = useScenario(siteIds, scenario.start, scenario.zoom, opts);
   const now = useScenario(siteIds, new Date(frame.nowMs), 'day', opts);
+  // Typed coordinates are not among the listed places, so their Moon day from landing is asked for here.
+  const typedIds = places.flatMap((place) => (place.kind === 'coords' ? [placeId(place)] : []));
+  const typed = useScenario(typedIds, scenario.start, 'lunarDay', opts);
+  const stay = { views: [...all.views, ...typed.views], loading: all.loading || typed.loading };
 
   // Best option first, when there is one; then the place it is compared with.
-  const columns = buildColumns(
-    [picks.best, picks.alternative].flatMap((place) => place ?? []),
-    shown,
-    all,
-    now,
-  );
+  const columns = buildColumns(places, shown, stay, now);
   const best = picks.best ? columns[0] : undefined;
   const alternative = picks.best ? columns[1] : columns[0];
   const ready = columns.flatMap((column) => (column.kind === 'ready' ? [column] : []));
   const loading = all.loading || columns.some((column) => column.kind === 'loading');
-  const error = all.error ?? shown.error ?? now.error;
+  const error = all.error ?? shown.error ?? now.error ?? typed.error;
 
   const change = (next: Scenario) => {
     if (next.zoom !== scenario.zoom) pause(); // the play pace belongs to the time span, so a new span starts paused

@@ -1,8 +1,8 @@
 import { useTranslation } from 'react-i18next';
 import { onPolarMap, POLAR_MAP, projectPolar } from '../../../backend/lib/projectPolar';
 import type { SiteView } from '../../../backend/lib/types';
-import type { SiteId } from '../../i18n';
 import { testIds } from '../../test-ids';
+import { useSiteName } from '../shared/useSiteName';
 import MapPin from './MapPin';
 import { MAP_HALF, toMapUnits } from './mapUnits';
 import styles from './PolarMap.module.css';
@@ -13,6 +13,7 @@ const H = MAP_HALF;
 
 const PolarMap = ({ views }: PolarMapProps) => {
   const { t } = useTranslation('compare');
+  const name = useSiteName();
 
   const placed = views.map((view) => {
     const metres = projectPolar(view.site.lat, view.site.lon);
@@ -23,7 +24,7 @@ const PolarMap = ({ views }: PolarMapProps) => {
   const anyProxy = pins.some(({ view }) => view.site.precision === 'proxy');
   const leftmost = Math.min(...pins.map(({ x }) => x));
 
-  const nameOf = (view: SiteView) => t(`${view.site.id as SiteId}.name`, { ns: 'sites' });
+  const nameOf = (view: SiteView) => name(view.site);
   const status = (hidden: boolean) => t(hidden ? 'map.hidden' : 'map.visible');
 
   return (

@@ -1,10 +1,12 @@
 // @vitest-environment happy-dom
 import { readFileSync } from 'node:fs';
+import { deflateSync } from 'node:zlib';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import '../../i18n';
+import { TILE } from '../../../backend/lib/horizon';
 import type { Body, SiteView } from '../../../backend/lib/types';
 import { testIds } from '../../test-ids';
 import Terrain3D from './Terrain3D';
@@ -17,6 +19,7 @@ vi.mock('@react-three/fiber', async () => {
 });
 vi.mock('@react-three/drei', () => ({ OrbitControls: () => null, Html: () => null }));
 
+const FLAT_TILE = deflateSync(new Uint8Array(TILE * TILE * 2)); // DEM tiles are not in git: flat ground at 0 m
 const requested: string[] = [];
 const failing = new Set<string>();
 let container: HTMLDivElement;
@@ -29,6 +32,7 @@ beforeEach(() => {
     const path = new URL(url, 'http://localhost').pathname;
     requested.push(path);
     if (failing.has(path)) return new Response('', { status: 500 });
+    if (path.startsWith('/data/dem/')) return new Response(FLAT_TILE);
     try {
       return new Response(new Uint8Array(readFileSync('backend/public' + path)), {
         headers: { 'content-type': path.endsWith('.json') ? 'application/json' : 'application/octet-stream' },
@@ -49,11 +53,11 @@ afterEach(() => {
 const all = (id: string) => [...container.querySelectorAll<HTMLElement>(`[data-testid="${id}"]`)];
 const body = (hidden: boolean): Body => ({ az: 10, el: hidden ? -1 : 5, hidden });
 
-type Opts = { terrainModeled?: boolean; precision?: 'exact' | 'proxy'; horizonIncomplete?: boolean; sun?: Body; earth?: Body };
+type Opts = { terrainModeled?: boolean; precision?: 'exact' | 'proxy'; horizonIncomplete?: boolean; sun?: Body; earth?: Body; kind?: 'typed' };
 // The 3D view reads only site, horizonIncomplete and now.sky.sun / earth; the rest of a SiteView is filled with zeros.
 const place = (id: string, o: Opts = {}) => {
   const view = {
-    site: { id, lat: -85, lon: 10, kind: 'landed', precision: o.precision ?? 'exact', terrainModeled: o.terrainModeled ?? true, group: 'CLPS', source: '' },
+    site: { id, lat: -85, lon: 10, kind: o.kind ?? 'landed', precision: o.precision ?? 'exact', terrainModeled: o.terrainModeled ?? true, group: 'CLPS', source: '' },
     horizonIncomplete: o.horizonIncomplete ?? false,
     sky: { terrain: [], sun: o.sun ?? body(false), earth: o.earth ?? body(false), sunPath: [], earthPath: [], athensSunPath: [] },
   } as unknown as SiteView;
@@ -130,6 +134,16 @@ test('when no place has terrain, there are only caveats: no scene, no canvas, no
   expect(all(testIds.terrain3d.scene)).toHaveLength(0);
   expect(all(testIds.terrain3d.canvas)).toHaveLength(0);
   expect(requested).toEqual([]);
+});
+
+test('typed coordinates get a scene cut from the DEM tiles, with no terrain/ file asked for', async () => {
+  await render([place('@-85.3:31.4', { kind: 'typed' })]);
+  await settle();
+
+  expect(all(testIds.terrain3d.scene).map((s) => `${s.dataset.siteId}:${s.dataset.status}`)).toEqual(['@-85.3:31.4:ready']);
+  expect(all(testIds.terrain3d.canvas)).toHaveLength(1);
+  expect(requested.filter((p) => !p.startsWith('/data/dem/'))).toEqual([]);
+  expect(new Set(requested.map((p) => p.split('/')[3]))).toEqual(new Set(['ldem_80s_80m', 'ldem_75s_240m']));
 });
 
 test('an empty place list renders an empty root', async () => {

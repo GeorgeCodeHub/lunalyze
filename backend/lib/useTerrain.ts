@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
+import { cropTerrain, fetchTile, typedSite } from './horizon';
 
-// Imports only TanStack Query: the lazy 3D chunk imports this file, so it must stay free of the sky code.
+// The lazy 3D chunk imports this file, so it must stay free of the sky code: TanStack Query and horizon.ts only.
 
 export type TerrainGrid = {
   siteId: string;
@@ -38,11 +39,14 @@ const fetchTerrain = async (siteId: string): Promise<TerrainGrid> => {
   return decodeTerrain(meta, bin);
 };
 
-/** Terrain crop for one site. Call only for sites with terrainModeled true. */
+/** Terrain crop for one site, or for typed coordinates (`@lat:lon`), cut from the DEM tiles. Call only for sites with terrainModeled true. */
 export const useTerrain = (siteId: string): { grid: TerrainGrid | null; loading: boolean; error: Error | null } => {
   const q = useQuery({
     queryKey: ['data', 'terrain', siteId],
-    queryFn: () => fetchTerrain(siteId),
+    queryFn: () => {
+      const typed = typedSite(siteId);
+      return typed ? cropTerrain(typed, fetchTile) : fetchTerrain(siteId);
+    },
     staleTime: 'static',
     retry: false,
   });

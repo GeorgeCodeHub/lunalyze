@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
+import { placeId } from '../../scenario';
 import { testIds } from '../../test-ids';
 import { usePosition } from '../shared/usePosition';
 import { siteNameKey } from '../site-picker/siteIds';
@@ -16,25 +17,24 @@ type PlaceNoteProps = {
 
 const BODY_KEYS = {
   loading: 'site.loading',
-  typed: 'site.typedBody',
   unknown: 'site.unknownBody',
   missing: 'site.missingBody',
 } as const;
 
-// A place with nothing to draw yet: still loading, typed coordinates, an id that is not on the list,
-// or a site with no data. It keeps its card so the reader sees why it is empty.
+// A place with nothing to draw yet: still loading, an id that is not on the list, or a place with no data. It keeps its card so the reader sees why it is empty.
 const PlaceNote = ({ column, role, children }: PlaceNoteProps) => {
   const { t } = useTranslation('compare');
   const { t: tSites } = useTranslation('sites');
   const position = usePosition();
 
+  const place = column.kind === 'unknown' ? null : column.place;
   const title =
-    column.kind === 'typed'
-      ? t('site.typedTitle')
-      : column.kind === 'unknown'
-        ? column.siteId // not on the list, so it has no name: show the id from the link
-        : tSites(siteNameKey(column.siteId));
-  const meta = column.kind === 'typed' ? position(column.lat, column.lon) : undefined;
+    place === null
+      ? column.key // not on the list, so it has no name: show the id from the link
+      : place.kind === 'coords'
+        ? t('site.typedTitle')
+        : tSites(siteNameKey(place.id));
+  const meta = place?.kind === 'coords' ? position(place.lat, place.lon) : undefined;
   const titleId = `place-card-${column.key}`;
   const loading = column.kind === 'loading';
 
@@ -46,7 +46,7 @@ const PlaceNote = ({ column, role, children }: PlaceNoteProps) => {
       data-testid={testIds.siteColumns.column}
       data-status={column.kind}
       data-role={role}
-      data-site-id={column.kind === 'typed' ? undefined : column.siteId}
+      data-site-id={column.kind === 'unknown' ? column.siteId : placeId(column.place)}
     >
       <PlaceHeader titleId={titleId} title={title} meta={meta} role={role} />
       <p className={styles.body} role={loading ? 'status' : undefined}>

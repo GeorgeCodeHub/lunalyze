@@ -1,5 +1,6 @@
 import { useQueries, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
+import { BANDS, computeMask, fetchTile, typedSite } from './horizon';
 import { type HorizonMask, realView } from './realView';
 import type { Site, SiteView, Zoom } from './types';
 
@@ -24,6 +25,8 @@ const fetchMask = async (id: string): Promise<HorizonMask | null> => {
 
 /**
  * Everything the Compare screen shows for the given sites, for the window that starts at t.
+ * A site id is an id from sites.json, or `@lat:lon` for typed coordinates: its horizon is computed from the
+ * LOLA DEM tiles, the way horizon_masks.py makes the listed sites' masks. Off the DEMs it gets a flat horizon.
  * opts.terrain = false uses a flat horizon (the flat-or-terrain switch).
  *
  * The data is real: Sun and Earth positions against the horizon masks.
@@ -55,18 +58,21 @@ export const useScenario = (
           ? queryClient.getQueryData<SiteView | null>(['view', id, shown.t, zoom, opts.terrain])
           : undefined,
       queryFn: async (): Promise<SiteView | null> => {
-        const sites = await queryClient.query({
-          queryKey: ['data', 'sites'],
-          queryFn: () => fetchJson<Site[]>('data/sites.json'),
-          staleTime: 'static',
-          gcTime: Infinity, // read only via query(), which never resets the 5-min clean-up timer
-        });
-        const site = sites.find((s) => s.id === id);
+        const site = id.startsWith('@')
+          ? typedSite(id)
+          : (
+              await queryClient.query({
+                queryKey: ['data', 'sites'],
+                queryFn: () => fetchJson<Site[]>('data/sites.json'),
+                staleTime: 'static',
+                gcTime: Infinity, // read only via query(), which never resets the 5-min clean-up timer
+              })
+            ).find((s) => s.id === id);
         if (!site) return null;
         if (!site.terrainModeled || !opts.terrain) return realView(site, null, t, zoom, opts.terrain);
         const mask = await queryClient.query({
           queryKey: ['data', 'masks', id],
-          queryFn: () => fetchMask(id),
+          queryFn: () => (site.kind === 'typed' ? computeMask(id, site.lat, site.lon, BANDS, fetchTile) : fetchMask(id)),
           staleTime: 'static',
           gcTime: Infinity,
         });

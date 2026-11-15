@@ -81,13 +81,14 @@ test.each([
   [90, 180, '@90:180'],
   [-90, -180, '@-90:-180'],
   [0, 0, '@0:0'],
-])('typed coordinates (%s, %s) get their own column, keyed by their link token', (lat, lon, key) => {
-  expect(buildColumns([{ kind: 'coords', lat, lon }], loaded(), loaded(), loaded())).toEqual([{ kind: 'typed', key, lat, lon }]);
+])('typed coordinates (%s, %s) are keyed by their link token, and missing once loading is over with no view', (lat, lon, key) => {
+  const place: Place = { kind: 'coords', lat, lon };
+  expect(buildColumns([place], loaded(), loaded(), loaded())).toEqual([{ kind: 'missing', key, place }]);
 });
 
-test('typed coordinates stay typed even when a view happens to be loaded or loading', () => {
-  expect(kinds([{ kind: 'coords', lat: -89.68, lon: -166 }, site('point-a')], loading('point-a'), loading('point-a'), loading('point-a'))).toEqual([
-    '@-89.68:-166:typed',
-    'point-a:ready',
-  ]);
+test('typed coordinates are ready once their three views load, and loading until then', () => {
+  const typed: Place = { kind: 'coords', lat: -89.68, lon: -166 };
+  const have = loaded('@-89.68:-166', 'point-a');
+  expect(kinds([typed, site('point-a')], have, have, have)).toEqual(['@-89.68:-166:ready', 'point-a:ready']);
+  expect(kinds([typed], loading(), have, have)).toEqual(['@-89.68:-166:loading']);
 });

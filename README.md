@@ -71,4 +71,4 @@ No image, video or audio in this repo is AI-generated: the images above come fro
 
 ## License
 
-The code in this repo is released under the [MIT License](LICENSE). Third-party data, images, fonts and packages keep their own licenses, listed in [Data credits](#data-credits) and [Other credits](#other-credits).
+Copyright (c) 2026 George Karampelas. The code in this repo is released under the [GNU General Public License v3.0 or later](LICENSE). Third-party data, images, fonts and packages keep their own licenses, listed in [Data credits](#data-credits) and [Other credits](#other-credits).

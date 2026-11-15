@@ -1,24 +1,17 @@
 import { type FormEvent, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { DEFAULT_START, DEFAULT_STAY, type Scenario, type Stay, STAYS } from '../../scenario';
+import { DEFAULT_START, DEFAULT_STAY, type Scenario, type Stay, STAYS, uniquePlaces } from '../../scenario';
 import { testIds } from '../../test-ids';
 import IconAlert from '../shared/IconAlert';
 import IconArrow from '../shared/IconArrow';
+import { STAY_KEY } from '../shared/stayKeys';
+import WhenFields from '../shared/WhenFields';
 import { draftFrom, placeFrom } from '../site-picker/placeDrafts';
 import SitePicker from '../site-picker/SitePicker';
 import fieldStyles from '../shared/Field.module.css';
 import styles from './SetupForm.module.css';
 
 type SetupFormProps = { initial: Scenario | null; onSubmit: (scenario: Scenario) => void };
-
-const HOURS = Array.from({ length: 24 }, (_, h) => String(h).padStart(2, '0'));
-const STAY_KEYS = {
-  1: 'setup.stay.day',
-  3: 'setup.stay.threeDays',
-  7: 'setup.stay.week',
-  14: 'setup.stay.twoWeeks',
-  30: 'setup.stay.month',
-} as const;
 
 const SetupForm = ({ initial, onSubmit }: SetupFormProps) => {
   const { t } = useTranslation('compare');
@@ -46,12 +39,15 @@ const SetupForm = ({ initial, onSubmit }: SetupFormProps) => {
       return;
     }
     const start = new Date(`${date}T${hour}:00:00Z`);
-    // The time window is not asked here; the Compare screen opens on one Moon day and can zoom.
+    // The time span and the hills switch are not asked here: the Compare screen opens on one Moon day
+    // with hills counted, and both can be changed there. Coming back to change the setup keeps them,
+    // and keeps the other places being compared after the landing place.
     onSubmit({
-      places: [place],
+      places: uniquePlaces([place, ...(initial?.places.slice(1) ?? [])]),
       start: Number.isNaN(start.getTime()) ? DEFAULT_START : start,
       zoom: initial?.zoom ?? 'lunarDay',
       stay,
+      terrain: initial?.terrain ?? true,
     });
   };
 
@@ -78,32 +74,14 @@ const SetupForm = ({ initial, onSubmit }: SetupFormProps) => {
       <fieldset className={styles.step}>
         <legend className={styles.question}>{t('setup.when.label')}</legend>
         <div className={styles.when}>
-          <label className={fieldStyles.field}>
-            <span className={fieldStyles.label}>{t('setup.when.date')}</span>
-            <input
-              type="date"
-              className={fieldStyles.control}
-              value={date}
-              required
-              data-testid={testIds.setup.date}
-              onChange={(e) => setDate(e.target.value)}
-            />
-          </label>
-          <label className={fieldStyles.field}>
-            <span className={fieldStyles.label}>{t('setup.when.time')}</span>
-            <select
-              className={fieldStyles.control}
-              value={hour}
-              data-testid={testIds.setup.hour}
-              onChange={(e) => setHour(e.target.value)}
-            >
-              {HOURS.map((h) => (
-                <option key={h} value={h}>
-                  {t('setup.when.hour', { hour: h })}
-                </option>
-              ))}
-            </select>
-          </label>
+          <WhenFields
+            date={date}
+            hour={hour}
+            onDate={setDate}
+            onHour={setHour}
+            dateTestId={testIds.setup.date}
+            hourTestId={testIds.setup.hour}
+          />
         </div>
       </fieldset>
 
@@ -120,7 +98,7 @@ const SetupForm = ({ initial, onSubmit }: SetupFormProps) => {
         >
           {STAYS.map((s) => (
             <option key={s} value={s}>
-              {t(STAY_KEYS[s])}
+              {t(`setup.stay.${STAY_KEY[s]}`)}
             </option>
           ))}
         </select>

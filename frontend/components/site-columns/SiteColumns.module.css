@@ -1,0 +1,8 @@
+/* Side by side wherever each slot can be at least 320px wide, every slot the same width so places
+   compare line by line. Narrower than that, the slots wrap and stack. */
+.columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
+  align-items: start;
+  gap: 16px;
+}

@@ -1,0 +1,17 @@
+.countdowns {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.title {
+  composes: title from '../shared/Section.module.css';
+}
+
+.list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}

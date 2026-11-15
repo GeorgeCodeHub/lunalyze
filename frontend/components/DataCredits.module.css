@@ -1,0 +1,27 @@
+.credits {
+  display: grid;
+  gap: 6px;
+  max-width: 90ch;
+  padding-top: 20px;
+  border-top: 1px solid var(--color-rule);
+  color: var(--color-text-muted);
+  font-size: 0.78rem;
+  line-height: 1.6;
+}
+
+.credits p {
+  margin: 0;
+}
+
+.title {
+  composes: title from './shared/Section.module.css';
+  margin-bottom: 4px;
+}
+
+.team {
+  margin-top: 10px;
+  color: var(--color-text-faint);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}

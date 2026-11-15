@@ -1,0 +1,19 @@
+.metrics {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.title {
+  composes: title from '../shared/Section.module.css';
+}
+
+/* Two cards across in a narrow column, more when the column is wide. */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}

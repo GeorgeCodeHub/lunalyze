@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { testIds } from '../../test-ids';
+import styles from './CopyLinkButton.module.css';
 
 const CopyLinkButton = () => {
   const { t } = useTranslation('compare');
@@ -19,14 +20,14 @@ const CopyLinkButton = () => {
   };
 
   return (
-    <>
-      <button type="button" onClick={copy} data-status={status} data-testid={testIds.scenarioBar.copyLink}>
-        {t('copyLink.action')}
-      </button>{' '}
-      <span role="status" data-testid={testIds.scenarioBar.copyStatus}>
+    <div className={styles.copy}>
+      <span className={styles.status} role="status" data-testid={testIds.scenarioBar.copyStatus}>
         {status === 'idle' ? '' : t(status === 'copied' ? 'copyLink.copied' : 'copyLink.failed')}
       </span>
-    </>
+      <button type="button" className={styles.button} onClick={copy} data-status={status} data-testid={testIds.scenarioBar.copyLink}>
+        {t('copyLink.action')}
+      </button>
+    </div>
   );
 };
 

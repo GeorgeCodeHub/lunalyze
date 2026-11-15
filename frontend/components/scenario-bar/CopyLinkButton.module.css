@@ -1,0 +1,15 @@
+.copy {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+}
+
+.button {
+  composes: button from '../shared/Section.module.css';
+}
+
+.status {
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+}

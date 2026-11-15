@@ -88,6 +88,7 @@ test('submits the picked site, a 24-hour UTC start and the stay', () => {
     start: startAt(18),
     zoom: 'lunarDay',
     stay: 14,
+    terrain: true,
   });
 });
 
@@ -118,7 +119,7 @@ test('accepts the shortest and longest stay', () => {
   expect(onSubmit.mock.calls.map(([s]) => s.stay)).toEqual([1, 30]);
 });
 
-test('starts from a shared scenario: its first place, date, hour and stay; the window is kept', () => {
+test('starts from a shared scenario: its first place, date, hour and stay; the rest is kept', () => {
   const shared: Scenario = {
     places: [
       { kind: 'coords', lat: -85.25, lon: 31.4 },
@@ -127,6 +128,7 @@ test('starts from a shared scenario: its first place, date, hour and stay; the w
     start: startAt(23),
     zoom: 'day',
     stay: 1,
+    terrain: false,
   };
   const onSubmit = vi.fn<(s: Scenario) => void>();
   render(onSubmit, shared);
@@ -136,7 +138,34 @@ test('starts from a shared scenario: its first place, date, hour and stay; the w
   expect(one<HTMLSelectElement>(testIds.setup.hour).value).toBe('23');
   submit();
 
-  expect(onSubmit).toHaveBeenCalledWith({ ...shared, places: [shared.places[0]] });
+  // The time span, the hills switch and the other compared places are not asked here, so they stay.
+  expect(onSubmit).toHaveBeenCalledWith(shared);
+});
+
+test('changing the landing place keeps the other compared places, without repeating one', () => {
+  const shared: Scenario = {
+    places: [
+      { kind: 'site', id: 'point-a' },
+      { kind: 'site', id: 'haworth' },
+      { kind: 'site', id: 'im-2' },
+    ],
+    start: startAt(0),
+    zoom: 'lunarDay',
+    stay: 7,
+    terrain: true,
+  };
+  const onSubmit = vi.fn<(s: Scenario) => void>();
+  render(onSubmit, shared);
+
+  setValue(siteSelect(), 'nobile');
+  submit();
+  setValue(siteSelect(), 'im-2');
+  submit();
+
+  expect(onSubmit.mock.calls.map(([s]) => s.places.map((p) => (p.kind === 'site' ? p.id : '')))).toEqual([
+    ['nobile', 'haworth', 'im-2'],
+    ['im-2', 'haworth'],
+  ]);
 });
 
 test('an empty date falls back to the default start instead of an invalid date', () => {

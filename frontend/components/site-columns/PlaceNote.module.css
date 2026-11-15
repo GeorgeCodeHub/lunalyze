@@ -1,0 +1,13 @@
+/* The same panel as a full column, with a dashed edge: nothing is drawn here yet. */
+.note {
+  composes: column from './SiteColumn.module.css';
+  border-style: dashed;
+}
+
+.body {
+  max-width: 46ch;
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}

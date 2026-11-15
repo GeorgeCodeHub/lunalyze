@@ -1,0 +1,102 @@
+.strip {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.title {
+  composes: title from '../shared/Section.module.css';
+}
+
+.note {
+  composes: note from '../shared/Section.module.css';
+}
+
+.frame {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-control);
+  background: var(--color-sky);
+}
+
+.svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.grid {
+  fill: none;
+  stroke: var(--color-rule);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+/* Level ground: where a flat horizon would be. */
+.level {
+  fill: none;
+  stroke: var(--color-line);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+/* Height labels sit on the grid lines: a quarter, half and three quarters of the way down. */
+.tick {
+  position: absolute;
+  left: 6px;
+  padding: 0 4px;
+  transform: translateY(-50%);
+  background: var(--color-sky);
+  color: var(--color-text-muted);
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+  line-height: 1.4;
+  pointer-events: none;
+}
+
+.tickHigh {
+  top: 25%;
+}
+
+.tickLevel {
+  top: 50%;
+}
+
+.tickLow {
+  top: 75%;
+}
+
+/* Direction labels under the strip, each centred on its grid line; the two ends hug the edges. */
+.compass {
+  display: flex;
+  justify-content: space-between;
+  color: var(--color-text-faint);
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.compass span {
+  display: flex;
+  justify-content: center;
+  width: 0;
+  white-space: nowrap;
+}
+
+.compass span:first-child {
+  justify-content: flex-start;
+}
+
+.compass span:last-child {
+  justify-content: flex-end;
+}
+
+.statuses {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 20px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}

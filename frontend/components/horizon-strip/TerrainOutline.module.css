@@ -1,0 +1,11 @@
+.ground {
+  fill: var(--color-ground);
+}
+
+.ridge {
+  fill: none;
+  stroke: var(--color-line-strong);
+  stroke-width: 1.25;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}

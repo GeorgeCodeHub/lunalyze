@@ -1,0 +1,96 @@
+/* Play button and scrubber in one row; under them the time shown, and the keyboard hint at the far end.
+   The time has a row to itself so the scrubber keeps its width while the words change. */
+.controls {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 8px 16px;
+}
+
+.play {
+  composes: button from '../shared/Section.module.css';
+  min-width: 112px;
+}
+
+.visuallyHidden {
+  composes: visuallyHidden from '../shared/Section.module.css';
+}
+
+.scrub {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+}
+
+/* The native range input, drawn as a thin line with a square thumb to match the panel. */
+.range {
+  appearance: none;
+  width: 100%;
+  height: 24px;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.range::-webkit-slider-runnable-track {
+  height: 2px;
+  background: var(--color-line);
+}
+
+.range::-moz-range-track {
+  height: 2px;
+  background: var(--color-line);
+}
+
+.range::-webkit-slider-thumb {
+  appearance: none;
+  width: 14px;
+  height: 22px;
+  margin-top: -10px;
+  border: 0;
+  border-radius: 2px;
+  background: var(--color-text);
+}
+
+.range::-moz-range-thumb {
+  width: 14px;
+  height: 22px;
+  border: 0;
+  border-radius: 2px;
+  background: var(--color-text);
+}
+
+.foot {
+  display: flex;
+  flex-wrap: wrap;
+  grid-column: 1 / -1;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 24px;
+}
+
+.readout {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+.readoutLabel {
+  composes: title from '../shared/Section.module.css';
+}
+
+.readoutTime {
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.readoutSince {
+  color: var(--color-text-muted);
+}
+
+.hint {
+  composes: note from '../shared/Section.module.css';
+}

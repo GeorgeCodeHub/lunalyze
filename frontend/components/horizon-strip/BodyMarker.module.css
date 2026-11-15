@@ -1,0 +1,34 @@
+/* Visible: a solid shape with a dark edge so it stands clear of its path line. */
+.shape {
+  stroke: var(--color-sky);
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+}
+
+.marker[data-body='sun'] .shape,
+.marker[data-body='sun'] .half {
+  fill: var(--color-sun);
+}
+
+.marker[data-body='earth'] .shape {
+  fill: var(--color-earth);
+}
+
+/* Hidden and partly hidden: an outline in the body's colour over the ground. Hidden is dashed. */
+.marker[data-status='hidden'] .shape,
+.marker[data-status='partly'] .shape {
+  fill: var(--color-ground);
+}
+
+.marker[data-status='hidden'][data-body='sun'] .shape,
+.marker[data-status='partly'][data-body='sun'] .shape {
+  stroke: var(--color-sun);
+}
+
+.marker[data-status='hidden'][data-body='earth'] .shape {
+  stroke: var(--color-earth);
+}
+
+.marker[data-status='hidden'] .shape {
+  stroke-dasharray: 4 3;
+}

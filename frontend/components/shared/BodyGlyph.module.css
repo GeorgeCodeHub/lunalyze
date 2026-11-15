@@ -1,0 +1,11 @@
+.glyph {
+  flex: none;
+}
+
+.sun {
+  fill: var(--color-sun);
+}
+
+.earth {
+  fill: var(--color-earth);
+}

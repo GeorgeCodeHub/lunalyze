@@ -1,0 +1,18 @@
+.chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 40px;
+  padding: 8px 14px;
+  border: 1px solid var(--color-glass-border);
+  border-radius: var(--radius-control);
+  background: var(--color-glass);
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+/* A body that is down and waiting to rise: dashed, like every hidden thing on the screen. */
+.chip[data-kind='rise'] {
+  border-style: dashed;
+  color: var(--color-text-muted);
+}

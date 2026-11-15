@@ -1,4 +1,190 @@
 {
+  "setup": {
+    "subtitle": "See which landing places keep sunlight for power and Earth in view for radio contact through your whole stay.",
+    "panelTitle": "Mission setup",
+    "team": "Team RGX · NASA Space Apps 2026",
+    "where": {
+      "label": "Where do you want to land?",
+      "site": "Known landing site",
+      "choose": "Choose a site…",
+      "or": "or",
+      "coords": "Your own coordinates",
+      "coordsExample": "−85.3, 31.4",
+      "coordsHint": "Coordinates: latitude, then longitude, in degrees. South and west are minus.",
+      "coordsError": "Write the latitude (−90 to 90), a comma, then the longitude (−180 to 180).",
+      "error": "Pick a known site or enter your own coordinates."
+    },
+    "when": {
+      "label": "When do you want to land?"
+    },
+    "stay": {
+      "label": "How long will the mission stay on the Moon?",
+      "day": "About 1 day",
+      "threeDays": "About 3 days",
+      "week": "About a week",
+      "twoWeeks": "About 14 days (one Moon daytime)",
+      "month": "About 30 days (one full Moon day)"
+    },
+    "submit": "Show landing options"
+  },
+  "when": {
+    "date": "Date",
+    "time": "Time (UTC)",
+    "hour": "{{hour}}:00 UTC"
+  },
+  "hero": {
+    "alt": "The full Moon, a NASA visualization made from Lunar Reconnaissance Orbiter data",
+    "credit": "Moon image: NASA Goddard, made from Lunar Reconnaissance Orbiter data."
+  },
+  "screen": {
+    "startOver": "Change setup",
+    "error": "Some of the data did not load, so a place may be missing. Check your connection, then reload the page.",
+    "mapTitle": "Where these places are",
+    "mapHint": "Each line points from a place toward the Sun or Earth at the time shown."
+  },
+  "bar": {
+    "title": "Your mission",
+    "stay": "Stay on the Moon",
+    "zoom": "Time span shown",
+    "zoomDay": "24 hours from landing",
+    "zoomLunarDay": "One Moon day (29.5 days)",
+    "zoomYear": "One year"
+  },
+  "terrain": {
+    "label": "Hills",
+    "on": "Counted: the real horizon, with its hills and dips",
+    "off": "Ignored: a perfectly flat horizon"
+  },
+  "copyLink": {
+    "action": "Copy link",
+    "copied": "Link copied",
+    "failed": "Copy failed. Copy the link from the address bar."
+  },
+  "picker": {
+    "addTitle": "Compare with another place",
+    "addHint": "See up to 3 places side by side for the same dates.",
+    "add": "Add a place",
+    "choose": "Choose a place…"
+  },
+  "site": {
+    "remove": "Remove {{site}}",
+    "approximate": "Approximate location",
+    "latSouth": "{{value}}° south",
+    "latNorth": "{{value}}° north",
+    "lonEast": "{{value}}° east",
+    "lonWest": "{{value}}° west",
+    "position": "{{lat}}, {{lon}}",
+    "loading": "Working out where the Sun and Earth will be…",
+    "typedTitle": "Your own coordinates",
+    "typedBody": "We cannot work out results for typed coordinates yet. Add a known place to compare instead.",
+    "unknownBody": "This place is not on our list, so there is nothing to show for it.",
+    "missingBody": "We have no hills data for this place yet. Switch Hills to Ignored to see it with a flat horizon."
+  },
+  "caveat": {
+    "terrainNotModeled": "Hills are not mapped for this place, so its horizon is treated as flat. On the real ground the Sun and Earth may come and go at other times.",
+    "approximate": "Approximate location: this point stands for a wider region.",
+    "horizonIncomplete": "Hills beyond the edge of our height map are not counted, so the Sun and Earth may be hidden more often than shown.",
+    "terrainOff": "Hills are ignored, so this shows a perfectly flat horizon. On the real ground the Sun and Earth come and go at other times."
+  },
+  "fit": {
+    "fits": "Fits your mission",
+    "risky": "Risky",
+    "fitsReason": "During your stay there is never more than 50 hours in a row without the Sun or Earth in view.",
+    "riskyReason": "No Sun and no Earth from {{from}} until {{to}}. That is more than 50 hours in a row.",
+    "time": "{{time}} UTC",
+    "landing": "landing",
+    "endOfStay": "the end of your stay",
+    "stay": {
+      "day": "Checked for a stay of about 1 day.",
+      "threeDays": "Checked for a stay of about 3 days.",
+      "week": "Checked for a stay of about a week.",
+      "twoWeeks": "Checked for a stay of about 14 days.",
+      "month": "Checked for a stay of one full Moon day (29.5 days)."
+    }
+  },
+  "horizon": {
+    "title": "The sky from here",
+    "label": "Panorama from {{site}}: the hills along the horizon, with the Sun and Earth.",
+    "north": "North",
+    "east": "East",
+    "south": "South",
+    "west": "West",
+    "level": "Level",
+    "degrees": "{{value}}°",
+    "sun": "Sun",
+    "earth": "Earth",
+    "visible": "Visible",
+    "partly": "Partly hidden",
+    "hidden": "Hidden",
+    "status": "{{body}}: {{status}}",
+    "legend": "Thin lines: where the Sun and Earth travel over the time span shown. Grey: the ground and hills.",
+    "scale": "Height shown: {{range}}° above and below level ground."
+  },
+  "countdown": {
+    "title": "What happens next",
+    "sunset": "Sunset in {{time}}",
+    "sunrise": "Sunrise in {{time}}",
+    "earthset": "Earthset in {{time}}",
+    "earthrise": "Earthrise in {{time}}",
+    "sunStaysUp": "The Sun stays in view for a Moon day or longer",
+    "sunStaysDown": "The Sun stays hidden for a Moon day or longer",
+    "earthStaysUp": "Earth stays in view for a Moon day or longer",
+    "earthStaysDown": "Earth stays hidden for a Moon day or longer"
+  },
+  "duration": {
+    "days_one": "{{count}} day",
+    "days_other": "{{count}} days",
+    "hours_one": "{{count}} hour",
+    "hours_other": "{{count}} hours",
+    "minutes_one": "{{count}} minute",
+    "minutes_other": "{{count}} minutes"
+  },
+  "metrics": {
+    "title": "The numbers",
+    "sunlit": "Time in sunlight",
+    "earth": "Time Earth is in view",
+    "blackout": "Longest time with no Sun and no Earth",
+    "sunVisible": "How much of the Sun is visible now",
+    "sunHeight": "How high the Sun is",
+    "percent": "{{value}}%",
+    "degrees": "{{value}}°",
+    "overDay": "of the 24 hours from landing",
+    "overLunarDay": "of the Moon day from landing (29.5 days)",
+    "overYear": "of the year from landing",
+    "inDay": "in the 24 hours from landing",
+    "inLunarDay": "in the Moon day from landing (29.5 days)",
+    "inYear": "in the year from landing",
+    "atTime": "at the time shown",
+    "aboveLevel": "above level ground, at the time shown",
+    "belowLevel": "below level ground, at the time shown",
+    "noBlackout": "None"
+  },
+  "timeline": {
+    "title": "When the Sun and Earth are in view",
+    "sun": "Sun",
+    "earth": "Earth",
+    "both": "Both",
+    "legend": "Bars: in view. Gaps: hidden. Both: the Sun and Earth in view together. The frame marks your stay.",
+    "summary_one": "{{lane}}: in view {{count}} time in this time span.",
+    "summary_other": "{{lane}}: in view {{count}} times in this time span."
+  },
+  "playback": {
+    "play": "Play",
+    "pause": "Pause",
+    "scrubber": "Time shown",
+    "showing": "Showing",
+    "utc": "{{time}} UTC",
+    "atLanding": "the landing time",
+    "afterLanding": "{{time}} after landing",
+    "hint": "Arrow keys move 1 hour. Shift and an arrow key move 1 day."
+  },
+  "credits": {
+    "title": "Where the data comes from",
+    "positions": "Sun and Earth positions: astronomy-engine, checked against NASA JPL Horizons to within 0.01°.",
+    "hills": "Hills: NASA Lunar Reconnaissance Orbiter LOLA polar height maps (LRO-L-LOLA-4-GDR-V1.0, PDS Geosciences Node), seen from 2 metres above the ground.",
+    "checks": "Checked against PGDA 69 (Mazarico et al. 2011, average sunlight at the poles). Reference height map: PGDA 90 (Barker et al. 2023).",
+    "team": "Team RGX · NASA Space Apps 2026"
+  },
   "map": {
     "label": "Map of the Moon's south pole with a marker for each place you picked",
     "labelEmpty": "Map of the Moon's south pole. No places picked yet.",
@@ -18,7 +204,5 @@
     "legendApproximate": "Hollow pin: approximate location",
     "summary": "{{site}}: Sun {{sun}}, Earth {{earth}}.",
     "approximateNote": "Approximate location."
-  },
-  "terrain": { "label": "Terrain", "on": "on: real horizon", "off": "off: flat 0° horizon" },
-  "copyLink": { "action": "Copy link", "copied": "Link copied", "failed": "Copy failed. Copy the link from the address bar." }
+  }
 }

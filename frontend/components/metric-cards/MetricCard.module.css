@@ -1,0 +1,47 @@
+.card {
+  display: grid;
+  align-content: start;
+  gap: 6px;
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-control);
+  background: var(--color-glass);
+}
+
+.label {
+  color: var(--color-text-muted);
+  font-size: 0.72rem;
+  line-height: 1.4;
+}
+
+/* The number leads: pixel display type, like a readout. */
+.value {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  line-height: 1.15;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.note {
+  composes: note from '../shared/Section.module.css';
+}
+
+.meter {
+  display: block;
+  width: 100%;
+  height: 4px;
+}
+
+.meterTrack {
+  fill: var(--color-rule);
+}
+
+.meterFill[data-body='sun'] {
+  fill: var(--color-sun);
+}
+
+.meterFill[data-body='earth'] {
+  fill: var(--color-earth);
+}

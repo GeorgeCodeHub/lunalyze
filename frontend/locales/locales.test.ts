@@ -14,3 +14,9 @@ test('every site in sites.json has a name, short name and blurb, and every group
     expect(en.groups[s.group], s.group).toBeTruthy();
   }
 });
+
+test('no string in the terrain3d section of compare.json holds a digit', () => {
+  const section = resources.en.compare.terrain3d as Record<string, string>;
+  expect(Object.keys(section).length).toBeGreaterThan(5);
+  for (const [key, text] of Object.entries(section)) expect(text, key).not.toMatch(/\d/);
+});

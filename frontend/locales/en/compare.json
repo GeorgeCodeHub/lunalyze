@@ -1,6 +1,5 @@
 {
   "setup": {
-    "subtitle": "Find the place that keeps sunlight for power and Earth in view for radio contact during your stay.",
     "panelTitle": "Mission setup",
     "textures": "3D view textures: Solar System Scope, based on NASA imagery. We resized them, added the clouds to Earth's day and night maps, and cut a patch of highlands from the Moon map to tile the ground.",
     "texturesLicence": "CC BY 4.0",

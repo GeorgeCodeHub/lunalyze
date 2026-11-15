@@ -26,6 +26,14 @@ pnpm dev           # local app
 pnpm check         # lint, tests (incl. the JPL Horizons check), type-check + build, React Doctor
 ```
 
+Typed coordinates need the LOLA DEM tiles (about 195 MB, not in git). Make them once:
+
+```bash
+uv run backend/scripts/download_dems.py   # about 600 MB into backend/dem/
+uv run backend/scripts/dem_tiles.py       # tiles into backend/public/data/dem/
+pnpm horizon-parity                       # the browser gives every listed site its committed mask and 3D crop back
+```
+
 ## Where things are
 
 - [docs/PLAN.md](docs/PLAN.md): deadline, schedule, cut order

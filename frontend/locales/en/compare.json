@@ -12,8 +12,8 @@
       "or": "or",
       "coords": "Your coordinates",
       "coordsExample": "−85.3, 31.4",
-      "coordsHint": "Type the latitude, then the longitude, in degrees. Use a minus sign for south and west.",
-      "coordsError": "Type the latitude (−90 to 90), a comma, then the longitude (−180 to 180).",
+      "coordsHint": "Type the latitude, then the longitude, in degrees. The tool covers the south pole region: latitude −78 to −90. Use a minus sign for south and west.",
+      "coordsError": "Type a latitude from −78 to −90 (the south pole region), a comma, then the longitude (−180 to 180).",
       "error": "Choose a place from the list, or type your coordinates."
     },
     "when": {
@@ -69,7 +69,6 @@
     "position": "{{lat}}, {{lon}}",
     "loading": "Calculating the positions of the Sun and Earth…",
     "typedTitle": "Your coordinates",
-    "typedBody": "The tool cannot calculate results for typed coordinates yet. Choose a place from the list at the top.",
     "unknownBody": "This place is not on our list. Choose a place from the list at the top.",
     "missingBody": "We have no hill data for this place yet. Set Hills to Ignored to see it with a flat horizon."
   },

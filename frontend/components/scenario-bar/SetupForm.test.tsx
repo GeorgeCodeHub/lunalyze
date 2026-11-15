@@ -184,10 +184,10 @@ test('an empty date falls back to the default start instead of an invalid date',
 });
 
 test.each([
-  ['90, 180', 90, 180],
+  ['-78, 180', -78, 180],
   ['-90, -180', -90, -180],
   ['−85.3 31.4', -85.3, 31.4],
-  [' 0;0 ', 0, 0],
+  [' -80;0 ', -80, 0],
 ])('submits coordinates written as "%s"', (text, lat, lon) => {
   const onSubmit = vi.fn<(s: Scenario) => void>();
   render(onSubmit);
@@ -198,7 +198,7 @@ test.each([
   expect(onSubmit.mock.calls[0][0].places).toEqual([{ kind: 'coords', lat, lon }]);
 });
 
-test.each(['90.01, 0', '0, -180.01', '-85', '-85, 31, 2', 'north, east'])(
+test.each(['90.01, 0', '-85, -180.01', '-77.99, 0', '0, 0', '-85', '-85, 31, 2', 'north, east'])(
   'blocks coordinates "%s" and moves focus to them',
   (text) => {
     const onSubmit = vi.fn();

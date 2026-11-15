@@ -1,9 +1,11 @@
 // @vitest-environment happy-dom
 import { readFileSync } from 'node:fs';
+import { deflateSync } from 'node:zlib';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act } from 'react';
 import { createRoot } from 'react-dom/client';
 import { beforeEach, expect, test, vi } from 'vitest';
+import { TILE } from './horizon';
 import type { Zoom } from './types';
 import { useScenario } from './useScenario';
 
@@ -12,7 +14,11 @@ const requested: string[] = [];
 const failing = new Set<string>();
 const htmlFallback = new Set<string>(); // paths answered like an SPA host: 200 with index.html
 const missing = new Set<string>(); // paths answered 404 even though the file exists
+// DEM tiles (gitignored, so not on disk in CI) are answered with flat ground at 0 m; `demHtml` answers them like an SPA host.
+const FLAT_TILE = deflateSync(new Uint8Array(TILE * TILE * 2));
+let demHtml = false;
 beforeEach(() => {
+  demHtml = false;
   requested.length = 0;
   failing.clear();
   htmlFallback.clear();
@@ -23,7 +29,10 @@ beforeEach(() => {
     requested.push(path);
     if (failing.has(path)) return new Response('', { status: 500 });
     if (missing.has(path)) return new Response('', { status: 404 });
-    if (htmlFallback.has(path)) return new Response('<!doctype html>', { headers: { 'content-type': 'text/html' } });
+    if (htmlFallback.has(path) || (demHtml && path.startsWith('/data/dem/'))) {
+      return new Response('<!doctype html>', { headers: { 'content-type': 'text/html' } });
+    }
+    if (path.startsWith('/data/dem/')) return new Response(FLAT_TILE);
     try {
       return new Response(readFileSync('backend/public' + path, 'utf8'), {
         headers: { 'content-type': 'application/json' },
@@ -65,10 +74,13 @@ const renderScenario = async (
       ),
     );
   const settle = () =>
-    vi.waitFor(async () => {
-      await act(async () => {}); // let the fetches land and React re-render
-      expect(got.loading).toBe(false);
-    });
+    vi.waitFor(
+      async () => {
+        await act(async () => {}); // let the fetches land and React re-render
+        expect(got.loading).toBe(false);
+      },
+      { timeout: 5000 }, // a typed horizon takes about half a second, longer while every test file runs
+    );
   rerender();
   const first = got;
   await settle();
@@ -320,4 +332,34 @@ test('terrain off: im-1 has a flat sky and is not incomplete', async () => {
   const view = (await renderScenario(['im-1'], { terrain: false })).get().views[0];
   expect(view.sky.terrain).toEqual([[0, 0], [360, 0]]);
   expect(view.horizonIncomplete).toBe(false);
+});
+
+test('typed coordinates inside the DEMs get a horizon computed from the DEM tiles', async () => {
+  const got = (await renderScenario(['@-85.3:31.4', 'point-a'], { terrain: true })).get();
+  expect(got.error).toBeNull();
+  expect(got.views.map((v) => [v.site.id, v.site.kind, v.site.terrainModeled])).toEqual([
+    ['@-85.3:31.4', 'typed', true],
+    ['point-a', 'reference', true],
+  ]);
+  expect(got.views[0].horizonIncomplete).toBe(false);
+  expect(new Set(got.views[0].sky.terrain.map(([, el]) => el))).toEqual(new Set([-0.087])); // flat test ground: the 2 m mast's dip
+  const dems = new Set(requested.filter((p) => p.startsWith('/data/dem/')).map((p) => p.split('/')[3]));
+  expect(dems).toEqual(new Set(['ldem_85s_20m', 'ldem_80s_80m', 'ldem_75s_240m']));
+});
+
+test('typed coordinates off the DEMs, or with terrain off, get a flat horizon and fetch no tiles', async () => {
+  const off = (await renderScenario(['@-65:15'], { terrain: true })).get();
+  expect(off.views.map((v) => [v.site.id, v.site.terrainModeled])).toEqual([['@-65:15', false]]);
+  expect(off.views[0].sky.terrain).toEqual([[0, 0], [360, 0]]);
+
+  const flat = (await renderScenario(['@-85.3:31.4'], { terrain: false })).get();
+  expect(flat.views[0].sky.terrain).toEqual([[0, 0], [360, 0]]);
+  expect(requested.filter((p) => p.startsWith('/data/dem/'))).toEqual([]);
+});
+
+test('typed coordinates whose DEM tiles are missing are reported as an error; off-map ones are left out', async () => {
+  demHtml = true;
+  const got = (await renderScenario(['@-85.3:31.4', '@-91:0', 'point-a'], { terrain: true })).get();
+  expect(got.error?.message).toMatch(/^data\/dem\/.+\.bin: HTTP 200; run backend\/scripts\/dem_tiles\.py$/);
+  expect(got.views.map((v) => v.site.id)).toEqual(['point-a']);
 });

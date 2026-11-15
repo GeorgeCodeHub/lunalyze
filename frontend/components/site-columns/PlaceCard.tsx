@@ -1,5 +1,4 @@
 import type { ReactNode } from 'react';
-import { useTranslation } from 'react-i18next';
 import type { SiteView } from '../../../backend/lib/types';
 import type { Stay } from '../../scenario';
 import { testIds } from '../../test-ids';
@@ -7,7 +6,7 @@ import CountdownChips from '../countdowns/CountdownChips';
 import MetricCards from '../metric-cards/MetricCards';
 import type { TimeFrame } from '../shared/timeFrame';
 import { usePosition } from '../shared/usePosition';
-import { siteNameKey } from '../site-picker/siteIds';
+import { useSiteName } from '../shared/useSiteName';
 import FitLabel from './FitLabel';
 import type { Role } from './pickPlaces';
 import PlaceDetails from './PlaceDetails';
@@ -33,8 +32,8 @@ type PlaceCardProps = {
 // Both cards carry the same blocks in the same order, so the eye compares them straight across.
 // Everything else is one step away, in Details.
 const PlaceCard = ({ role, alsoYours, view, stayView, now, frame, stay, terrain, foot, how }: PlaceCardProps) => {
-  const { t: tSites } = useTranslation('sites');
   const position = usePosition();
+  const nameOf = useSiteName();
 
   const { site } = view;
   const titleId = `place-card-${site.id}`;
@@ -51,7 +50,7 @@ const PlaceCard = ({ role, alsoYours, view, stayView, now, frame, stay, terrain,
     >
       <PlaceHeader
         titleId={titleId}
-        title={tSites(siteNameKey(site.id))}
+        title={nameOf(site)}
         meta={position(site.lat, site.lon)}
         role={role}
         alsoYours={alsoYours}

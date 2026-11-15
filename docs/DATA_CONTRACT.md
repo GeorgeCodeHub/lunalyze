@@ -9,7 +9,7 @@ The types live in [backend/lib/types.ts](../backend/lib/types.ts). Change them t
 import { useScenario } from '../backend/lib/useScenario';
 
 const { views, loading, error } = useScenario(siteIds, t, zoom, { terrain });
-// siteIds: string[]   ids from backend/public/data/sites.json, up to 3
+// siteIds: string[]   ids from backend/public/data/sites.json, or `@lat:lon` for typed coordinates, up to 3
 // t: Date             the window starts here
 // zoom: 'day' | 'lunarDay' | 'year'
 // terrain: boolean    false = flat 0° horizon (the flat-or-terrain switch). Default true.
@@ -25,6 +25,12 @@ const { views, loading, error } = useScenario(siteIds, t, zoom, { terrain });
 - `sky.sun`, `sky.earth`, `countdown` and `metrics.sunElDeg` / `panelOutputPct` are for the moment `t`.
 - Play button: call the hook once with the scenario date (lanes, metrics) and once with the playhead time (`sky`, `countdown`). Files are fetched once and cached.
 - A site with `terrainModeled: false` (apollo-11, change-4) gets the flat horizon `[[0, 0], [360, 0]]` and stays in `views`.
+- Typed coordinates: the id `@lat:lon` (the app's link token, lat north, lon east) gives a `Site` with `kind: 'typed'`,
+  `group: 'Typed coordinates'`, `precision: 'exact'`, and `terrainModeled` true when the point is inside the 240 m DEM.
+  With terrain on, its horizon is computed in the browser from the DEM tiles (below), with the same sampling as
+  `horizon_masks.py` and the 20 m band always on. Off the DEMs it gets the flat horizon. A typed id off the Moon's map
+  (`@-91:0`) is left out of `views`. Missing tiles are an `error`. A typed place has no name in `sites.json`.
+  The app accepts typed latitudes from −78° to −90° only (`validCoords` in `frontend/scenario.ts`): the live map's area.
 - With terrain on, a modeled site with no mask file yet is left out of `views`, and so is an id that is not in `sites.json` (nothing is fetched for it). With terrain off, a modeled site needs no mask file: nothing is fetched for it and it stays in `views`.
 - The signature is final; the data behind it is real.
 - When `t` changed and zoom and terrain did not, each site that was already shown keeps its view from the last `t` that fully loaded, so nothing blinks; a newly added site appears once it loads, and `loading` stays true until every new view has arrived.
@@ -32,7 +38,7 @@ const { views, loading, error } = useScenario(siteIds, t, zoom, { terrain });
 
 ### The data is real
 
-Sun and Earth positions come from the astronomy engine, the horizon from `masks/<siteId>.json`.
+Sun and Earth positions come from the astronomy engine, the horizon from `masks/<siteId>.json` (typed coordinates: from `dem/` tiles).
 
 - The observer stands 2 m above the 1737.4 km Moon sphere.
 - A body is visible when its centre is above the mask bin `elevDeg[floor(az·2)]` (a step lookup, no interpolation). With terrain off, or no mask, the horizon is 0°.
@@ -47,10 +53,10 @@ Sun and Earth positions come from the astronomy engine, the horizon from `masks/
 ```ts
 type Site = {
   id: string; lat: number; lon: number; // lon east, -180..180
-  kind: 'landed' | 'planned' | 'artemis-region' | 'reference';
+  kind: 'landed' | 'planned' | 'artemis-region' | 'reference' | 'typed'; // typed: id `@lat:lon`, not in sites.json
   precision: 'exact' | 'proxy';      // proxy: show as "approximate"
   terrainModeled: boolean;            // false: flat horizon, show the "terrain not modeled" caveat
-  group: 'Apollo' | 'CLPS' | 'Artemis regions' | 'International' | 'Reference points';
+  group: 'Apollo' | 'CLPS' | 'Artemis regions' | 'International' | 'Reference points' | 'Typed coordinates';
   source: string;
 };
 // Display text is not in the data. Name, blurb and group label come from the `sites` locale
@@ -102,6 +108,7 @@ toXY(az, el, width, height, stretch) // → { x, y } in SVG pixels
 | `frontend/locales/en/sites.json` | site names, blurbs, group labels | C6 |
 | `masks/<siteId>.json` | real horizon at mast height 2 m | G4, `backend/scripts/horizon_masks.py` |
 | `terrain/<siteId>.bin` + `.json` | terrain crop for the 3D view | G4 |
+| `dem/<dem>/<row>-<col>.bin` | LOLA DEM tiles for typed coordinates; **not in git** (about 195 MB) | `backend/scripts/dem_tiles.py` |
 
 ### `masks/<siteId>.json`
 
@@ -115,6 +122,15 @@ type HorizonMask = {
 };
 ```
 
+### `dem/<dem>/<row>-<col>.bin`
+
+- `<dem>` is `ldem_85s_20m`, `ldem_80s_80m` or `ldem_75s_240m`. Each is cut into 512 × 512 tiles; tile (row, col)
+  holds DEM pixels [512·row, 512·row + 512) × [512·col, 512·col + 512), zero-padded past the edge.
+- Each tile row is stored as differences from the pixel before it (int16, wrapping), then all low bytes, then all
+  high bytes, deflated in the zlib format (RFC 1950). Heights in metres = value × 0.5, above the 1737.4 km sphere.
+- Make them with `uv run backend/scripts/dem_tiles.py` after `download_dems.py`. `pnpm horizon-parity` checks that
+  `backend/lib/horizon.ts` gives every listed site its committed mask and terrain crop back from these tiles.
+
 ### `terrain/<siteId>.bin` and `terrain/<siteId>.json`
 
 - `.bin`: 500 × 500 signed 16-bit integers, little-endian, row by row. A crop of `ldem_80s_80m` centred on the site. Height in metres = value × 0.5, above the 1737.4 km sphere.
@@ -122,7 +138,8 @@ type HorizonMask = {
 
 ### `useTerrain(siteId)` (`backend/lib/useTerrain.ts`)
 
-Call it only for sites with `terrainModeled: true`. It fetches `terrain/<siteId>.json` and `.bin` and returns `{ grid: TerrainGrid | null, loading: boolean, error: Error | null }`.
+Call it only for sites with `terrainModeled: true`. It fetches `terrain/<siteId>.json` and `.bin`; for typed coordinates
+(`@lat:lon`) it cuts the same 500 × 500 crop from the `dem/` tiles, as `terrain_crop()` in `horizon_masks.py` does. It returns `{ grid: TerrainGrid | null, loading: boolean, error: Error | null }`.
 
 ```ts
 type TerrainGrid = {

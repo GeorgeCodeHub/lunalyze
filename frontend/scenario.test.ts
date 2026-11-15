@@ -88,6 +88,8 @@ test('a link made before the rename still opens: t is read when date is missing'
 
 test('coordinates off the map or half missing are dropped from a shared link', () => {
   expect(readScenario('?sites=@90.5:0,@-10:,@:20,@x:y,@-90:180')?.places).toEqual([{ kind: 'coords', lat: -90, lon: 180 }]);
+  // Only the south pole region, from -78° to the pole: the edge is in, anything north of it is out.
+  expect(readScenario('?sites=@-77.9:0,@-65:15,@0:0,@-78:-180')?.places).toEqual([{ kind: 'coords', lat: -78, lon: -180 }]);
   expect(readScenario('?sites=@91:0')).toBeNull();
 });
 

@@ -1,8 +1,11 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { testIds } from '../../test-ids';
+import IconShare from '../shared/IconShare';
 import styles from './CopyLinkButton.module.css';
 
+// Share: copies the link to this comparison (the scenario lives in the address bar); "Link copied"
+// then shows beside the button.
 const CopyLinkButton = () => {
   const { t } = useTranslation('compare');
   const [status, setStatus] = useState<'idle' | 'copied' | 'failed'>('idle');
@@ -22,6 +25,7 @@ const CopyLinkButton = () => {
   return (
     <div className={styles.copy}>
       <button type="button" className={styles.button} onClick={copy} data-status={status} data-testid={testIds.scenarioBar.copyLink}>
+        <IconShare />
         {t('copyLink.action')}
       </button>
       {/* Always in the page, even when empty: a status region must exist before its words change to be read out. */}

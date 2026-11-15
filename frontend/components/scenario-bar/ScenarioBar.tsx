@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { MAX_PICKS, type Scenario, siteIdsOf, STAYS, ZOOMS } from '../../scenario';
+import { MAX_PICKS, type Scenario, siteIdsOf, STAYS } from '../../scenario';
 import { testIds } from '../../test-ids';
 import SelectField from '../shared/SelectField';
 import { STAY_KEY } from '../shared/stayKeys';
@@ -13,7 +13,6 @@ import styles from './ScenarioBar.module.css';
 type ScenarioBarProps = { scenario: Scenario; onChange: (next: Scenario) => void };
 
 const TITLE_ID = 'scenario-bar-title';
-const ZOOM_KEYS = { day: 'bar.zoomDay', lunarDay: 'bar.zoomLunarDay', year: 'bar.zoomYear' } as const;
 
 // The setup answers, editable in place: every change redraws the comparison and rewrites the link in
 // the address bar, which is how the comparison is shared.
@@ -26,7 +25,6 @@ const ScenarioBar = ({ scenario, onChange }: ScenarioBarProps) => {
   const date = startIso.slice(0, 10);
   const hour = startIso.slice(11, 13);
   const stayOptions = STAYS.map((s) => ({ value: String(s), label: t(`setup.stay.${STAY_KEY[s]}`) }));
-  const zoomOptions = ZOOMS.map((z) => ({ value: z, label: t(ZOOM_KEYS[z]) }));
   // The places picked: up to 2 listed sites or typed coordinates. A typed place shows in its own field.
   const places = scenario.places.slice(0, MAX_PICKS);
   const typed = places.find((place) => place.kind === 'coords');
@@ -75,13 +73,6 @@ const ScenarioBar = ({ scenario, onChange }: ScenarioBarProps) => {
           options={stayOptions}
           testId={testIds.scenarioBar.stay}
           onChange={(value) => onChange({ ...scenario, stay: STAYS.find((s) => String(s) === value) ?? scenario.stay })}
-        />
-        <SelectField
-          label={t('bar.zoom')}
-          value={scenario.zoom}
-          options={zoomOptions}
-          testId={testIds.scenarioBar.zoom}
-          onChange={(value) => onChange({ ...scenario, zoom: ZOOMS.find((z) => z === value) ?? scenario.zoom })}
         />
       </div>
       <div className={styles.actions}>

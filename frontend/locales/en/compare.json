@@ -47,10 +47,6 @@
   "bar": {
     "title": "Your mission",
     "stay": "Length of stay",
-    "zoom": "Time span shown",
-    "zoomDay": "24 hours from landing",
-    "zoomLunarDay": "One Moon day (29.5 days)",
-    "zoomYear": "One year",
     "places": "Your places",
     "placesHint_one": "Pick {{count}} place to compare with the best option.",
     "placesHint_other": "Pick up to {{count}} places to compare with the best option.",
@@ -62,7 +58,7 @@
     "off": "Ignored: a flat horizon"
   },
   "copyLink": {
-    "action": "Share link",
+    "action": "Share",
     "copied": "Link copied",
     "failed": "The copy failed. Copy the link from the address bar."
   },

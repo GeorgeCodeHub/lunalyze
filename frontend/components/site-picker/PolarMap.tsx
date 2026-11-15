@@ -28,8 +28,8 @@ const PolarMap = ({ views, legend = true, credit = true }: PolarMapProps) => {
   const offMap = placed.filter(({ onMap }) => !onMap);
   const anyProxy = pins.some(({ view }) => view.site.precision === 'proxy');
   const leftmost = Math.min(...pins.map(({ x }) => x));
-  // The map fills its box, centred on the places; marks keep their size on screen (k: map units per pixel).
-  const shown = mapView(pins.map(({ y }) => -y), box.w, box.h); // SVG y runs down
+  // The map's picture covers its box, centred on the places; marks keep their size on screen (k: map units per pixel).
+  const shown = mapView(pins.map(({ x, y }) => ({ x, y: -y })), box.w, box.h); // SVG y runs down
 
   const nameOf = (view: SiteView) => name(view.site);
   const status = (hidden: boolean) => t(hidden ? 'map.hidden' : 'map.visible');

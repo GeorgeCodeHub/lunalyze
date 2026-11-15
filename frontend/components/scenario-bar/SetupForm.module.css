@@ -35,8 +35,10 @@
 }
 
 
-/* Outlined glass button: 2px light border, bold capitals, arrow at the end. */
+/* Outlined glass button: 2px light border, bold capitals, arrow at the end, and the warm light inside
+   that follows the mouse. */
 .submit {
+  composes: lit from '../shared/Section.module.css';
   position: relative;
   display: flex;
   align-items: center;
@@ -85,10 +87,6 @@
 .submit:hover::before,
 .submit:focus-visible::before {
   opacity: 1;
-}
-
-.submit:active .submitLabel {
-  transform: translateY(1px);
 }
 
 .submitLabel {

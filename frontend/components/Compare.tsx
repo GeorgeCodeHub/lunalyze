@@ -33,7 +33,6 @@ const Compare = ({ scenario, onChange }: CompareProps) => {
   const playheadH = usePlaybackStore((s) => s.offsetH);
   const [sideWidth, setSideWidth] = useState<number | null>(null); // px; null: the default quarter of the window
   const [sideView, setSideView] = useState<SideView>(SIDE_VIEW_START); // compare or single: the live view follows it
-  const pause = usePlaybackStore((s) => s.pause);
   // Every listed place over the Moon day from landing: the tool ranks them, and those lanes cover the stay.
   const all = useAllSites(scenario.start, scenario.terrain);
   const frame = timeFrame(scenario, playheadH);
@@ -107,10 +106,6 @@ const Compare = ({ scenario, onChange }: CompareProps) => {
   // The live view shows every place in Compare, and only the side panel's place in Single.
   const shownKeys = new Set(liveKeys(sideView, columns.map((column) => column.key)));
 
-  const change = (next: Scenario) => {
-    if (next.zoom !== scenario.zoom) pause(); // the play pace belongs to the time span, so a new span starts paused
-    onChange(next);
-  };
   return (
     <div className={styles.page} data-testid={testIds.compare.root}>
       <div className={styles.stars} aria-hidden="true" />
@@ -118,7 +113,7 @@ const Compare = ({ scenario, onChange }: CompareProps) => {
         <h1 className={styles.brand}>{tCommon('appTitle')}</h1>
         <CopyLinkButton />
       </header>
-      <ScenarioBar scenario={scenario} onChange={change} />
+      <ScenarioBar scenario={scenario} onChange={onChange} />
       {error && (
         <p className={styles.error} role="alert" data-testid={testIds.compare.error}>
           <IconAlert />

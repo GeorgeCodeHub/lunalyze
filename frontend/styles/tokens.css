@@ -97,6 +97,7 @@
      prefers-reduced-motion. */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --duration-fast: 160ms;
+  --duration-slide: 280ms; /* a pressed fill moving to the next option */
   --duration-enter: 480ms;
 
   /* Pixel monospace for display, plain monospace for everything else. */

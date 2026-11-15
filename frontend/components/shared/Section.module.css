@@ -31,8 +31,49 @@
   border: 0;
 }
 
+/* A warm light inside a button: the Sun's peach fading through Earth's blue-purple into the glass. At rest
+   it sits low at the right edge. On hover it brightens and glides after the mouse (pointerLight.ts writes
+   --pointer-x and --pointer-y on the button). It lives on ::after, under the label (isolation keeps it
+   above the button's own fill). The element needs position: relative. */
+.lit {
+  isolation: isolate;
+}
+
+.lit::after {
+  --light-x: 100%;
+  --light-y: 50%;
+  --light-glow: 14%;
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: radial-gradient(
+    90% 180% at var(--light-x) var(--light-y),
+    color-mix(in srgb, var(--color-sun) var(--light-glow), transparent),
+    color-mix(in srgb, var(--color-earth) calc(var(--light-glow) / 3), transparent) 55%,
+    transparent 90%
+  );
+  pointer-events: none;
+  transition:
+    --light-x 700ms var(--ease-out),
+    --light-y 700ms var(--ease-out),
+    --light-glow 300ms var(--ease-out);
+}
+
+.lit:hover::after {
+  --light-x: var(--pointer-x, 100%);
+  --light-y: var(--pointer-y, 50%);
+  --light-glow: 34%;
+}
+
+.lit:focus-visible::after {
+  --light-glow: 30%;
+}
+
 /* An outlined glass button, the quiet sibling of the setup step's submit button. */
 .button {
+  composes: lit;
   position: relative;
   display: inline-flex;
   align-items: center;
@@ -52,8 +93,7 @@
   transition:
     background-color var(--duration-fast) var(--ease-out),
     border-color var(--duration-fast) var(--ease-out),
-    box-shadow var(--duration-fast) var(--ease-out),
-    transform var(--duration-fast) var(--ease-out);
+    box-shadow var(--duration-fast) var(--ease-out);
 }
 
 /* Hover and keyboard focus light the button the way the side panel's resize edge lights up: its edge
@@ -84,11 +124,6 @@
 .button:hover::before,
 .button:focus-visible::before {
   opacity: 1;
-}
-
-/* Pressed: the button sinks a little under the finger. */
-.button:active {
-  transform: scale(0.97);
 }
 
 /* Something arriving on screen: it fades in while rising a few pixels. A parent sets --enter-delay

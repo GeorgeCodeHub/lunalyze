@@ -1,5 +1,5 @@
 // The scenario lives in the URL so it can be shared:
-// ?sites=point-a,@-85.2:31.4&date=2028-03-01T00:00Z&zoom=lunarDay&stay=7&terrain=off
+// ?sites=point-a,@-85.2:31.4&date=2028-03-01T00:00Z&zoom=lunarDay&stay=7&terrain=off (zoom: always lunarDay, see ZOOM)
 // A place is a site id from the list, or @latitude:longitude for coordinates the user typed in.
 // sites, date, zoom and terrain are written the way backend/lib/scenarioUrl.ts reads them, so both
 // read the same links. This module adds what that one cannot carry: typed coordinates and the stay.
@@ -19,12 +19,16 @@ export type Scenario = { places: Place[]; start: Date; zoom: Zoom; stay: Stay; t
 export const MAX_SITES = 3;
 /** How many places the person picks. With the tool's best option that makes 3: as many as one data request draws. */
 export const MAX_PICKS = 2;
-export const ZOOMS: Zoom[] = ['day', 'lunarDay', 'year'];
+/**
+ * The time span the screen shows: always one Moon day (29.5 days). It holds every stay, up to 30 days,
+ * and one full turn of light and dark. Links still carry it, for backend/lib/scenarioUrl.ts, whose own
+ * default is a day; older links that ask for 24 hours or a year open on a Moon day too.
+ */
+export const ZOOM: Zoom = 'lunarDay';
 export const STAYS: Stay[] = [1, 3, 7, 14, 30];
 export const DEFAULT_STAY: Stay = 7;
 export const DEFAULT_START = new Date('2028-03-01T00:00:00Z');
 
-const isZoom = (v: string | null): v is Zoom => ZOOMS.includes(v as Zoom);
 const asStay = (v: string | null): Stay | null => STAYS.find((s) => String(s) === v) ?? null;
 
 // Typed coordinates are limited to the south pole region the live map shows, where the hills come from the LOLA
@@ -74,11 +78,10 @@ export const readScenario = (search: string): Scenario | null => {
   if (places.length === 0) return null;
 
   const start = new Date(params.get('date') ?? params.get('t') ?? ''); // t: links made before the rename
-  const zoom = params.get('zoom');
   return {
     places,
     start: Number.isNaN(start.getTime()) ? DEFAULT_START : start,
-    zoom: isZoom(zoom) ? zoom : 'lunarDay',
+    zoom: ZOOM,
     stay: asStay(params.get('stay')) ?? DEFAULT_STAY,
     terrain: params.get('terrain') !== 'off',
   };

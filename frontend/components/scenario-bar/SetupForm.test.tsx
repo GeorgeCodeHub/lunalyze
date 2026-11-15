@@ -126,7 +126,7 @@ test('starts from a shared scenario: its first place, date, hour and stay; the r
       { kind: 'site', id: 'haworth' },
     ],
     start: startAt(23),
-    zoom: 'day',
+    zoom: 'day', // from before the time span was fixed
     stay: 1,
     terrain: false,
   };
@@ -138,8 +138,9 @@ test('starts from a shared scenario: its first place, date, hour and stay; the r
   expect(one<HTMLSelectElement>(testIds.setup.hour).value).toBe('23');
   submit();
 
-  // The time span, the hills switch and the other compared places are not asked here, so they stay.
-  expect(onSubmit).toHaveBeenCalledWith(shared);
+  // The hills switch and the other compared places are not asked here, so they stay. The time span is
+  // always one Moon day.
+  expect(onSubmit).toHaveBeenCalledWith({ ...shared, zoom: 'lunarDay' });
 });
 
 test('changing the landing place keeps the other compared places, without repeating one', () => {

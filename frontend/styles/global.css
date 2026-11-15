@@ -52,6 +52,26 @@ optgroup {
   outline: none;
 }
 
+/* The light inside a button (Section.module.css, .lit): registered so the browser can ease it from one
+   place to the next, the way it eases a colour. */
+@property --light-x {
+  syntax: '<percentage>';
+  inherits: false;
+  initial-value: 100%;
+}
+
+@property --light-y {
+  syntax: '<percentage>';
+  inherits: false;
+  initial-value: 50%;
+}
+
+@property --light-glow {
+  syntax: '<percentage>';
+  inherits: false;
+  initial-value: 14%;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

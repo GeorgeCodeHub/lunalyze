@@ -32,13 +32,17 @@ const HELP = { map: 'live.helpMap', sky: 'horizon.legend', '3d': 'terrain3d.lege
 // timeline for each place, with what happens next. Press play and all of it moves.
 const LiveView = ({ places, loading, frame }: LiveViewProps) => {
   const { t } = useTranslation('compare');
-  const [mode, setMode] = useState<Mode>('3d'); // the ground in 3D first: the easiest picture to read
+  const [picked, setPicked] = useState<Mode | null>(null); // null until the person picks a picture
   const name = useSiteName();
 
+  // The ground in 3D first: the easiest picture to read. With no ground to show (Apollo 11, Chang'e 4,
+  // or coordinates off the height map), the sky. A picture the person picked stays.
+  const hasGround = places.some(({ view }) => view.site.terrainModeled);
+  const mode = picked ?? (hasGround ? '3d' : 'sky');
   const modes = [
-    { value: 'map' as const, label: t('live.map') },
-    { value: 'sky' as const, label: t('live.sky') },
     { value: '3d' as const, label: t('live.threeD') },
+    { value: 'sky' as const, label: t('live.sky') },
+    { value: 'map' as const, label: t('live.map') },
   ];
   const nameOf = (view: SiteView) => name(view.site);
 
@@ -64,7 +68,7 @@ const LiveView = ({ places, loading, frame }: LiveViewProps) => {
               <LiveLegend approximate={mode === 'map' && places.some(({ now }) => now.site.precision === 'proxy')} />
               <InfoTip label={t('live.help')} text={t(HELP[mode])} testId={testIds.compare.help} />
               <div className={styles.switch}>
-                <Segmented label={t('live.switch')} options={modes} value={mode} onChange={setMode} testId={testIds.compare.liveSwitch} />
+                <Segmented label={t('live.switch')} options={modes} value={mode} onChange={setPicked} testId={testIds.compare.liveSwitch} />
               </div>
             </div>
             {/* The time player comes next, at the top: it is the main control of every picture. */}

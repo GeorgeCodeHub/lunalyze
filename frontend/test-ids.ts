@@ -35,7 +35,6 @@ export const testIds = {
     date: 'scenario-bar-date',
     hour: 'scenario-bar-hour',
     stay: 'scenario-bar-stay',
-    zoom: 'scenario-bar-zoom',
     terrainSwitch: 'scenario-bar-terrain-switch',
     copyLink: 'scenario-bar-copy-link',
     copyStatus: 'scenario-bar-copy-status',

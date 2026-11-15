@@ -14,13 +14,26 @@ test('a scenario survives the round trip through the URL', () => {
       { kind: 'coords', lat: -85.25, lon: 31.4 },
     ],
     start: new Date('2028-03-05T06:30:00Z'),
-    zoom: 'year',
+    zoom: 'lunarDay',
     stay: 14,
     terrain: true,
   };
 
-  expect(scenarioSearch(s)).toBe('?sites=point-a,@-85.25:31.4&date=2028-03-05T06:30Z&zoom=year&stay=14');
+  expect(scenarioSearch(s)).toBe('?sites=point-a,@-85.25:31.4&date=2028-03-05T06:30Z&zoom=lunarDay&stay=14');
   expect(readScenario(scenarioSearch(s))).toEqual(s);
+});
+
+test.each([
+  { name: '24 hours', zoom: 'day' },
+  { name: 'a year', zoom: 'year' },
+  { name: 'one Moon day', zoom: 'lunarDay' },
+  { name: 'an unknown span', zoom: 'week' },
+  { name: 'no span', zoom: '' },
+])('a link that asks for $name opens on one Moon day, and writes it back that way', ({ zoom }) => {
+  const read = readScenario(`?sites=point-a&date=2028-03-01T00:00Z&zoom=${zoom}&stay=7`);
+
+  expect(read?.zoom).toBe('lunarDay');
+  expect(scenarioSearch(read as Scenario)).toBe('?sites=point-a&date=2028-03-01T00:00Z&zoom=lunarDay&stay=7');
 });
 
 test('terrain off is written as terrain=off and read back; anything else means on', () => {

@@ -1,6 +1,6 @@
 import { type FormEvent, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { DEFAULT_START, DEFAULT_STAY, type Scenario, type Stay, STAYS, uniquePlaces } from '../../scenario';
+import { DEFAULT_START, DEFAULT_STAY, type Scenario, type Stay, STAYS, uniquePlaces, ZOOM } from '../../scenario';
 import { testIds } from '../../test-ids';
 import IconAlert from '../shared/IconAlert';
 import IconArrow from '../shared/IconArrow';
@@ -39,13 +39,13 @@ const SetupForm = ({ initial, onSubmit }: SetupFormProps) => {
       return;
     }
     const start = new Date(`${date}T${hour}:00:00Z`);
-    // The time span and the hills switch are not asked here: the Compare screen opens on one Moon day
-    // with hills counted, and both can be changed there. Coming back to change the setup keeps them,
-    // and keeps the other places being compared after the landing place.
+    // The hills switch is not asked here: the Compare screen opens with hills counted, and the switch
+    // is there. Coming back to change the setup keeps it, and keeps the other places being compared
+    // after the landing place. The time span is always one Moon day.
     onSubmit({
       places: uniquePlaces([place, ...(initial?.places.slice(1) ?? [])]),
       start: Number.isNaN(start.getTime()) ? DEFAULT_START : start,
-      zoom: initial?.zoom ?? 'lunarDay',
+      zoom: ZOOM,
       stay,
       terrain: initial?.terrain ?? true,
     });

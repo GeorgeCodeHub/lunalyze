@@ -1,4 +1,4 @@
-# Design brief: Lunar Landing Site Navigator
+# Design brief: Lunalyze
 
 Owner: Christina (design and UI). Data and calculations: George.
 Read with [PLAN.md](PLAN.md) (schedule, cut order) and [DATA_CONTRACT.md](DATA_CONTRACT.md) (data shapes).
@@ -8,7 +8,7 @@ The [README rules](../README.md#rules-that-must-never-be-broken) outrank this br
 
 **Which landing site offers the best conditions, and when?**
 
-> Find the right place. Choose the right time.
+> Turning lunar terrain data into confident landing decisions.
 
 We are building a decision-support tool, not a Moon visualisation. Anything that does not help answer
 the question above is cut first when time runs short.

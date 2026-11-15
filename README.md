@@ -1,8 +1,8 @@
-# rgx-lunar-navigator
+# Lunalyze
 
-RGX – Lunar Landing Site Navigator (NASA Space Apps 2026). Which lunar south-pole site, and which week?
+RGX – Lunalyze (NASA Space Apps 2026, challenge "Lunar Landing Site Navigator"). Turning lunar terrain data into confident landing decisions. Which lunar south-pole site, and which week?
 
-[![checked against JPL Horizons](https://img.shields.io/github/actions/workflow/status/GeorgeCodeHub/rgx-lunar-navigator/ci.yml?branch=main&label=checked%20against%20JPL%20Horizons)](backend/lib/lunar.test.ts)
+[![checked against JPL Horizons](https://img.shields.io/github/actions/workflow/status/GeorgeCodeHub/lunalyze/ci.yml?branch=main&label=checked%20against%20JPL%20Horizons)](backend/lib/lunar.test.ts)
 
 ## Rules that must never be broken
 

@@ -17,8 +17,8 @@ web
 
 ## Product Purpose
 
-Lunar Landing Site Navigator (team RGX, NASA Space Apps 2026, challenge "Lunar Landing Site
-Navigator") answers one question: **which landing site, and which week?**
+Lunalyze (team RGX, NASA Space Apps 2026, challenge "Lunar Landing Site Navigator") answers one
+question: **which landing site, and which week?**
 
 For up to 3 sites, a landing date and time, a flexible date window, and a mission length, it shows
 where the Sun and Earth are relative to each site's local horizon, how much of the time the site is
@@ -55,7 +55,7 @@ site: **"Fits your mission"** or **"Risky"**, with a one-line reason.
 
 ## Brand Commitments
 
-- Name: Lunar Landing Site Navigator. Tagline: "Find the right place. Choose the right time."
+- Name: Lunalyze. Tagline: "Turning lunar terrain data into confident landing decisions"
 - Voice: plain, clear and calm. Explain, don't impress.
 - NASA data is credited (LRO LOLA polar height maps, PGDA 69, PGDA 90, JPL Horizons). No NASA logos
   on AI-made content.

@@ -68,3 +68,7 @@ pnpm horizon-parity                       # the browser gives every listed site 
 The team chose the challenge, came up with the idea and designed the product. We used **Claude Code** (Anthropic's AI coding assistant) to write and review code, tests, the terrain pipeline scripts and these docs, with each change checked and accepted by a team member. Every commit it helped with ends with a `Co-Authored-By: Claude` line, so the git history records which ones they are.
 
 No image, video or audio in this repo is AI-generated: the images above come from the sources listed. No AI-made content uses NASA logos or other NASA branding.
+
+## License
+
+The code in this repo is released under the [MIT License](LICENSE). Third-party data, images, fonts and packages keep their own licenses, listed in [Data credits](#data-credits) and [Other credits](#other-credits).

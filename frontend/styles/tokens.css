@@ -34,7 +34,7 @@
   --color-glass-strong: rgb(255 214 170 / 17%);
   /* A panel's see-through fill, the same on every page: the warm tone in one corner, fading into a
      pale haze. */
-  --tint-sun: rgb(255 194 125 / 14%);
+  --tint-sun: rgb(255 214 170 / 14%);
   --tint-haze: rgb(255 255 255 / 7%);
   /* The Moon's warm haze, faint, as the light behind the Compare screen: the landing page's own light. */
   --haze-soft: rgb(205 175 150 / 9%);
@@ -52,30 +52,33 @@
      small dark shadow that lifts it off the page. */
   --color-menu: #2a2527;
   --shadow-menu: rgb(0 0 0 / 55%);
-  /* A line in that list. Under the pointer: a plain light wash. The chosen one: the warm tone
-     (text on it 7.0:1). Two different colours, so "here" and "chosen" are not confused. */
+  /* A line in that list. Under the pointer: a plain light wash. The chosen one: the peach tone
+     (text on it 6.7:1). Two different colours, so "here" and "chosen" are not confused. */
   --color-option-hover: rgb(255 255 255 / 9%);
-  --color-option-selected: rgb(255 194 125 / 24%);
+  --color-option-selected: rgb(255 214 170 / 24%);
 
-  --color-focus: #ffc27d; /* the warm tone of the palette, 12.5:1 */
+  /* The palette's one warm tone is a pale peach, rgb(255 214 170): the same tone as the glass fills
+     and the main button. Focus edges, the Sun, the panel tint and the warm glows all use it. */
+  --color-focus: #ffd6aa; /* 14.8:1 */
   --color-error: #ff9e94; /* 9.1:1, always paired with an icon and text */
   --color-good: #8fe3ad; /* 12.9:1, always paired with a tick and a word */
 
   /* The Sun and Earth keep one colour each everywhere (map, charts, strips, timeline): the jellyfish's warm
      peach light and the blue-purple of its bell. They also differ by marker shape and label, so the colour is never the
-     only signal. Checked with the chart palette validator: apart for colour-blind readers, and
-     saturated enough to read as colours. They are brighter than its dark-mode band, on purpose: they glow. */
-  --color-sun: #ffc27d; /* 12.7:1 */
+     only signal. Checked with the chart palette validator: clearly apart, for colour-blind readers
+     too. Two of its checks are missed on purpose: both are brighter than its dark-mode band (they
+     glow), and the Sun's peach is paler than its floor for a strong colour (a design choice). */
+  --color-sun: #ffd6aa; /* 14.8:1 */
   --color-earth: #8c9bff; /* 7.9:1 */
   /* The soft light behind and around chart marks and the best option's edge. Decoration only. */
-  --glow-sun: rgb(255 194 125 / 13%);
+  --glow-sun: rgb(255 214 170 / 13%);
   --glow-earth: rgb(140 155 255 / 13%);
-  --glow-sun-strong: rgb(255 194 125 / 28%);
+  --glow-sun-strong: rgb(255 214 170 / 28%);
   --glow-earth-strong: rgb(140 155 255 / 28%);
   /* The deeper purple of the bell's shadows: the glow around every card. */
   --glow-violet: rgb(138 110 255 / 24%);
   /* Ambient light on the page and under panels: fainter than the light on chart marks. */
-  --glow-sun-soft: rgb(255 194 125 / 7%);
+  --glow-sun-soft: rgb(255 214 170 / 7%);
   --color-pin: #ffffff;
   --color-map-bg: #0b1220;
   /* The ground in the horizon strip: a fill dark enough that the Sun and Earth read on top of it. */

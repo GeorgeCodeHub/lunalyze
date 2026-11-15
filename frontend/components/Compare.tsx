@@ -10,6 +10,7 @@ import LiveView from './LiveView';
 import CopyLinkButton from './scenario-bar/CopyLinkButton';
 import ScenarioBar from './scenario-bar/ScenarioBar';
 import IconAlert from './shared/IconAlert';
+import IconArrow from './shared/IconArrow';
 import ResizeHandle from './shared/ResizeHandle';
 import { timeFrame } from './shared/timeFrame';
 import BestPending from './site-columns/BestPending';
@@ -22,12 +23,12 @@ import HowChosen from './site-columns/HowChosen';
 import WhyBest from './site-columns/WhyBest';
 import styles from './Compare.module.css';
 
-type CompareProps = { scenario: Scenario; onChange: (next: Scenario) => void };
+type CompareProps = { scenario: Scenario; onChange: (next: Scenario) => void; onBack: () => void };
 
 // The Compare screen once a place is picked: what matters most, then the tool's best option and the
 // place it is compared with, side by side, and the live view. This is the one place that asks for
 // data; every number below comes from useScenario, and the regions only draw what they are handed.
-const Compare = ({ scenario, onChange }: CompareProps) => {
+const Compare = ({ scenario, onChange, onBack }: CompareProps) => {
   const { t } = useTranslation('compare');
   const { t: tCommon } = useTranslation();
   const playheadH = usePlaybackStore((s) => s.offsetH);
@@ -97,9 +98,10 @@ const Compare = ({ scenario, onChange }: CompareProps) => {
     }),
   ];
 
-  // The side panel starts at a quarter of the window (420px at most) and can be dragged from 240px to 60%.
+  // The side panel starts at a quarter of the window (420px at most) and can be dragged from 240px to half
+  // the window: past the middle the live view gets too narrow for its controls.
   const sideMin = 240;
-  const sideMax = Math.max(sideMin, Math.round(window.innerWidth * 0.6));
+  const sideMax = Math.max(sideMin, Math.round(window.innerWidth * 0.5));
   const sideNow = sideWidth ?? Math.min(window.innerWidth / 4, 420);
   const boardStyle = (sideWidth === null ? {} : { '--side-width': `${sideWidth}px` }) as CSSProperties;
 
@@ -110,7 +112,13 @@ const Compare = ({ scenario, onChange }: CompareProps) => {
     <div className={styles.page} data-testid={testIds.compare.root}>
       <div className={styles.stars} aria-hidden="true" />
       <header className={styles.top}>
-        <h1 className={styles.brand}>{tCommon('appTitle')}</h1>
+        <div className={styles.start}>
+          <button type="button" className={styles.back} onClick={onBack} data-testid={testIds.compare.back}>
+            <IconArrow />
+            {t('screen.back')}
+          </button>
+          <h1 className={styles.brand}>{tCommon('appTitle')}</h1>
+        </div>
         <CopyLinkButton />
       </header>
       <ScenarioBar scenario={scenario} onChange={onChange} />

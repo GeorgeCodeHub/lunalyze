@@ -43,24 +43,7 @@
   border-color: var(--color-error);
 }
 
-/* Dropdowns: own arrow, set off by a thin divider, like a stepper control. */
-select.control {
-  appearance: none;
-  padding-right: 52px;
-  background-image:
-    var(--icon-chevron),
-    linear-gradient(var(--color-glass-border), var(--color-glass-border));
-  background-repeat: no-repeat;
-  background-position:
-    right 16px center,
-    right 44px center;
-  background-size:
-    12px 8px,
-    1px 55%;
-  cursor: pointer;
-}
-
-/* Date fields: the same divider and light icon as the dropdowns. The browser's own calendar button is
+/* Date fields: the same divider and light icon as the dropdown menus (Menu.module.css). The browser's own calendar button is
    not drawn: WhenFields lays its own button over the icon, which opens the app's calendar menu. */
 input[type='date'].control {
   position: relative;
@@ -81,6 +64,18 @@ input[type='date'].control {
   display: none;
 }
 
+/* Firefox draws its own calendar button and offers no way to hide it. There it takes the place of the
+   app's icon: the field's end padding puts it under WhenFields' button, which takes the click and opens
+   the app's calendar instead of Firefox's. */
+@supports (-moz-appearance: none) {
+  input[type='date'].control {
+    padding-right: 10px;
+    background-image: linear-gradient(var(--color-glass-border), var(--color-glass-border));
+    background-position: right 44px center;
+    background-size: 1px 55%;
+  }
+}
+
 /* A field's error line: icon and words, never color alone. Spans the full row in a grid. */
 .error {
   display: flex;
@@ -90,122 +85,4 @@ input[type='date'].control {
   margin: 0;
   color: var(--color-error);
   font-size: 0.85rem;
-}
-
-/* Dropdown lists. Where the browser can draw a select's list in the page (appearance: base-select),
-   the list opens under its field as a menu, in the app's own look, and covers no other field. Other
-   browsers keep their own list. The control stays a native select either way. */
-@supports (appearance: base-select) {
-  select.control,
-  select.control::picker(select) {
-    appearance: base-select;
-  }
-
-  /* The field itself: one line of text, cut off where the field's padding starts so long names
-     never run under the arrow. The app's own arrow stays; the browser's is not drawn. */
-  select.control {
-    display: flex;
-    align-items: center;
-    overflow: clip;
-    overflow-clip-margin: content-box;
-    white-space: nowrap;
-  }
-
-  select.control::picker-icon {
-    display: none;
-  }
-
-  /* Open: the arrow points up. */
-  select.control:open {
-    background-image:
-      var(--icon-chevron-up),
-      linear-gradient(var(--color-glass-border), var(--color-glass-border));
-  }
-
-  /* Where the list sits: under its field, 6px below it, with its left edge on the field's. The
-     browser's own rule puts the list on whichever side has more room, so on a short window it
-     opened upward, over the page title. Here the space for the list runs from the field down to
-     8px above the window's bottom edge, 360px at most. The list takes the height of its lines and
-     is never taller than that space; a long list scrolls. */
-  select.control::picker(select) {
-    position-anchor: auto; /* the field: needed by name once position-area is off */
-    position-area: none;
-    position-try-order: normal;
-    position-try-fallbacks: --menu-above;
-    inset: auto;
-    top: calc(anchor(bottom) + 6px);
-    bottom: max(8px, calc(anchor(bottom) - 366px));
-    left: anchor(left);
-    align-self: start;
-    min-height: 96px;
-    max-height: 360px; /* for a browser without the next line */
-    max-height: stretch;
-    margin: 0;
-  }
-
-  /* Only when the field sits at the very bottom of the window, with no room for two lines under it:
-     the same list, over the field. */
-  @position-try --menu-above {
-    top: max(8px, calc(anchor(top) - 366px));
-    bottom: calc(anchor(top) + 6px);
-    align-self: end;
-  }
-
-  /* The list: the same colour and edge as the field it belongs to, lifted by a small shadow. */
-  select.control::picker(select) {
-    padding: 6px;
-    overflow-y: auto;
-    border: 1px solid var(--color-glass-border);
-    border-radius: var(--radius-control);
-    background: var(--color-menu);
-    color: var(--color-text);
-    box-shadow: 0 10px 24px -12px var(--shadow-menu);
-  }
-
-  select.control option {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    min-height: 40px;
-    padding: 6px 12px;
-    border-radius: 2px;
-    background: transparent;
-    font-size: 0.9rem;
-    white-space: nowrap;
-    cursor: pointer;
-  }
-
-  /* Under the pointer or the keyboard: a plain light wash. */
-  select.control option:hover,
-  select.control option:focus-visible {
-    background: var(--color-option-hover);
-  }
-
-  /* The chosen one: the warm tone as its ground and heavier letters, so it is not told apart by
-     colour alone. It keeps this look under the pointer. The browser's tick is not drawn. */
-  select.control option:checked {
-    background: var(--color-option-selected);
-    font-weight: 500;
-  }
-
-  select.control option::checkmark {
-    display: none;
-  }
-
-  /* A group: its name small and quiet, its places under it. */
-  select.control optgroup {
-    padding-top: 8px;
-    background: transparent;
-    color: var(--color-text-muted);
-    font-size: 0.72rem;
-    font-weight: 500;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-  }
-
-  select.control optgroup option {
-    color: var(--color-text);
-    letter-spacing: 0;
-    text-transform: none;
-  }
 }

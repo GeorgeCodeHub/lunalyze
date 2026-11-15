@@ -42,6 +42,7 @@
     "credit": "Moon image: NASA Goddard, from Lunar Reconnaissance Orbiter data."
   },
   "screen": {
+    "back": "Back to setup",
     "error": "Some data did not load, so a place can be missing. Check your connection, then reload the page."
   },
   "bar": {

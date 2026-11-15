@@ -1,6 +1,9 @@
-/* The field: the same box and arrow as a dropdown, holding the names picked, cut off before the arrow. */
+/* A dropdown menu, shared by every field that picks from a list. Each field names its own anchor in
+   --menu-anchor, so its menu opens under it and not under another field's.
+
+   The field: the same box and arrow as a dropdown, holding the names picked, cut off before the arrow. */
 .button {
-  composes: control from '../shared/Field.module.css';
+  composes: control from './Field.module.css';
   display: block;
   overflow: hidden;
   padding-right: 52px;
@@ -20,7 +23,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   cursor: pointer;
-  anchor-name: --places-field;
+  anchor-name: var(--menu-anchor);
 }
 
 /* Open: the arrow points up. */
@@ -46,7 +49,7 @@
    it when there is no room below. Elsewhere it opens in the middle of the window. */
 @supports (anchor-name: --a) {
   .menu {
-    position-anchor: --places-field;
+    position-anchor: var(--menu-anchor);
     inset: auto;
     top: anchor(bottom);
     left: anchor(left);

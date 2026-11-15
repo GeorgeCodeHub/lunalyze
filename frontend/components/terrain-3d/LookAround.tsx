@@ -1,8 +1,8 @@
 import { OrbitControls } from '@react-three/drei';
 import { useThree } from '@react-three/fiber';
 import { type ComponentRef, useEffect, useRef } from 'react';
-import type { PerspectiveCamera } from 'three';
-import { FOV_MAX, FOV_MIN, headingOf, type LookAction, lookTurn, POLAR_MAX, POLAR_MIN, tiltedPolar, zoomedFov } from './lookTurn';
+import { type PerspectiveCamera, Spherical, Vector3 } from 'three';
+import { FACE_TURN_MS, FOV_MAX, FOV_MIN, headingOf, type LookAction, lookTurn, POLAR_MAX, POLAR_MIN, tiltedPolar, turnStep, zoomedFov } from './lookTurn';
 
 // look: the latest arrow-pad press (n counts presses, so the same direction twice turns twice).
 // lon: the site's longitude, to turn the view's direction into a bearing. onHeading: the bearing, as it changes.
@@ -21,15 +21,40 @@ const LookAround = ({ eyeY, facing, look, lon, onHeading }: LookAroundProps) => 
   const invalidate = useThree((state) => state.invalidate);
 
   const controls = useRef<ComponentRef<typeof OrbitControls>>(null);
+  const placed = useRef(false); // the first facing is set at once; the face buttons' turn smoothly
 
-  // Turn to face `facing`: on mount and whenever a "face" button picks a new direction.
+  // Turn to face `facing`: at once on mount, then smoothly whenever a "face" button picks a new
+  // direction. A drag stops the turn where it is; with reduced motion the view jumps.
   useEffect(() => {
     const c = controls.current;
     if (!c) return;
     c.object.position.set(0, eyeY, 0);
-    c.target.set(facing[0] * LOOK_KM, eyeY + facing[1] * LOOK_KM, facing[2] * LOOK_KM);
-    c.update();
-  }, [eyeY, facing]);
+    const aim = (direction: Vector3) => {
+      c.target.copy(c.object.position).addScaledVector(direction.normalize(), LOOK_KM);
+      c.update();
+      invalidate();
+    };
+    const to = new Spherical().setFromVector3(new Vector3(...facing));
+    const from = new Spherical().setFromVector3(new Vector3().subVectors(c.target, c.object.position));
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const duration = placed.current && !reduced ? FACE_TURN_MS : 0; // 0: straight there
+    placed.current = true;
+    const start = performance.now();
+    let frame = 0;
+    const step = (now: number) => {
+      const t = duration > 0 ? (now - start) / duration : 1;
+      const { theta, phi } = turnStep(from, to, t);
+      aim(new Vector3().setFromSpherical(new Spherical(1, phi, theta)));
+      if (t < 1) frame = requestAnimationFrame(step);
+    };
+    const stop = () => cancelAnimationFrame(frame);
+    step(start);
+    c.addEventListener('start', stop);
+    return () => {
+      cancelAnimationFrame(frame);
+      c.removeEventListener('start', stop);
+    };
+  }, [eyeY, facing, invalidate]);
 
   // A press on the pad or the zoom buttons: turn from where the view looks now, or zoom, by one step.
   useEffect(() => {

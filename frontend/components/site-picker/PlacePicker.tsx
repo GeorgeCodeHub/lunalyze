@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { type CSSProperties, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MAX_PICKS, type Place } from '../../scenario';
 import { testIds } from '../../test-ids';
 import fieldStyles from '../shared/Field.module.css';
 import { groupLabelKey, PICKER_GROUPS, siteNameKey } from './siteIds';
-import styles from './PlacePicker.module.css';
+import styles from '../shared/Menu.module.css';
 
 type PlacePickerProps = {
   places: Place[]; // the places picked: listed sites, and typed coordinates if any
@@ -33,7 +33,7 @@ const PlacePicker = ({ places, onChange }: PlacePickerProps) => {
   };
 
   return (
-    <div className={fieldStyles.field}>
+    <div className={fieldStyles.field} style={{ '--menu-anchor': '--places-field' } as CSSProperties}>
       <span id={LABEL_ID} className={fieldStyles.label}>
         {t('bar.places')}
       </span>

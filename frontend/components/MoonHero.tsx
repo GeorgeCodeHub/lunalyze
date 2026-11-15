@@ -3,6 +3,8 @@ import moonUrl from '../assets/moon-full-nasa-gsfc.jpg';
 import { testIds } from '../test-ids';
 import styles from './MoonHero.module.css';
 
+const STAR_LAYERS = [1, 2, 3, 4, 5, 6, 7, 8]; // one star each, placed and timed in the CSS by order
+
 // The photo is decoration with a credit; it carries no data (README rule 2).
 // The SVG filter cuts the Moon out of its black sky (any pixel brighter than the sky becomes opaque),
 // then lights it like a long-exposure photo: a white-hot limb, a white-to-cream bloom at the edge,
@@ -67,7 +69,11 @@ const MoonHero = () => {
           </feMerge>
         </filter>
       </svg>
-      <div className={styles.stars} aria-hidden="true" />
+      <div className={styles.stars} aria-hidden="true">
+        {STAR_LAYERS.map((n) => (
+          <span key={n} className={styles.star} />
+        ))}
+      </div>
       <img className={styles.moon} src={moonUrl} alt={t('hero.alt')} data-testid={testIds.hero.image} />
     </aside>
   );

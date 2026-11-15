@@ -92,3 +92,18 @@ export const angleDelta = (from: number, to: number) => {
   const delta = (((to - from) % 360) + 540) % 360 - 180;
   return delta === -180 ? 180 : delta;
 };
+
+/** How long a "face" button takes to turn the view, in milliseconds. */
+export const FACE_TURN_MS = 700;
+
+/**
+ * One moment of a smooth turn between two directions, as angles in radians (theta around the vertical,
+ * phi down from straight up), at t from 0 (start) to 1 (end): slow at both ends, fast in the middle,
+ * and round the shorter way. A t outside 0..1 is held to it.
+ */
+export const turnStep = (from: { theta: number; phi: number }, to: { theta: number; phi: number }, t: number) => {
+  const k = Math.min(1, Math.max(0, t));
+  const eased = k < 0.5 ? 4 * k ** 3 : 1 - (2 - 2 * k) ** 3 / 2;
+  const dTheta = Math.atan2(Math.sin(to.theta - from.theta), Math.cos(to.theta - from.theta));
+  return { theta: from.theta + dTheta * eased, phi: from.phi + (to.phi - from.phi) * eased };
+};

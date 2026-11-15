@@ -4,6 +4,7 @@ import { DEFAULT_START } from '../../scenario';
 import DateCalendar from './DateCalendar';
 import fieldStyles from './Field.module.css';
 import { testIds } from '../../test-ids';
+import SelectField from './SelectField';
 import styles from './WhenFields.module.css';
 
 type WhenFieldsProps = {
@@ -47,16 +48,13 @@ const WhenFields = ({ date, hour, onDate, onHour, dateTestId, hourTestId }: When
           <DateCalendar id={calendarId} value={date} fallback={DEFAULT_START.toISOString().slice(0, 10)} onPick={onDate} />
         </div>
       </div>
-      <label className={fieldStyles.field}>
-        <span className={fieldStyles.label}>{t('when.time')}</span>
-        <select className={fieldStyles.control} value={hour} data-testid={hourTestId} onChange={(e) => onHour(e.target.value)}>
-          {HOURS.map((h) => (
-            <option key={h} value={h}>
-              {t('when.hour', { hour: h })}
-            </option>
-          ))}
-        </select>
-      </label>
+      <SelectField
+        label={t('when.time')}
+        value={hour}
+        options={HOURS.map((h) => ({ value: h, label: t('when.hour', { hour: h }) }))}
+        onChange={onHour}
+        testId={hourTestId}
+      />
     </>
   );
 };

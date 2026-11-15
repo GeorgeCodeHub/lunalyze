@@ -75,6 +75,23 @@
   gap: 12px 24px;
 }
 
+/* Back to the setup step, then the title. */
+.start {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 20px;
+}
+
+/* The setup's arrow, turned to point back. */
+.back {
+  composes: button from './shared/Section.module.css';
+}
+
+.back svg {
+  transform: scaleX(-1);
+}
+
 /* The title from the setup step, small: the comparison is the page now. */
 .brand {
   margin: 0;
@@ -160,7 +177,8 @@
 @media (min-width: 1024px) {
   .board {
     grid-template-areas: 'side live';
-    grid-template-columns: var(--side-width, min(25vw, 420px)) minmax(0, 1fr);
+    /* Never past the middle, even when the window shrinks after a drag. */
+    grid-template-columns: min(var(--side-width, min(25vw, 420px)), 50%) minmax(0, 1fr);
     gap: 24px;
   }
 

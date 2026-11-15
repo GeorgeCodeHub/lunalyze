@@ -1,4 +1,6 @@
+import { type CSSProperties, useId, useState } from 'react';
 import fieldStyles from './Field.module.css';
+import styles from './Menu.module.css';
 
 type SelectFieldProps = {
   label: string;
@@ -8,19 +10,53 @@ type SelectFieldProps = {
   testId: string;
 };
 
-// A labelled dropdown in the shared frosted-glass field style.
+// A labelled dropdown: a field that opens the app's own menu under it, the same in every browser (a
+// native select's list is the browser's own outside Chromium). The field carries the chosen value in
+// data-value; each choice is a radio, so arrow keys move through them.
 const SelectField = ({ label, value, options, onChange, testId }: SelectFieldProps) => {
+  const [open, setOpen] = useState(false);
+  const id = useId();
+
+  const labelId = `${id}-label`;
+  const buttonId = `${id}-button`;
+  const menuId = `${id}-menu`;
+  const anchor = `--menu-${id.replace(/[^a-zA-Z0-9-]/g, '')}`; // the field and its menu find each other by this name
+  const chosen = options.find((o) => o.value === value);
+
   return (
-    <label className={fieldStyles.field}>
-      <span className={fieldStyles.label}>{label}</span>
-      <select className={fieldStyles.control} value={value} data-testid={testId} onChange={(e) => onChange(e.target.value)}>
+    <div className={fieldStyles.field} style={{ '--menu-anchor': anchor } as CSSProperties} data-testid={testId} data-value={value}>
+      <span id={labelId} className={fieldStyles.label}>
+        {label}
+      </span>
+      <button
+        id={buttonId}
+        type="button"
+        className={styles.button}
+        popoverTarget={menuId}
+        aria-labelledby={`${labelId} ${buttonId}`}
+        aria-expanded={open}
+      >
+        {chosen?.label}
+      </button>
+      <div id={menuId} popover="auto" className={styles.menu} onToggle={(e) => setOpen(e.newState === 'open')}>
         {options.map((o) => (
-          <option key={o.value} value={o.value}>
+          <label key={o.value} className={styles.option}>
+            <input
+              type="radio"
+              name={menuId}
+              value={o.value}
+              checked={o.value === value}
+              onChange={() => onChange(o.value)}
+              onClick={(e) => {
+                // A pointer pick closes the menu; arrow keys move through the list and leave it open.
+                if (e.detail > 0) document.getElementById(menuId)?.hidePopover();
+              }}
+            />
             {o.label}
-          </option>
+          </label>
         ))}
-      </select>
-    </label>
+      </div>
+    </div>
   );
 };
 

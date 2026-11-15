@@ -9,7 +9,7 @@ RGX – Lunar Landing Site Navigator (NASA Space Apps 2026). Which lunar south-p
 1. **No fake data ships.** Test data lives only in test files.
 2. **Every number on screen comes from `backend/lib/`** (ephemeris + horizon masks). Visuals (3D view, map) never produce numbers.
 3. **The JPL Horizons check stays at < 0.01°** on all 16 values in `backend/lib/lunar.test.ts`. It is never loosened, skipped or removed.
-4. **Components read data only through `useScenario`.** Its signature and `backend/lib/types.ts` change only with both owners agreeing, and [docs/DATA_CONTRACT.md](docs/DATA_CONTRACT.md) changes in the same commit.
+4. **Components read data only through the hooks in `backend/lib/`** (`useScenario`, `useTerrain`). Their signatures and `backend/lib/types.ts` change only with both owners agreeing, and [docs/DATA_CONTRACT.md](docs/DATA_CONTRACT.md) changes in the same commit.
 5. **astronomy-engine is imported only inside `backend/lib/`.**
 6. **Every user-facing string goes through `t()`** and lives in `frontend/locales/en/`. The app is English only.
 7. **Packages come from pnpm and are at least 7 days old.**

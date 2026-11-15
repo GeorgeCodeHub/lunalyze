@@ -10,6 +10,25 @@ import { usePlaybackStore } from '../stores/compare';
 import { testIds } from '../test-ids';
 import Compare from './Compare';
 
+// No WebGL here: the canvas is a div and the controls and labels draw nothing.
+vi.mock('@react-three/fiber', async () => {
+  const { createElement } = await import('react');
+  const { testIds: ids } = await import('../test-ids');
+  return { Canvas: () => createElement('div', { 'data-testid': ids.terrain3d.canvas }) };
+});
+// The real 3D panel, unless a test flips `broken`: then it throws on render, like a canvas that cannot start.
+const panel = vi.hoisted(() => ({ broken: false }));
+vi.mock('./terrain-3d/Terrain3D', async (importActual) => {
+  const actual = await importActual<typeof import('./terrain-3d/Terrain3D')>();
+  return {
+    default: (props: Parameters<typeof actual.default>[0]) => {
+      if (panel.broken) throw new Error('no WebGL');
+      return actual.default(props);
+    },
+  };
+});
+vi.mock('@react-three/drei', () => ({ OrbitControls: () => null, Html: () => null }));
+
 // The real data files are served from backend/public/, so the numbers below are the app's own.
 const failing = new Set<string>(); // paths answered 500
 let container: HTMLDivElement;
@@ -18,6 +37,7 @@ let root: Root;
 beforeEach(() => {
   (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
   failing.clear();
+  panel.broken = false;
   usePlaybackStore.getState().reset();
   vi.stubGlobal('fetch', async (url: string) => {
     const path = new URL(url, 'http://localhost').pathname;
@@ -352,4 +372,55 @@ test('a site list that fails to load shows the error, no best option, and no liv
   expect(cards()).toEqual(['best:-:unranked', 'yourChoice:malapert-m1:missing']);
   expect(all(testIds.polarMap.pin)).toHaveLength(0);
   expect(all(testIds.timeline.root)).toHaveLength(0);
+});
+
+test('the live view has a third mode, 3D, that loads the terrain panel with one scene per place', async () => {
+  await mount(WEEK);
+
+  const live = one(testIds.compare.live);
+  const buttons = () => [...one(testIds.compare.liveSwitch).querySelectorAll('button')];
+  expect(buttons()).toHaveLength(3);
+  expect(all(testIds.terrain3d.root, live)).toHaveLength(0);
+  // Each button, in order, sets its own mode.
+  const values: string[] = [];
+  for (const i of [0, 1, 2]) {
+    await act(async () => buttons()[i].click());
+    values.push(one(testIds.compare.liveSwitch).dataset.value as string);
+  }
+  expect(values).toEqual(['map', 'sky', '3d']);
+  expect(buttons().map((b) => b.getAttribute('aria-pressed'))).toEqual(['false', 'false', 'true']);
+
+  await vi.waitFor(async () => {
+    await act(async () => {}); // let the lazy chunk and the terrain files land
+    expect(all(testIds.terrain3d.root, live)).toHaveLength(1);
+  });
+  await vi.waitFor(async () => {
+    await act(async () => {});
+    expect(all(testIds.terrain3d.scene, live).map((s) => s.dataset.siteId)).toEqual(['im-2', 'malapert-m1']);
+  });
+  expect(all(testIds.polarMap.pin, live)).toHaveLength(0);
+  expect(all(testIds.horizonStrip.root, live)).toHaveLength(0);
+  expect(all(testIds.timeline.root, live)).toHaveLength(2); // the timelines stay under every mode
+});
+
+test('when the 3D panel throws, the live view shows a notice and the rest of the screen stays', async () => {
+  await mount(WEEK);
+  const live = one(testIds.compare.live);
+  const timelines = all(testIds.timeline.root, live).length;
+  const logged = vi.spyOn(console, 'error').mockImplementation(() => {}); // React logs the expected render error
+  panel.broken = true;
+
+  await act(async () => one(testIds.compare.liveSwitch).querySelectorAll('button')[2].click());
+  await vi.waitFor(async () => {
+    await act(async () => {});
+    expect(all(testIds.terrain3d.unavailable, live)).toHaveLength(1);
+  });
+  logged.mockRestore();
+
+  expect(all(testIds.terrain3d.unavailable, live)[0].getAttribute('role')).toBe('alert');
+  expect(all(testIds.terrain3d.root, live)).toHaveLength(0);
+  expect(one(testIds.compare.liveSwitch).dataset.value).toBe('3d');
+  expect(all(testIds.timeline.root, live)).toHaveLength(timelines);
+  expect(timelines).toBe(2);
+  expect(all(testIds.siteColumns.column)).toHaveLength(2);
 });

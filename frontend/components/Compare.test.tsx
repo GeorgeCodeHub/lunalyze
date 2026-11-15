@@ -16,6 +16,17 @@ vi.mock('@react-three/fiber', async () => {
   const { testIds: ids } = await import('../test-ids');
   return { Canvas: () => createElement('div', { 'data-testid': ids.terrain3d.canvas }) };
 });
+// The real 3D panel, unless a test flips `broken`: then it throws on render, like a canvas that cannot start.
+const panel = vi.hoisted(() => ({ broken: false }));
+vi.mock('./terrain-3d/Terrain3D', async (importActual) => {
+  const actual = await importActual<typeof import('./terrain-3d/Terrain3D')>();
+  return {
+    default: (props: Parameters<typeof actual.default>[0]) => {
+      if (panel.broken) throw new Error('no WebGL');
+      return actual.default(props);
+    },
+  };
+});
 vi.mock('@react-three/drei', () => ({ OrbitControls: () => null, Html: () => null }));
 
 // The real data files are served from backend/public/, so the numbers below are the app's own.
@@ -26,6 +37,7 @@ let root: Root;
 beforeEach(() => {
   (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
   failing.clear();
+  panel.broken = false;
   usePlaybackStore.getState().reset();
   vi.stubGlobal('fetch', async (url: string) => {
     const path = new URL(url, 'http://localhost').pathname;
@@ -300,4 +312,26 @@ test('the live view has a third mode, 3D, that loads the terrain panel with one 
   expect(all(testIds.polarMap.pin, live)).toHaveLength(0);
   expect(all(testIds.horizonStrip.root, live)).toHaveLength(0);
   expect(all(testIds.timeline.root, live)).toHaveLength(2); // the timelines stay under every mode
+});
+
+test('when the 3D panel throws, the live view shows a notice and the rest of the screen stays', async () => {
+  await mount(WEEK);
+  const live = one(testIds.compare.live);
+  const timelines = all(testIds.timeline.root, live).length;
+  const logged = vi.spyOn(console, 'error').mockImplementation(() => {}); // React logs the expected render error
+  panel.broken = true;
+
+  await act(async () => one(testIds.compare.liveSwitch).querySelectorAll('button')[2].click());
+  await vi.waitFor(async () => {
+    await act(async () => {});
+    expect(all(testIds.terrain3d.unavailable, live)).toHaveLength(1);
+  });
+  logged.mockRestore();
+
+  expect(all(testIds.terrain3d.unavailable, live)[0].getAttribute('role')).toBe('alert');
+  expect(all(testIds.terrain3d.root, live)).toHaveLength(0);
+  expect(one(testIds.compare.liveSwitch).dataset.value).toBe('3d');
+  expect(all(testIds.timeline.root, live)).toHaveLength(timelines);
+  expect(timelines).toBe(2);
+  expect(all(testIds.siteColumns.column)).toHaveLength(2);
 });

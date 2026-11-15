@@ -14,7 +14,7 @@ const ALLOWED = [
 ];
 const sources = readdirSync(FOLDER).filter((f) => !/\.test\.tsx?$/.test(f));
 const read = (file: string) => readFileSync(join(FOLDER, file), 'utf8');
-const imports = (file: string) => [...read(file).matchAll(/from '(\.[^']*)'/g)].map((m) => m[1]);
+const imports = (file: string) => [...read(file).matchAll(/(?:from|import)\s*\(?\s*'([^']+)'/g)].map((m) => m[1]).filter((spec) => spec.startsWith('.'));
 const leaving = sources
   .filter((f) => /\.tsx?$/.test(f))
   .flatMap((f) => imports(f).map((spec) => relative(resolve('.'), resolve(FOLDER, spec))))

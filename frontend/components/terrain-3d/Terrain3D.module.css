@@ -76,5 +76,5 @@
 .labelHidden {
   composes: label;
   border-style: dashed;
-  border-color: var(--color-rule);
+  border-color: var(--color-text-faint);
 }

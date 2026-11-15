@@ -1,5 +1,6 @@
 import { OrbitControls } from '@react-three/drei';
 import { Canvas } from '@react-three/fiber';
+import type { RefObject } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { SiteView } from '../../../backend/lib/types';
 import type { TerrainGrid } from '../../../backend/lib/useTerrain';
@@ -14,15 +15,19 @@ type TerrainCanvasProps = {
   site: SiteView['site'];
   sky: SiteView['sky']; // at the playhead time
   colours: { sun: string; earth: string; ground: string };
+  portal: RefObject<HTMLElement | null>; // where the labels attach: fixed from the first render
 };
 
 const SUN_DISTANCE_KM = 40;
-const MARKER_DISTANCE_KM = 18;
+const MARKER_DISTANCE_KM = 10; // close enough that any bearing and height, with its label, stays in the default frame
+// Hoisted so the camera is not a new object each render, which would pull the view back on every tick.
+const CAMERA = { position: [0, 10, 30] as [number, number, number], fov: 45, near: 0.1, far: 200 };
+const TARGET: [number, number, number] = [0, 4, 0];
 
 const scale = (v: [number, number, number], k: number): [number, number, number] => [v[0] * k, v[1] * k, v[2] * k];
 
 // The 3D picture: the ground, the Sun's light and a marker each for the Sun and Earth, all placed from the sky at the playhead time.
-const TerrainCanvas = ({ grid, site, sky, colours }: TerrainCanvasProps) => {
+const TerrainCanvas = ({ grid, site, sky, colours, portal }: TerrainCanvasProps) => {
   const { t } = useTranslation('compare');
 
   const { sun, earth } = sky;
@@ -35,11 +40,11 @@ const TerrainCanvas = ({ grid, site, sky, colours }: TerrainCanvasProps) => {
     <Canvas
       className={styles.canvas}
       data-testid={testIds.terrain3d.canvas}
-      shadows
+      shadows="percentage"
       frameloop="demand"
-      camera={{ position: [0, 12, 22], fov: 45, near: 0.1, far: 200 }}
+      camera={CAMERA}
     >
-      <ambientLight intensity={0.25} />
+      <ambientLight intensity={0.7} />
       <directionalLight
         position={scale(sunDir, SUN_DISTANCE_KM)}
         color={colours.sun}
@@ -58,6 +63,7 @@ const TerrainCanvas = ({ grid, site, sky, colours }: TerrainCanvasProps) => {
         body="sun"
         position={scale(sunDir, MARKER_DISTANCE_KM)}
         hidden={sun.hidden}
+        portal={portal}
         colour={colours.sun}
         label={bodyLabel('sun', sun.hidden)}
       />
@@ -65,10 +71,11 @@ const TerrainCanvas = ({ grid, site, sky, colours }: TerrainCanvasProps) => {
         body="earth"
         position={scale(earthDir, MARKER_DISTANCE_KM)}
         hidden={earth.hidden}
+        portal={portal}
         colour={colours.earth}
         label={bodyLabel('earth', earth.hidden)}
       />
-      <OrbitControls enablePan={false} enableDamping={false} minDistance={3} maxDistance={50} maxPolarAngle={Math.PI / 2 - 0.05} />
+      <OrbitControls target={TARGET} enablePan={false} enableDamping={false} minDistance={3} maxDistance={50} maxPolarAngle={Math.PI / 2 - 0.05} />
     </Canvas>
   );
 };

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { SiteView } from '../../../backend/lib/types';
 import { useTerrain } from '../../../backend/lib/useTerrain';
@@ -24,6 +24,8 @@ const TerrainScene = ({ view, now, siteName }: TerrainSceneProps) => {
     ground: cssColor('--color-ground'),
   }));
 
+  const boxRef = useRef<HTMLElement>(null);
+
   const status = error ? 'error' : loading || !grid ? 'loading' : 'ready';
   const { sun, earth } = now.sky;
   const state = t('terrain3d.state', {
@@ -38,6 +40,7 @@ const TerrainScene = ({ view, now, siteName }: TerrainSceneProps) => {
     <section className={styles.entry}>
       <h3 className={styles.title}>{t('terrain3d.title', { site: siteName })}</h3>
       <figure
+        ref={boxRef}
         className={styles.box}
         data-testid={testIds.terrain3d.scene}
         data-site-id={view.site.id}
@@ -59,7 +62,7 @@ const TerrainScene = ({ view, now, siteName }: TerrainSceneProps) => {
           </p>
         )}
         {status === 'ready' && grid && (
-          <TerrainCanvas grid={grid} site={view.site} sky={now.sky} colours={colours} />
+          <TerrainCanvas grid={grid} site={view.site} sky={now.sky} colours={colours} portal={boxRef} />
         )}
       </figure>
       {view.horizonIncomplete && <TerrainNote text={t('terrain3d.lowerBound')} />}

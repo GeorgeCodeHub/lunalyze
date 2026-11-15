@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { SiteView } from '../../backend/lib/types';
 import { testIds } from '../test-ids';
@@ -11,10 +11,13 @@ import TimeControls from './timeline/TimeControls';
 import Timeline from './timeline/Timeline';
 import styles from './LiveView.module.css';
 
+// The 3D view pulls in three.js, so it loads only when someone opens it.
+const Terrain3D = lazy(() => import('./terrain-3d/Terrain3D'));
+
 // view: the time span shown. now: the moment the playhead is on.
 type LiveViewProps = { places: { view: SiteView; now: SiteView }[]; loading: boolean; frame: TimeFrame };
 
-type Mode = 'map' | 'sky';
+type Mode = 'map' | 'sky' | '3d';
 
 const TITLE_ID = 'live-view-title';
 
@@ -28,6 +31,7 @@ const LiveView = ({ places, loading, frame }: LiveViewProps) => {
   const modes = [
     { value: 'map' as const, label: t('live.map') },
     { value: 'sky' as const, label: t('live.sky') },
+    { value: '3d' as const, label: t('live.threeD') },
   ];
   const nameOf = (view: SiteView) => tSites(siteNameKey(view.site.id));
 
@@ -45,18 +49,30 @@ const LiveView = ({ places, loading, frame }: LiveViewProps) => {
         </p>
       ) : (
         <>
-          {mode === 'map' ? (
+          {mode === 'map' && (
             <div className={styles.map}>
               <p className={styles.hint}>{t('live.mapHint')}</p>
               <PolarMap views={places.map((place) => place.now)} />
             </div>
-          ) : (
+          )}
+          {mode === 'sky' && (
             <div className={styles.picture}>
               {places.map((place) => (
                 <HorizonStrip key={place.view.site.id} view={place.view} now={place.now} siteName={nameOf(place.view)} />
               ))}
               <p className={styles.note}>{t('horizon.legend')}</p>
             </div>
+          )}
+          {mode === '3d' && (
+            <Suspense
+              fallback={
+                <p className={styles.empty} role="status">
+                  {t('live.threeDLoading')}
+                </p>
+              }
+            >
+              <Terrain3D places={places} />
+            </Suspense>
           )}
           <div className={styles.time}>
             <TimeControls frame={frame} />

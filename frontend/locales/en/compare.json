@@ -219,9 +219,27 @@
     "switch": "Choose what the live view shows",
     "map": "Map",
     "sky": "Sky",
+    "threeD": "3D",
+    "threeDLoading": "Loading the terrain view…",
     "mapHint": "Each line points from a place to the Sun or Earth at the time shown.",
     "loading": "Calculating the positions of the Sun and Earth…",
     "empty": "The live view shows places that have results. Choose a place from the list at the top."
+  },
+  "terrain3d": {
+    "title": "The ground around {{site}}",
+    "label": "Terrain around {{site}}, lit by the Sun at the time shown",
+    "state": "Sun {{sun}}. Earth {{earth}}.",
+    "inView": "in view",
+    "behindHills": "hidden behind the hills",
+    "loading": "Loading the terrain…",
+    "error": "The terrain did not load. Reload the page to try again.",
+    "notModeled": "{{site}}: terrain not modeled, so there is no terrain view for this place.",
+    "sun": "Sun",
+    "earth": "Earth",
+    "hiddenLabel": "{{body}}, hidden",
+    "legend": "Drag to turn the view, scroll or pinch to zoom. Hills are drawn taller than they are. A see-through Sun or Earth is hidden behind the hills.",
+    "lowerBound": "Our height map ends before the hills around this place end. The Sun and Earth may be hidden more often than the terrain view shows.",
+    "approximate": "Approximate location."
   },
   "caveatShort": {
     "terrainOff": "Hills ignored",

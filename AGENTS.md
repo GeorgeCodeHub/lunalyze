@@ -4,7 +4,7 @@
 outranks everything below. Read it before any change.
 
 The app is one screen, **Compare**. Its **regions**: scenario bar, site columns, horizon strip,
-countdown chips, metric cards, timeline lanes, site picker. Use these words for folders, files,
+countdown chips, metric cards, timeline lanes, site picker, terrain 3D. Use these words for folders, files,
 locale keys and test ids.
 
 A **domain** is a namespace of data and copy: `common`, `sites`, `compare`. Files in
@@ -30,7 +30,7 @@ export default MetricCard;
   helpers (a number formatter) may sit in the component's file or in a sibling `.ts` module.
 - **Split by screen region.** Each region gets its own folder under `frontend/components/`, named with
   the region words above: `scenario-bar/`, `site-columns/`, `horizon-strip/`, `countdowns/`,
-  `metric-cards/`, `timeline/`, `site-picker/`. The parent keeps the layout and the data it hands down.
+  `metric-cards/`, `timeline/`, `site-picker/`, `terrain-3d/`. The parent keeps the layout and the data it hands down.
 
 ```
 frontend/components/
@@ -43,7 +43,7 @@ frontend/components/
 
 - **Props types** sit at the top of the component file, unexported. Data shapes come from
   `backend/lib/types.ts`, the single source; a component file declares only its props.
-- **Data comes only from `useScenario`.** Components call no `fetch` and import nothing from
+- **Data comes only from `useScenario` and `useTerrain`.** Components call no `fetch` and import nothing from
   astronomy-engine; they draw what `SiteView` gives them, with `toXY` for horizon-strip coordinates.
 - Handle **every state explicitly**: `loading`, `error`, no views, `view.horizonIncomplete` (lower-bound caveat),
   `site.terrainModeled === false` and `precision: 'proxy'` (caveats).

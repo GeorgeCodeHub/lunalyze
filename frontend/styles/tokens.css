@@ -67,6 +67,8 @@
   /* The ground in the horizon strip: a fill dark enough that the Sun and Earth read on top of it. */
   --color-ground: #1c1c1c;
   --color-sky: #060606;
+  /* The ground in the 3D view: lunar grey, light enough that hills and shadows read under the fill light. */
+  --color-regolith: #9a978f;
 
   /* Pixel monospace for display, plain monospace for everything else. */
   --font-display: 'Geist Pixel', 'Geist Mono', ui-monospace, monospace;

@@ -63,6 +63,9 @@
 
 /* The label beside a Sun or Earth marker. A hidden body gets a dashed edge as well as a wireframe. */
 .label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   padding: 2px 6px;
   border: 1px solid var(--color-glass-border);
   border-radius: var(--radius-control);
@@ -77,4 +80,23 @@
   composes: label;
   border-style: dashed;
   border-color: var(--color-text-faint);
+}
+
+/* A compass letter on the horizon: quiet, so it orients without competing with the Sun and Earth. */
+.compass {
+  color: var(--color-text-muted);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  pointer-events: none;
+}
+
+.faceButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.faceButton {
+  composes: button from '../shared/Section.module.css';
+  color: var(--color-text);
 }

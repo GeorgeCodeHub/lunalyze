@@ -12,6 +12,9 @@ const DataCredits = () => {
       <p>{t('credits.positions')}</p>
       <p>{t('credits.hills')}</p>
       <p>{t('credits.checks')}</p>
+      <p>
+        {t('credits.textures')} <a href="https://creativecommons.org/licenses/by/4.0/">{t('credits.texturesLicence')}</a>
+      </p>
       <p className={styles.team}>{t('credits.team')}</p>
     </footer>
   );

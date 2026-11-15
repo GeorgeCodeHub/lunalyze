@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import type { TerrainGrid } from '../../../backend/lib/useTerrain';
-import { buildTerrainMesh, EXAGGERATION, sceneDirection } from './sceneMath';
+import { bodyRadius, buildTerrainMesh, EARTH_RADIUS_DEG, EXAGGERATION, eyeHeight, facingDirection, sceneDirection } from './sceneMath';
 
 const grid = (width: number, height: number, heightsM: number[], origin = { x: -80, y: 80 }): TerrainGrid => ({
   siteId: 't',
@@ -74,4 +74,22 @@ test.each([
 test('a body straight up points up, and a body below the horizon points down', () => {
   expect(sceneDirection({ az: 0, el: 90 }, 0, EXAGGERATION)[1]).toBeCloseTo(1, 6);
   expect(sceneDirection({ az: 123, el: -0.5 }, 40, EXAGGERATION)[1]).toBeLessThan(0);
+});
+
+test('the eye stands 5 m above the highest of the site pixel and its neighbours, scaled like the hills', () => {
+  expect(eyeHeight(bump, { x: 0, y: 0 }, 2)).toBeCloseTo(0.005, 9); // the site is the peak
+  expect(eyeHeight(bump, { x: -80, y: 80 }, 2)).toBeCloseTo(0.025, 9); // corner site: the 10 m bump next to it, x2
+  const far = grid(5, 1, [0, 0, 0, 0, 50]);
+  expect(eyeHeight(far, { x: -80, y: 80 }, 2)).toBeCloseTo(0.005, 9); // two pixels away does not count
+});
+
+test('facing a body below the horizon looks at the horizon on its bearing', () => {
+  const v = facingDirection({ az: 90, el: -3 }, 0);
+  expect(v[0]).toBeCloseTo(1, 6);
+  expect(v[1]).toBeCloseTo(0, 6);
+  expect(facingDirection({ az: 0, el: 45 }, 0)).toEqual(sceneDirection({ az: 0, el: 45 }, 0, EXAGGERATION));
+});
+
+test('Earth is drawn 400 km away at twice its 1.9° width', () => {
+  expect(bodyRadius(EARTH_RADIUS_DEG)).toBeCloseTo(13.2694, 3);
 });

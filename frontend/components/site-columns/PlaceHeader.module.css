@@ -46,6 +46,22 @@
   white-space: nowrap;
 }
 
+/* Does not fit the stay: the same size as the role badge, with a dashed edge and a warning mark. */
+.risky {
+  composes: badge;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-style: dashed;
+}
+
+.risky svg {
+  flex: none;
+  width: 12px;
+  height: 12px;
+  color: var(--color-error);
+}
+
 .badge[data-role='best'] {
   border-color: var(--color-invert-bg);
   background: var(--color-invert-bg);

@@ -1,8 +1,9 @@
 // The scenario lives in the URL so it can be shared:
-// ?sites=point-a,@-85.2:31.4&date=2028-03-01T00:00Z&zoom=lunarDay&stay=7&terrain=off
+// ?sites=point-a,@-85.2:31.4&date=2028-03-01T00:00Z&zoom=lunarDay&stay=7&terrain=off&focus=sun
 // A place is a site id from the list, or @latitude:longitude for coordinates the user typed in.
 // sites, date, zoom and terrain are written the way backend/lib/scenarioUrl.ts reads them, so both
-// read the same links. This module adds what that one cannot carry: typed coordinates and the stay.
+// read the same links. This module adds what that one cannot carry: typed coordinates, the stay and
+// what matters most.
 import type { Zoom } from '../backend/lib/types';
 
 // Mission length on the surface, in Earth days. The choices follow real landings: about a day
@@ -13,17 +14,24 @@ export type Stay = 1 | 3 | 7 | 14 | 30;
 // lat: degrees north (-90..90). lon: degrees east (-180..180), as in backend/lib/types.ts.
 export type Place = { kind: 'site'; id: string } | { kind: 'coords'; lat: number; lon: number };
 
+// What matters most when the tool picks the best option (the quick filters). both: the shortest time
+// with no Sun and no Earth, when power and radio are both gone. sun: the most sunlight, for power.
+// earth: the most time with Earth in view, for radio. A place that fits the stay always comes first.
+export type Focus = 'both' | 'sun' | 'earth';
+
 // terrain false = hills ignored: a flat horizon everywhere (the flat-or-terrain switch).
-export type Scenario = { places: Place[]; start: Date; zoom: Zoom; stay: Stay; terrain: boolean };
+export type Scenario = { places: Place[]; start: Date; zoom: Zoom; stay: Stay; terrain: boolean; focus: Focus };
 
 export const MAX_SITES = 3;
 export const ZOOMS: Zoom[] = ['day', 'lunarDay', 'year'];
 export const STAYS: Stay[] = [1, 3, 7, 14, 30];
+export const FOCUSES: Focus[] = ['both', 'sun', 'earth'];
 export const DEFAULT_STAY: Stay = 7;
 export const DEFAULT_START = new Date('2028-03-01T00:00:00Z');
 
 const isZoom = (v: string | null): v is Zoom => ZOOMS.includes(v as Zoom);
 const asStay = (v: string | null): Stay | null => STAYS.find((s) => String(s) === v) ?? null;
+const asFocus = (v: string | null): Focus => FOCUSES.find((f) => f === v) ?? 'both';
 
 /** True for a latitude and longitude on the Moon's map. */
 export const validCoords = (lat: number, lon: number) =>
@@ -72,6 +80,7 @@ export const readScenario = (search: string): Scenario | null => {
     zoom: isZoom(zoom) ? zoom : 'lunarDay',
     stay: asStay(params.get('stay')) ?? DEFAULT_STAY,
     terrain: params.get('terrain') !== 'off',
+    focus: asFocus(params.get('focus')),
   };
 };
 
@@ -84,6 +93,7 @@ export const scenarioSearch = (s: Scenario): string =>
     `zoom=${s.zoom}`,
     `stay=${s.stay}`,
     ...(s.terrain ? [] : ['terrain=off']),
+    ...(s.focus === 'both' ? [] : [`focus=${s.focus}`]),
   ].join('&');
 
 /**

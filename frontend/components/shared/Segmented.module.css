@@ -1,5 +1,7 @@
+/* Never wider than its row: on a phone the buttons narrow and a long label takes two lines. */
 .group {
   display: inline-flex;
+  max-width: 100%;
   padding: 3px;
   border: 1px solid var(--color-glass-border);
   border-radius: var(--radius-control);
@@ -9,7 +11,8 @@
 .option {
   min-width: 64px;
   min-height: 36px;
-  padding: 0 14px;
+  padding: 4px 14px;
+  line-height: 1.25;
   border: 0;
   border-radius: 2px;
   background: transparent;

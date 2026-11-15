@@ -1,0 +1,12 @@
+/* One slim row above the cards: a small label, then the choice. No panel: it is a control, not a card. */
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  min-width: 0;
+}
+
+.title {
+  composes: title from '../shared/Section.module.css';
+}

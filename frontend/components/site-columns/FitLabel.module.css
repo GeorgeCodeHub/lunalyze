@@ -8,8 +8,9 @@
   composes: visuallyHidden from '../shared/Section.module.css';
 }
 
-/* Fits: one quiet line, a green tick and the reason. */
-.fits {
+/* One quiet line in the same spot on both cards. Fits: a green tick and the rule it meets.
+   Risky: when the dark period starts and ends (the Risky tag is in the header). */
+.line {
   display: flex;
   align-items: baseline;
   gap: 10px;
@@ -18,38 +19,9 @@
   line-height: 1.4;
 }
 
-.fits svg {
+.line svg {
   flex: none;
   position: relative;
   top: 2px;
   color: var(--color-good);
-}
-
-/* Risky: the one framed label on a card, dashed, with a warm warning mark. */
-.risky {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  margin: 0;
-  padding: 10px 14px;
-  border: 1px dashed var(--color-line-strong);
-  border-radius: var(--radius-control);
-  font-size: 1.1rem;
-  font-weight: 500;
-  line-height: 1.2;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.risky svg {
-  width: 16px;
-  height: 16px;
-  color: var(--color-error);
-}
-
-.reason {
-  margin: 0;
-  color: var(--color-text-muted);
-  font-size: 0.85rem;
-  line-height: 1.4;
 }

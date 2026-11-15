@@ -6,7 +6,6 @@ import { testIds } from '../test-ids';
 import { useAllSites } from '../useAllSites';
 import DataCredits from './DataCredits';
 import LiveView from './LiveView';
-import RankingChart from './site-picker/RankingChart';
 import CopyLinkButton from './scenario-bar/CopyLinkButton';
 import ScenarioBar from './scenario-bar/ScenarioBar';
 import IconAlert from './shared/IconAlert';
@@ -18,12 +17,13 @@ import PlaceSlot from './site-columns/PlaceSlot';
 import { rankSites } from './site-columns/rankSites';
 import HowChosen from './site-columns/HowChosen';
 import WhyBest from './site-columns/WhyBest';
+import FocusFilters from './site-picker/FocusFilters';
 import styles from './Compare.module.css';
 
 type CompareProps = { scenario: Scenario; onChange: (next: Scenario) => void };
 
-// The Compare screen once a place is picked: the tool's best option on one side, the place it is
-// compared with on the other, and the live view between them. This is the one place that asks for
+// The Compare screen once a place is picked: what matters most, then the tool's best option and the
+// place it is compared with, side by side, and the live view. This is the one place that asks for
 // data; every number below comes from useScenario, and the regions only draw what they are handed.
 const Compare = ({ scenario, onChange }: CompareProps) => {
   const { t } = useTranslation('compare');
@@ -33,7 +33,7 @@ const Compare = ({ scenario, onChange }: CompareProps) => {
   // Every listed place over the Moon day from landing: the tool ranks them, and those lanes cover the stay.
   const all = useAllSites(scenario.start, scenario.terrain);
   const frame = timeFrame(scenario, playheadH);
-  const ranking = rankSites(all.views, frame.startMs, frame.stayH);
+  const ranking = rankSites(all.views, frame.startMs, frame.stayH, scenario.focus);
   const picks = pickPlaces(
     scenario.places,
     ranking.order.map(({ view }) => view.site.id),
@@ -58,7 +58,6 @@ const Compare = ({ scenario, onChange }: CompareProps) => {
   const ready = columns.flatMap((column) => (column.kind === 'ready' ? [column] : []));
   const loading = all.loading || columns.some((column) => column.kind === 'loading');
   const error = all.error ?? shown.error ?? now.error;
-  const [yourId = null] = siteIdsOf([scenario.places[1] ?? scenario.places[0]]);
 
   const change = (next: Scenario) => {
     if (next.zoom !== scenario.zoom) pause(); // the play pace belongs to the time span, so a new span starts paused
@@ -77,12 +76,7 @@ const Compare = ({ scenario, onChange }: CompareProps) => {
           {t('screen.error')}
         </p>
       )}
-      <RankingChart
-        order={ranking.order}
-        loading={all.loading}
-        yourId={yourId}
-        onPick={(id) => onChange({ ...scenario, places: [{ kind: 'site', id }] })}
-      />
+      <FocusFilters focus={scenario.focus} onChange={(focus) => onChange({ ...scenario, focus })} />
       <main className={styles.board}>
         <div className={styles.best}>
           {best ? (
@@ -94,7 +88,7 @@ const Compare = ({ scenario, onChange }: CompareProps) => {
               stay={scenario.stay}
               terrain={scenario.terrain}
               foot={<WhyBest reason={ranking.reason} checked={ranking.order.length} />}
-              how={<HowChosen checked={ranking.order.length} leftOut={ranking.leftOut} />}
+              how={<HowChosen checked={ranking.order.length} leftOut={ranking.leftOut} focus={scenario.focus} />}
             />
           ) : (
             <BestPending loading={all.loading} />

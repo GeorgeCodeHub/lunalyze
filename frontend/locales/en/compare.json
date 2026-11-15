@@ -207,10 +207,17 @@
     "closest": "No place fits. This one is the closest.",
     "onlyFit": "The only one of {{count}} places that fits",
     "dark": "Shortest time with no Sun and no Earth, of {{count}} places",
-    "sunlight": "Most sunlight among the best of {{count}} places",
-    "earth": "Most time with Earth in view among the best of {{count}} places",
+    "sunlight": "Most sunlight of the places that fit your stay",
+    "earth": "Most time with Earth in view of the places that fit your stay",
+    "darkNext": "Shortest time with no Sun and no Earth among the best of {{count}} places",
+    "sunlightNext": "Most sunlight among the best of {{count}} places",
+    "earthNext": "Most time with Earth in view among the best of {{count}} places",
     "tie": "First of {{count}} places, equal with the next place",
-    "rules": "The tool compares {{count}} south-pole places for your landing date and stay. A place that fits your stay comes first. Next, the tool prefers the shortest time with no Sun and no Earth. Then it prefers the most sunlight, then the most time with Earth in view.",
+    "rules": {
+      "both": "The tool compares {{count}} south-pole places for your landing date and stay. A place that fits your stay comes first. Next, the tool prefers the shortest time with no Sun and no Earth. Then it prefers the most sunlight, then the most time with Earth in view.",
+      "sun": "The tool compares {{count}} south-pole places for your landing date and stay. A place that fits your stay comes first. Next, the tool prefers the most sunlight. Then it prefers the shortest time with no Sun and no Earth, then the most time with Earth in view. If no place fits, the shortest time with no Sun and no Earth comes first.",
+      "earth": "The tool compares {{count}} south-pole places for your landing date and stay. A place that fits your stay comes first. Next, the tool prefers the most time with Earth in view. Then it prefers the shortest time with no Sun and no Earth, then the most sunlight. If no place fits, the shortest time with no Sun and no Earth comes first."
+    },
     "leftOut": "The tool does not compare {{site}}. Our height map ends before its hills end, so its numbers are upper limits only."
   },
   "live": {
@@ -237,11 +244,11 @@
     "summary": "Details",
     "group": "Group"
   },
-  "ranking": {
-    "title": "{{count}} south-pole places, best first",
-    "column": "{{rank}}. {{site}}: {{verdict}}. Sunlight {{sun}}. Earth in view {{earth}}. Choose this place to compare it.",
-    "best": "Best",
-    "yours": "Yours"
+  "focus": {
+    "title": "What matters most",
+    "both": "Sun and Earth",
+    "sun": "Sunlight",
+    "earth": "Earth in view"
   },
   "stay": {
     "landing": "Landing",

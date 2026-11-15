@@ -17,6 +17,7 @@ export const testIds = {
     error: 'compare-error',
     live: 'compare-live',
     liveSwitch: 'compare-live-switch',
+    focus: 'compare-focus',
     credits: 'compare-credits',
   },
   scenarioBar: {
@@ -35,13 +36,13 @@ export const testIds = {
   siteColumns: {
     column: 'site-column',
     role: 'site-column-role',
+    risky: 'site-column-risky',
     fit: 'site-column-fit',
     why: 'site-column-why',
     details: 'site-column-details',
     stay: 'site-column-stay',
     caveat: 'site-column-caveat',
   },
-  ranking: { root: 'ranking-chart', column: 'ranking-chart-column' },
   horizonStrip: {
     root: 'horizon-strip',
     terrain: 'horizon-strip-terrain',

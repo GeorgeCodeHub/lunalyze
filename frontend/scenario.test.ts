@@ -17,6 +17,7 @@ test('a scenario survives the round trip through the URL', () => {
     zoom: 'year',
     stay: 14,
     terrain: true,
+    focus: 'both',
   };
 
   expect(scenarioSearch(s)).toBe('?sites=point-a,@-85.25:31.4&date=2028-03-05T06:30Z&zoom=year&stay=14');
@@ -30,6 +31,7 @@ test('terrain off is written as terrain=off and read back; anything else means o
     zoom: 'lunarDay',
     stay: 7,
     terrain: false,
+    focus: 'both',
   };
 
   expect(scenarioSearch(s)).toBe('?sites=point-a&date=2028-03-01T00:00Z&zoom=lunarDay&stay=7&terrain=off');
@@ -49,7 +51,24 @@ test('bad values fall back to the defaults, and at most 3 places are kept', () =
     zoom: 'lunarDay',
     stay: 7,
     terrain: true,
+    focus: 'both',
   });
+});
+
+// What matters most: "both" is the default and is not written; the others are written and read back.
+test.each([
+  { focus: 'both', link: '' },
+  { focus: 'sun', link: '&focus=sun' },
+  { focus: 'earth', link: '&focus=earth' },
+] as const)('focus $focus is written as "$link" and read back', ({ focus, link }) => {
+  const s: Scenario = { ...LINKED, focus };
+
+  expect(scenarioSearch(s)).toBe(`${LINK}${link}`);
+  expect(readScenario(scenarioSearch(s))).toEqual(s);
+});
+
+test.each(['', 'none', 'SUN', 'sunlight', 'both,sun'])('an unknown focus "%s" in a link means "both"', (value) => {
+  expect(readScenario(`${LINK}&focus=${value}`)?.focus).toBe('both');
 });
 
 test('a place named twice in a link is kept once', () => {
@@ -82,6 +101,7 @@ test('the backend URL reader reads the sites, date, zoom and terrain this module
     zoom: 'year',
     stay: 14,
     terrain: false,
+    focus: 'sun', // only this module reads focus; the backend reader ignores it
   };
 
   expect(parseScenario(scenarioSearch(s), ['point-a', 'malapert-m1'])).toEqual({
@@ -98,6 +118,7 @@ const LINKED: Scenario = {
   zoom: 'lunarDay',
   stay: 7,
   terrain: true,
+  focus: 'both',
 };
 const LINK = '?sites=point-a&date=2028-03-01T00:00Z&zoom=lunarDay&stay=7';
 

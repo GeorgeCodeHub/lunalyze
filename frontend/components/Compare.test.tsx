@@ -98,6 +98,8 @@ const pick = async (id: string, value: string) => {
 };
 
 const WEEK = '?sites=malapert-m1&date=2028-03-01T00:00Z&zoom=lunarDay&stay=7';
+// A one-day stay: most places fit, so what matters most decides the best option.
+const DAY = '?sites=malapert-m1&date=2028-03-01T00:00Z&zoom=lunarDay&stay=1';
 
 test('shows the best of the south-pole places on one side and the setup place on the other, with real numbers', async () => {
   const { first } = await mount(WEEK);
@@ -146,6 +148,11 @@ test('a 30-day stay: the best option is the only place that fits, and the setup 
   expect(cards()).toEqual(['best:im-2:ready', 'yourChoice:malapert-m1:ready']);
   expect(all(testIds.siteColumns.fit).map((f) => f.dataset.fit)).toEqual(['fits', 'risky']);
   expect(one(testIds.siteColumns.why).dataset.reason).toBe('onlyFit');
+  // The Risky tag sits in the risky card's header, beside its role badge; the card that fits has none.
+  const [bestCard, yourCard] = all(testIds.siteColumns.column);
+  expect(all(testIds.siteColumns.risky, bestCard)).toHaveLength(0);
+  expect(all(testIds.siteColumns.risky, yourCard)).toHaveLength(1);
+  expect(one(testIds.siteColumns.risky, yourCard).parentElement).toBe(one(testIds.siteColumns.role, yourCard).parentElement);
 });
 
 test('when the setup place is the best option, it is compared with the next best', async () => {
@@ -261,26 +268,30 @@ test('the live view opens on the map and switches to the sky from each place; bo
   expect(all(testIds.timeline.root, live)).toHaveLength(2);
 });
 
-test('the chart at the top ranks every compared place, best first, and choosing one compares it', async () => {
-  const { changes } = await mount(WEEK);
+// What matters most changes which place is the best option; the place chosen in setup stays.
+test.each([
+  { button: 0, focus: 'both', best: 'point-d', reason: 'sunlightNext' },
+  { button: 1, focus: 'sun', best: 'point-d', reason: 'sunlight' },
+  { button: 2, focus: 'earth', best: 'im-2', reason: 'earth' },
+] as const)('the quick filter "$focus" picks the best option and goes in the link', async ({ button, focus, best, reason }) => {
+  const { changes } = await mount(DAY);
+  const filters = () => one(testIds.compare.focus);
+  expect(filters().dataset.value).toBe('both');
 
-  const columns = () => all(testIds.ranking.column);
-  expect(columns()).toHaveLength(10);
-  expect(columns()[0].dataset.siteId).toBe('im-2');
-  expect(columns().map((col) => col.dataset.best)).toEqual(['true', ...Array.from({ length: 9 }, () => 'false')]);
-  expect(columns().filter((col) => col.dataset.yours === 'true').map((col) => col.dataset.siteId)).toEqual(['malapert-m1']);
-  // Places that fit the stay come before places that do not.
-  const fits = columns().map((col) => col.dataset.fit);
-  expect(fits.indexOf('risky') === -1 || fits.lastIndexOf('fits') < fits.indexOf('risky')).toBe(true);
-
-  const second = columns()[1];
-  const secondId = second.dataset.siteId as string;
-  await act(async () => second.querySelector('button')?.click());
+  await act(async () => filters().querySelectorAll('button')[button].click());
   await settle();
 
-  expect(changes.at(-1)?.places).toEqual([{ kind: 'site', id: secondId }]);
-  expect(cards()).toEqual(['best:im-2:ready', `yourChoice:${secondId}:ready`]);
-  expect(columns()[1].querySelector('button')?.getAttribute('aria-pressed')).toBe('true');
+  expect(changes.at(-1)?.focus).toBe(focus);
+  expect(filters().dataset.value).toBe(focus);
+  expect(filters().querySelectorAll('[aria-pressed="true"]')).toHaveLength(1);
+  expect(cards()).toEqual([`best:${best}:ready`, 'yourChoice:malapert-m1:ready']);
+  expect(one(testIds.siteColumns.why).dataset.reason).toBe(reason);
+});
+
+test('a link with a focus opens with that filter on', async () => {
+  await mount(`${WEEK}&focus=earth`);
+
+  expect(one(testIds.compare.focus).dataset.value).toBe('earth');
 });
 
 test('each card draws its stay as a strip: Sun and Earth bars, from landing to the end of the stay', async () => {

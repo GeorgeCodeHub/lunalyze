@@ -55,6 +55,7 @@ const PlaceCard = ({ role, alsoYours, view, stayView, now, frame, stay, terrain,
         meta={position(site.lat, site.lon)}
         role={role}
         alsoYours={alsoYours}
+        risky={fit.status === 'risky'}
       />
       <FitLabel fit={fit} lanes={stayView.lanes} startMs={frame.startMs} stayH={frame.stayH} />
       <MetricCards view={view} zoom={frame.zoom} />

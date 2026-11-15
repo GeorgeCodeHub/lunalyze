@@ -10,8 +10,13 @@ import type { Site } from '../lib/types';
 const GATE_DEG = 0.002; // masks are rounded to 0.001°
 const FINE_SITES = new Set(['point-a', 'point-b', 'point-c', 'point-d']); // FINE_SITES in horizon_masks.py
 
-const loadTile: LoadTile = async (dem, row, col) =>
-  decodeTile(new Blob([await readFile(`backend/public/data/dem/${dem.name}/${row}-${col}.bin`)]).stream());
+const loadTile: LoadTile = async (dem, row, col) => {
+  const path = `backend/public/data/dem/${dem.name}/${row}-${col}.bin`;
+  const bytes = await readFile(path).catch((err: Error) => {
+    throw new Error(`Cannot read ${path} (run from the repo root, after uv run backend/scripts/dem_tiles.py): ${err.message}`, { cause: err });
+  });
+  return decodeTile(new Blob([bytes]).stream());
+};
 
 const sites = (JSON.parse(readFileSync('backend/public/data/sites.json', 'utf8')) as Site[]).filter((s) => s.terrainModeled);
 let failed = false;

@@ -50,10 +50,21 @@
   cursor: pointer;
   transition:
     background-color 160ms cubic-bezier(0.16, 1, 0.3, 1),
-    border-color 160ms cubic-bezier(0.16, 1, 0.3, 1);
+    border-color 160ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 160ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .button:hover {
   border-color: var(--color-glass-border-strong);
   background: var(--color-glass-hover);
+  box-shadow: 0 0 16px -6px var(--glow-sun-strong);
+}
+
+/* A panel: its warm edge comes from the border token; under it, a soft bloom, warm above and cool below. */
+.panel {
+  border: 1px solid var(--color-glass-border);
+  border-radius: var(--radius-panel);
+  box-shadow:
+    0 -10px 30px -24px var(--glow-sun-strong),
+    0 18px 40px -28px var(--glow-earth-strong);
 }

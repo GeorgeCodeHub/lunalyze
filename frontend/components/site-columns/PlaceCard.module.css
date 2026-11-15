@@ -1,17 +1,22 @@
 /* One place. Few blocks, evenly spaced; the space between them does the grouping. */
 .card {
+  composes: panel from '../shared/Section.module.css';
   display: grid;
   align-content: start;
   gap: 24px;
   min-width: 0;
   padding: 20px;
-  border: 1px solid var(--color-glass-border);
-  border-radius: var(--radius-panel);
   background: var(--color-glass);
 }
 
-/* The best option stands out by its edge and its solid badge. */
+/* The best option stands out by its edge: a thin rim of light that runs from the Sun's warm tone to
+   Earth's blue, with a soft bloom under it. The rim is the border; the card's own ground covers the rest. */
 .card[data-role='best'] {
-  border-color: var(--color-glass-border-strong);
-  background: var(--color-glass-hover);
+  border-color: transparent;
+  background:
+    linear-gradient(var(--color-panel), var(--color-panel)) padding-box,
+    linear-gradient(140deg, var(--color-sun), var(--color-line) 45%, var(--color-earth)) border-box;
+  box-shadow:
+    0 -6px 28px -14px var(--glow-sun-strong),
+    0 14px 36px -18px var(--glow-earth-strong);
 }

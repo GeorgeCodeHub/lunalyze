@@ -40,6 +40,7 @@
 .input:checked {
   border-color: var(--color-glass-border-strong);
   background: var(--color-glass-strong);
+  box-shadow: 0 0 16px -6px var(--glow-sun-strong);
 }
 
 .input:checked::before {

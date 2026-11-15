@@ -1,10 +1,9 @@
 .chart {
+  composes: panel from '../shared/Section.module.css';
   display: grid;
   gap: 8px;
   min-width: 0;
   padding: 16px 20px 12px;
-  border: 1px solid var(--color-glass-border);
-  border-radius: var(--radius-panel);
   background: var(--color-panel);
 }
 

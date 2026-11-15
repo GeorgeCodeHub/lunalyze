@@ -21,14 +21,17 @@
   background: var(--color-glass-hover);
 }
 
-/* The person's place: outlined. The best option: a stronger edge and a lit ground. */
+/* The person's place: outlined. The best option: the same lit rim as its card. */
 .button[aria-pressed='true'] {
   border-color: var(--color-line);
 }
 
 .column[data-best='true'] .button {
-  border-color: var(--color-glass-border-strong);
-  background: var(--color-glass-hover);
+  border-color: transparent;
+  background:
+    linear-gradient(var(--color-panel), var(--color-panel)) padding-box,
+    linear-gradient(140deg, var(--color-sun), var(--color-line) 45%, var(--color-earth)) border-box;
+  box-shadow: 0 8px 22px -14px var(--glow-earth-strong);
 }
 
 /* The plot: a baseline, and a soft light rising from it behind the columns. */

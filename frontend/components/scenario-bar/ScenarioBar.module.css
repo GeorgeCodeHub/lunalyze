@@ -1,10 +1,9 @@
 /* The setup answers as one slim toolbar: fields first, the hills switch and the link at the far end. */
 .bar {
+  composes: panel from '../shared/Section.module.css';
   display: grid;
   gap: 12px 24px;
   padding: 16px 20px;
-  border: 1px solid var(--color-glass-border);
-  border-radius: var(--radius-panel);
   background: var(--color-glass);
 }
 

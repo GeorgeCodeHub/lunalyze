@@ -21,12 +21,20 @@
   font-size: 0.95rem;
   transition:
     background-color 160ms cubic-bezier(0.16, 1, 0.3, 1),
-    border-color 160ms cubic-bezier(0.16, 1, 0.3, 1);
+    border-color 160ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 160ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .control:hover {
   border-color: var(--color-glass-border-strong);
   background-color: var(--color-glass-hover);
+}
+
+/* Focus: the edge lights up in the warm tone and blooms; the page's focus outline stays as well. */
+.control:focus-visible {
+  border-color: var(--color-sun);
+  background-color: var(--color-glass-hover);
+  box-shadow: 0 0 18px -4px var(--glow-sun-strong);
 }
 
 .control[aria-invalid='true'] {

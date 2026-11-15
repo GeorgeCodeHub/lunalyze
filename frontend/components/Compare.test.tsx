@@ -214,6 +214,37 @@ test('the live view opens on the map and switches to the sky from each place; bo
   expect(all(testIds.timeline.root, live)).toHaveLength(2);
 });
 
+test('the chart at the top ranks every compared place, best first, and choosing one compares it', async () => {
+  const { changes } = await mount(WEEK);
+
+  const columns = () => all(testIds.ranking.column);
+  expect(columns()).toHaveLength(10);
+  expect(columns()[0].dataset.siteId).toBe('im-2');
+  expect(columns().map((col) => col.dataset.best)).toEqual(['true', ...Array.from({ length: 9 }, () => 'false')]);
+  expect(columns().filter((col) => col.dataset.yours === 'true').map((col) => col.dataset.siteId)).toEqual(['malapert-m1']);
+  // Places that fit the stay come before places that do not.
+  const fits = columns().map((col) => col.dataset.fit);
+  expect(fits.indexOf('risky') === -1 || fits.lastIndexOf('fits') < fits.indexOf('risky')).toBe(true);
+
+  const second = columns()[1];
+  const secondId = second.dataset.siteId as string;
+  await act(async () => second.querySelector('button')?.click());
+  await settle();
+
+  expect(changes.at(-1)?.places).toEqual([{ kind: 'site', id: secondId }]);
+  expect(cards()).toEqual(['best:im-2:ready', `yourChoice:${secondId}:ready`]);
+  expect(columns()[1].querySelector('button')?.getAttribute('aria-pressed')).toBe('true');
+});
+
+test('each card draws its stay as a strip: Sun and Earth bars, from landing to the end of the stay', async () => {
+  await mount(WEEK);
+
+  const strips = all(testIds.siteColumns.stay);
+  expect(strips).toHaveLength(2);
+  // IM-2 has sunlight and Earth in view during the week; Malapert M1 has Earth only.
+  expect(strips.map((s) => `${Number(s.dataset.sunBars) > 0}/${Number(s.dataset.earthBars) > 0}`)).toEqual(['true/true', 'false/true']);
+});
+
 test('the cards carry no dropdown, and both timelines frame the same stay', async () => {
   await mount(WEEK);
 

@@ -1,9 +1,13 @@
+/* The page's own light: warm from the upper left, cool from the upper right, fading into the black. */
 .page {
   display: grid;
   gap: 16px;
   max-width: 1560px;
   margin: 0 auto;
   padding: 20px 16px 40px;
+  background:
+    radial-gradient(ellipse 55% 420px at 12% 0%, var(--glow-sun-soft), transparent 70%),
+    radial-gradient(ellipse 55% 420px at 88% 0%, var(--glow-earth-soft), transparent 70%);
 }
 
 .top {

@@ -158,3 +158,17 @@ test('data-sun-hidden and data-earth-hidden follow now.sky, and the label for a 
   expect(scene().dataset.status).toBe('ready'); // a new playhead time does not reload the terrain
   expect(requested.filter((p) => p.endsWith('.bin'))).toHaveLength(1);
 });
+
+test('a ready scene gets a "face" button for the Sun and Earth, outside the picture; a failed one gets none', async () => {
+  failing.add('/data/terrain/point-a.json');
+  await render([place('point-a'), place('point-b')]);
+  await settle();
+
+  const buttons = all(testIds.terrain3d.face);
+  expect(buttons.map((b) => b.dataset.body)).toEqual(['sun', 'earth']);
+  const [failed, ready] = all(testIds.terrain3d.scene);
+  expect(buttons.every((b) => b.tagName === 'BUTTON' && !ready.contains(b) && !failed.contains(b))).toBe(true);
+  expect(ready.parentElement?.contains(buttons[0])).toBe(true);
+  act(() => buttons[1].click()); // turning the view is the canvas's job: the scene stays as it was
+  expect(ready.dataset.status).toBe('ready');
+});

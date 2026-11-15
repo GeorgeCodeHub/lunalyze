@@ -11,8 +11,9 @@ const ALLOWED = [
   'frontend/test-ids',
   'frontend/components/site-picker/siteIds',
   'frontend/components/shared/IconAlert',
+  'frontend/components/shared/BodyGlyph',
 ];
-const sources = readdirSync(FOLDER).filter((f) => !/\.test\.tsx?$/.test(f));
+const sources = readdirSync(FOLDER).filter((f) => /\.(tsx?|css)$/.test(f) && !/\.test\.tsx?$/.test(f)); // code only: the textures are binary
 const read = (file: string) => readFileSync(join(FOLDER, file), 'utf8');
 const imports = (file: string) => [...read(file).matchAll(/(?:from|import)\s*\(?\s*'([^']+)'/g)].map((m) => m[1]).filter((spec) => spec.startsWith('.'));
 const leaving = sources

@@ -32,7 +32,7 @@ protected:                     # merge_gate.py holds an auto-mode PR that touche
   - .claude/playbook.md
 ---
 
-# rgx-lunar-navigator playbook
+# lunalyze playbook
 
 How `/factory` works in this repo. README invariants and AGENTS.md outrank this file.
 

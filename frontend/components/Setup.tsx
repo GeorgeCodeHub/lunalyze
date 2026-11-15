@@ -19,6 +19,7 @@ const Setup = ({ initial, onSubmit }: SetupProps) => {
       <main className={styles.main}>
         <header className={styles.intro}>
           <h1 className={styles.title}>{tCommon('appTitle')}</h1>
+          <p className={styles.tagline}>{tCommon('tagline')}</p>
           <p className={styles.subtitle}>{t('setup.subtitle')}</p>
         </header>
         <section className={styles.panel} aria-labelledby="setup-panel-title">

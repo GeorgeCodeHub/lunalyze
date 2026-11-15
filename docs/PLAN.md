@@ -1,7 +1,7 @@
-# RGX – Lunar Landing Site Navigator: plan
+# RGX – Lunalyze: plan
 
 Team RGX (George + Christina), NASA Space Apps 2026, challenge "Lunar Landing Site Navigator".
-Live tracking, issue links and the disqualification checklist: [#25 Plan, gates, cut order](https://github.com/GeorgeCodeHub/rgx-lunar-navigator/issues/25).
+Live tracking, issue links and the disqualification checklist: [#25 Plan, gates, cut order](https://github.com/GeorgeCodeHub/lunalyze/issues/25).
 
 ## Deadline
 **Submit by Sun 2026-11-15 13:30 Europe/Athens. Hard stop 15:00.**

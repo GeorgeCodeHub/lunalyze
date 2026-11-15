@@ -108,18 +108,20 @@ const mount = async (search: string) => {
   return { changes, first };
 };
 
-const pick = async (id: string, value: string) => {
-  await act(async () => {
-    const select = one<HTMLSelectElement>(id);
-    select.value = value;
-    select.dispatchEvent(new Event('change', { bubbles: true }));
-  });
+const WEEK = '?sites=malapert-m1&date=2028-03-01T00:00Z&zoom=lunarDay&stay=7';
+
+// The place menu in the toolbar: one tick box per listed place.
+const options = () => all(testIds.scenarioBar.placeOption) as HTMLInputElement[];
+const option = (siteId: string) => options().find((o) => o.dataset.siteId === siteId) as HTMLInputElement;
+const ticked = () => options().filter((o) => o.checked).map((o) => o.dataset.siteId);
+const tick = async (siteId: string) => {
+  await act(async () => option(siteId).click());
   await settle();
 };
-
-const WEEK = '?sites=malapert-m1&date=2028-03-01T00:00Z&zoom=lunarDay&stay=7';
-// A one-day stay: most places fit, so what matters most decides the best option.
-const DAY = '?sites=malapert-m1&date=2028-03-01T00:00Z&zoom=lunarDay&stay=1';
+const removeCard = async (index: number) => {
+  await act(async () => all(testIds.siteColumns.remove)[index].click());
+  await settle();
+};
 
 test('shows the best of the south-pole places on one side and the setup place on the other, with real numbers', async () => {
   const { first } = await mount(WEEK);
@@ -127,34 +129,52 @@ test('shows the best of the south-pole places on one side and the setup place on
   expect(first).toEqual(['best:-:ranking', 'yourChoice:malapert-m1:loading']);
   expect(cards()).toEqual(['best:im-2:ready', 'yourChoice:malapert-m1:ready']);
   const [best, yours] = all(testIds.siteColumns.column);
-  expect(metrics(best)).toEqual(['sunlitPct=38.6', 'earthPct=84.5', 'longestBlackoutH=25.8', 'panelOutputPct=0', 'sunElDeg=-1.361']);
-  expect(metrics(yours)).toEqual(['sunlitPct=0', 'earthPct=53.6', 'longestBlackoutH=329.1', 'panelOutputPct=0', 'sunElDeg=-3.001']);
+  // The Compare view: each small card carries the three numbers that decide.
+  expect(metrics(best)).toEqual(['sunlitPct=38.6', 'earthPct=84.5', 'longestBlackoutH=25.8']);
+  expect(metrics(yours)).toEqual(['sunlitPct=0', 'earthPct=53.6', 'longestBlackoutH=329.1']);
   expect(all(testIds.siteColumns.fit).map((f) => f.dataset.fit)).toEqual(['fits', 'fits']);
   expect(all(testIds.siteColumns.role).map((r) => r.dataset.role)).toEqual(['best', 'yourChoice']);
   expect(all(testIds.compare.error)).toHaveLength(0);
 });
 
-test('a card shows three numbers, its details stay closed at first, and next events sit by each timeline', async () => {
+test('Compare shows every place small, at once; Single shows one in full, with a switch to the others', async () => {
   await mount(WEEK);
 
+  const mode = () => one(testIds.compare.sideMode);
+  const pressed = (id: string) => [...one(id).querySelectorAll('button')].map((b) => b.getAttribute('aria-pressed'));
+  expect(mode().dataset.value).toBe('compare');
+  expect(all(testIds.compare.sidePlace)).toHaveLength(0);
   for (const card of all(testIds.siteColumns.column)) {
-    const details = one<HTMLDetailsElement>(testIds.siteColumns.details, card);
-    expect(details.open).toBe(false);
-    // On the face: the three numbers that decide. In the details: the two for the moment shown.
-    expect(all(testIds.metricCards.card, card).filter((m) => !details.contains(m)).map((m) => m.dataset.metric)).toEqual([
-      'sunlitPct',
-      'earthPct',
-      'longestBlackoutH',
-    ]);
-    expect(all(testIds.metricCards.card, details).map((m) => m.dataset.metric)).toEqual(['panelOutputPct', 'sunElDeg']);
+    expect(card.dataset.compact).toBe('true');
+    expect(all(testIds.siteColumns.details, card)).toHaveLength(0); // no details on a small card
+    expect(all(testIds.metricCards.card, card).map((m) => m.dataset.metric)).toEqual(['sunlitPct', 'earthPct', 'longestBlackoutH']);
     expect(all(testIds.countdowns.chip, card)).toHaveLength(0); // what happens next is in the live view
   }
+  // Malapert M1 is an approximate location: the mark sits beside its coordinates, in the card's header.
+  expect(all(testIds.siteColumns.caveat).map((caveat) => caveat.dataset.kind)).toEqual(['approximate']);
+  expect(one(testIds.siteColumns.caveat).closest('header')).not.toBeNull();
   // Each place's timeline carries its next Sun and Earth event, beside the place's name.
   const timelines = all(testIds.timeline.root, one(testIds.compare.live));
   expect(timelines.map((tl) => tl.dataset.siteId)).toEqual(['im-2', 'malapert-m1']);
   for (const tl of timelines) expect(all(testIds.countdowns.chip, tl).map((chip) => chip.dataset.body)).toEqual(['sun', 'earth']);
-  // Malapert M1 is an approximate location: the caveat stays on the face of its card, as a short mark.
-  expect(all(testIds.siteColumns.caveat).map((caveat) => caveat.dataset.kind)).toEqual(['approximate']);
+
+  // Single: the best option first, in full, with its details closed; the switch shows the other place.
+  await act(async () => (mode().querySelectorAll('button')[1] as HTMLButtonElement).click());
+  expect(mode().dataset.value).toBe('single');
+  expect(cards()).toEqual(['best:im-2:ready']);
+  expect(pressed(testIds.compare.sidePlace)).toEqual(['true', 'false']);
+  const details = () => one<HTMLDetailsElement>(testIds.siteColumns.details);
+  expect(details().open).toBe(false);
+  expect(metrics(details())).toEqual(['panelOutputPct=0', 'sunElDeg=-1.361']);
+
+  await act(async () => (one(testIds.compare.sidePlace).querySelectorAll('button')[1] as HTMLButtonElement).click());
+  expect(cards()).toEqual(['yourChoice:malapert-m1:ready']);
+  expect(pressed(testIds.compare.sidePlace)).toEqual(['false', 'true']);
+  expect(metrics(details())).toEqual(['panelOutputPct=0', 'sunElDeg=-3.001']);
+
+  // Back to Compare: both small cards again.
+  await act(async () => (mode().querySelectorAll('button')[0] as HTMLButtonElement).click());
+  expect(cards()).toEqual(['best:im-2:ready', 'yourChoice:malapert-m1:ready']);
 });
 
 test('says why the best option won: of the 10 ranked places, the shortest dark period in a week', async () => {
@@ -194,31 +214,63 @@ test('when the setup place is the best option, it is compared with the next best
   expect(next).not.toContain(':im-2:');
 });
 
-test('the place is changed in the toolbar: the card follows, and the cards themselves have no dropdown', async () => {
+test('places are ticked in the toolbar menu: up to 2 beside the best option, and the cards follow', async () => {
   const { changes } = await mount(WEEK);
 
-  const place = () => one<HTMLSelectElement>(testIds.scenarioBar.place);
-  expect(place().value).toBe('malapert-m1');
-  expect([...place().options].map((o) => o.value)).toHaveLength(13); // every listed place
+  const button = () => one(testIds.scenarioBar.places);
+  expect(options()).toHaveLength(13); // every listed place
+  expect(ticked()).toEqual(['malapert-m1']);
+  expect(button().dataset.count).toBe('1');
+  expect(option('malapert-m1').disabled).toBe(true); // the last place cannot be unticked
   for (const card of all(testIds.siteColumns.column)) expect(card.querySelectorAll('select')).toHaveLength(0);
 
-  await pick(testIds.scenarioBar.place, 'point-a');
-  expect(cards()).toEqual(['best:im-2:ready', 'yourChoice:point-a:ready']);
-  expect(changes.at(-1)?.places).toEqual([{ kind: 'site', id: 'point-a' }]);
-  expect(place().value).toBe('point-a');
+  await tick('point-a');
+  expect(changes.at(-1)?.places).toEqual([
+    { kind: 'site', id: 'malapert-m1' },
+    { kind: 'site', id: 'point-a' },
+  ]);
+  expect(cards()).toEqual(['best:im-2:ready', 'yourChoice:malapert-m1:ready', 'yourChoice:point-a:ready']);
+  expect(button().dataset.count).toBe('2');
+  // Two are picked: the 11 others wait, and either picked one can be unticked.
+  expect(options().filter((o) => o.disabled)).toHaveLength(11);
+  expect(option('malapert-m1').disabled).toBe(false);
 
-  // Picking the place the tool already ranks first: it is marked as the person's choice, and the next best joins it.
-  await pick(testIds.scenarioBar.place, 'im-2');
-  expect(cards()[0]).toBe('best:im-2:ready');
-  expect(cards()[1].startsWith('nextBest:')).toBe(true);
-  expect(place().value).toBe('im-2');
+  await tick('malapert-m1');
+  expect(changes.at(-1)?.places).toEqual([{ kind: 'site', id: 'point-a' }]);
+  expect(cards()).toEqual(['best:im-2:ready', 'yourChoice:point-a:ready']);
+
+  // Ticking the place the tool ranks first: it is not shown twice, and the other pick stays beside it.
+  await tick('im-2');
+  expect(ticked()).toEqual(['point-a', 'im-2']); // in menu order: reference points, then commercial landers
+  expect(cards()).toEqual(['best:im-2:ready', 'yourChoice:point-a:ready']);
 });
 
-test('a link with a second place: that place is the one compared, and the toolbar shows it', async () => {
-  await mount('?sites=malapert-m1,haworth&date=2028-03-01T00:00Z&zoom=lunarDay&stay=7');
+test.each([
+  { sites: 'malapert-m1,haworth', cards: ['best:im-2:ready', 'yourChoice:malapert-m1:ready', 'yourChoice:haworth:ready'] },
+  { sites: 'im-2,haworth', cards: ['best:im-2:ready', 'yourChoice:haworth:ready'] }, // the best is theirs: shown once
+  { sites: 'malapert-m1,haworth,nobile', cards: ['best:im-2:ready', 'yourChoice:malapert-m1:ready', 'yourChoice:haworth:ready'] }, // 2 picks at most
+])('a link with places $sites: the best option, then each picked place, 3 cards at most', async ({ sites, cards: expected }) => {
+  await mount(`?sites=${sites}&date=2028-03-01T00:00Z&zoom=lunarDay&stay=7`);
 
-  expect(cards()).toEqual(['best:im-2:ready', 'alternative:haworth:ready']);
-  expect(one<HTMLSelectElement>(testIds.scenarioBar.place).value).toBe('haworth');
+  expect(cards()).toEqual(expected);
+  expect(all(testIds.timeline.root, one(testIds.compare.live))).toHaveLength(expected.length);
+});
+
+test.each([
+  { sites: 'malapert-m1,haworth', remove: 0, left: [{ kind: 'site', id: 'haworth' }], cards: ['best:im-2:ready', 'yourChoice:haworth:ready'] },
+  { sites: 'malapert-m1,haworth', remove: 1, left: [{ kind: 'site', id: 'malapert-m1' }], cards: ['best:im-2:ready', 'yourChoice:malapert-m1:ready'] },
+  // The best option is also picked: only the other pick has a cross; removing it brings in the next best.
+  { sites: 'im-2,haworth', remove: 0, left: [{ kind: 'site', id: 'im-2' }], cards: ['best:im-2:ready'] },
+])('the cross on a picked card ($sites, card $remove) takes it out', async ({ sites, remove, left, cards: expected }) => {
+  const { changes } = await mount(`?sites=${sites}&date=2028-03-01T00:00Z&zoom=lunarDay&stay=7`);
+  expect(all(testIds.siteColumns.remove, one(testIds.siteColumns.column))).toHaveLength(0); // never on the best option
+
+  await removeCard(remove);
+
+  expect(changes.at(-1)?.places).toEqual(left);
+  expect(cards().slice(0, expected.length)).toEqual(expected);
+  // One place is left: it has no cross, because the comparison needs it.
+  expect(all(testIds.siteColumns.remove)).toHaveLength(0);
 });
 
 test('coordinates typed in the toolbar are used on Enter; bad ones show an error and change nothing', async () => {
@@ -243,15 +295,20 @@ test('coordinates typed in the toolbar are used on Enter; bad ones show an error
 
   await typeAndEnter('-85.3, 31.4');
   expect(all(testIds.scenarioBar.coordsError)).toHaveLength(0);
-  expect(changes.at(-1)?.places).toEqual([{ kind: 'coords', lat: -85.3, lon: 31.4 }]);
-  expect(cards()).toEqual(['best:im-2:ready', 'yourChoice:-:typed']);
+  // The coordinates join the listed place picked before them: 2 places, beside the best option.
+  expect(changes.at(-1)?.places).toEqual([
+    { kind: 'coords', lat: -85.3, lon: 31.4 },
+    { kind: 'site', id: 'malapert-m1' },
+  ]);
+  expect(cards()).toEqual(['best:im-2:ready', 'yourChoice:-:typed', 'yourChoice:malapert-m1:ready']);
   expect(coords().value).toBe('-85.3, 31.4');
-  expect(one<HTMLSelectElement>(testIds.scenarioBar.place).value).toBe('');
+  expect(ticked()).toEqual(['malapert-m1']);
 
-  // Picking a listed place afterwards empties the coordinates field.
-  await pick(testIds.scenarioBar.place, 'point-a');
+  // Removing the typed place's card empties the coordinates field.
+  await removeCard(0);
+  expect(changes.at(-1)?.places).toEqual([{ kind: 'site', id: 'malapert-m1' }]);
   expect(coords().value).toBe('');
-  expect(cards()).toEqual(['best:im-2:ready', 'yourChoice:point-a:ready']);
+  expect(cards()).toEqual(['best:im-2:ready', 'yourChoice:malapert-m1:ready']);
 });
 
 test('the Share button sits in the page header, once, and not in the toolbar', async () => {
@@ -266,10 +323,10 @@ test('typed coordinates: the best option still shows, and the other card says wh
   await mount('?sites=@-85.3:31.4&date=2028-03-01T00:00Z&zoom=lunarDay&stay=7');
 
   expect(cards()).toEqual(['best:im-2:ready', 'yourChoice:-:typed']);
-  // The toolbar shows the coordinates in their field, and offers every listed place in the dropdown.
+  // The toolbar shows the coordinates in their field, and offers every listed place in its menu.
   expect(one<HTMLInputElement>(testIds.scenarioBar.coords).value).toBe('-85.3, 31.4');
-  expect(one<HTMLSelectElement>(testIds.scenarioBar.place).value).toBe('');
-  expect([...one<HTMLSelectElement>(testIds.scenarioBar.place).options].map((o) => o.value).filter(Boolean)).toHaveLength(13);
+  expect(ticked()).toEqual([]);
+  expect(options()).toHaveLength(13);
 });
 
 test('the live view opens on the map and switches to the sky from each place; both have one timeline per place', async () => {
@@ -281,8 +338,8 @@ test('the live view opens on the map and switches to the sky from each place; bo
   expect(all(testIds.horizonStrip.root, live)).toHaveLength(0);
   expect(all(testIds.timeline.root, live).map((t) => t.dataset.siteId)).toEqual(['im-2', 'malapert-m1']);
   expect(all(testIds.timeline.lane, live).map((l) => `${l.dataset.lane}:${l.dataset.bars}`)).toEqual([
-    'sun:2', 'earth:2', 'both:1', // IM-2
-    'sun:0', 'earth:2', 'both:0', // Malapert M1: no sunlight this Moon day
+    'sun:2', 'earth:2', // IM-2
+    'sun:0', 'earth:2', // Malapert M1: no sunlight this Moon day (no "Both" row: the overlap shows it)
   ]);
 
   await act(async () => one(testIds.compare.liveSwitch).querySelectorAll('button')[1].click());
@@ -295,41 +352,6 @@ test('the live view opens on the map and switches to the sky from each place; bo
     'earth:visible', 'sun:hidden',
   ]);
   expect(all(testIds.timeline.root, live)).toHaveLength(2);
-});
-
-// What matters most changes which place is the best option; the place chosen in setup stays.
-test.each([
-  { button: 0, focus: 'both', best: 'point-d', reason: 'sunlightNext' },
-  { button: 1, focus: 'sun', best: 'point-d', reason: 'sunlight' },
-  { button: 2, focus: 'earth', best: 'im-2', reason: 'earth' },
-] as const)('the quick filter "$focus" picks the best option and goes in the link', async ({ button, focus, best, reason }) => {
-  const { changes } = await mount(DAY);
-  const filters = () => one(testIds.compare.focus);
-  expect(filters().dataset.value).toBe('both');
-
-  await act(async () => filters().querySelectorAll('button')[button].click());
-  await settle();
-
-  expect(changes.at(-1)?.focus).toBe(focus);
-  expect(filters().dataset.value).toBe(focus);
-  expect(filters().querySelectorAll('[aria-pressed="true"]')).toHaveLength(1);
-  expect(cards()).toEqual([`best:${best}:ready`, 'yourChoice:malapert-m1:ready']);
-  expect(one(testIds.siteColumns.why).dataset.reason).toBe(reason);
-});
-
-test('a link with a focus opens with that filter on', async () => {
-  await mount(`${WEEK}&focus=earth`);
-
-  expect(one(testIds.compare.focus).dataset.value).toBe('earth');
-});
-
-test('each card draws its stay as a strip: Sun and Earth bars, from landing to the end of the stay', async () => {
-  await mount(WEEK);
-
-  const strips = all(testIds.siteColumns.stay);
-  expect(strips).toHaveLength(2);
-  // IM-2 has sunlight and Earth in view during the week; Malapert M1 has Earth only.
-  expect(strips.map((s) => `${Number(s.dataset.sunBars) > 0}/${Number(s.dataset.earthBars) > 0}`)).toEqual(['true/true', 'false/true']);
 });
 
 test('the cards carry no dropdown, and both timelines frame the same stay', async () => {

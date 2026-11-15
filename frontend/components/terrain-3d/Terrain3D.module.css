@@ -90,7 +90,18 @@
   pointer-events: none;
 }
 
+/* The picture and the buttons drawn over it. */
+.view {
+  position: relative;
+  min-width: 0;
+}
+
+/* Face the Sun / Face Earth: floating in the picture's bottom-left corner, like a map's controls. */
 .faceButtons {
+  position: absolute;
+  z-index: 1;
+  bottom: 12px;
+  left: 12px;
   display: flex;
   flex-wrap: wrap;
   gap: 8px;

@@ -1,0 +1,32 @@
+/* A band at the foot of the page with the top of the Moon showing above the bottom edge, in the warm
+   haze of the landing page. The band fades in from the page above it, so it has no top line. */
+.rise {
+  position: relative;
+  height: 240px;
+  margin: 0 -16px;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 50% 90% at 50% 100%, var(--color-moon-haze), transparent 72%),
+    radial-gradient(ellipse 90% 120% at 50% 100%, var(--color-moon-haze-far), transparent 80%);
+  mask-image: linear-gradient(to bottom, transparent, black 40%); /* only the alpha counts */
+  pointer-events: none;
+}
+
+/* The photo is square with the disc about 84% of it, so at 640px the disc's top is 52px in: the
+   band shows the top 140px or so of the Moon. A round mask the size of the disc cuts the photo's sky
+   away, so only the Moon shows in the haze; its soft edge reads as the lit limb. */
+.moon {
+  position: absolute;
+  top: 48px;
+  left: 50%;
+  width: 640px;
+  height: auto;
+  transform: translateX(-50%);
+  mask-image: radial-gradient(circle at 50% 50%, black 41%, transparent 42%); /* only the alpha counts */
+}
+
+@media (min-width: 720px) {
+  .rise {
+    margin: 0 -32px;
+  }
+}

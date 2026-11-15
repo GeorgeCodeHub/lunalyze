@@ -1,6 +1,7 @@
+import { type CSSProperties, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useScenario } from '../../backend/lib/useScenario';
-import { type Scenario, siteIdsOf } from '../scenario';
+import { MAX_PICKS, type Place, placeToken, type Scenario, siteIdsOf } from '../scenario';
 import { usePlaybackStore } from '../stores/compare';
 import { testIds } from '../test-ids';
 import { useAllSites } from '../useAllSites';
@@ -9,15 +10,15 @@ import LiveView from './LiveView';
 import CopyLinkButton from './scenario-bar/CopyLinkButton';
 import ScenarioBar from './scenario-bar/ScenarioBar';
 import IconAlert from './shared/IconAlert';
+import ResizeHandle from './shared/ResizeHandle';
 import { timeFrame } from './shared/timeFrame';
 import BestPending from './site-columns/BestPending';
 import { buildColumns } from './site-columns/columnModel';
 import { pickPlaces } from './site-columns/pickPlaces';
-import PlaceSlot from './site-columns/PlaceSlot';
 import { rankSites } from './site-columns/rankSites';
+import SidePanel, { type SideEntry } from './site-columns/SidePanel';
 import HowChosen from './site-columns/HowChosen';
 import WhyBest from './site-columns/WhyBest';
-import FocusFilters from './site-picker/FocusFilters';
 import styles from './Compare.module.css';
 
 type CompareProps = { scenario: Scenario; onChange: (next: Scenario) => void };
@@ -29,16 +30,19 @@ const Compare = ({ scenario, onChange }: CompareProps) => {
   const { t } = useTranslation('compare');
   const { t: tCommon } = useTranslation();
   const playheadH = usePlaybackStore((s) => s.offsetH);
+  const [sideWidth, setSideWidth] = useState<number | null>(null); // px; null: the default quarter of the window
   const pause = usePlaybackStore((s) => s.pause);
   // Every listed place over the Moon day from landing: the tool ranks them, and those lanes cover the stay.
   const all = useAllSites(scenario.start, scenario.terrain);
   const frame = timeFrame(scenario, playheadH);
-  const ranking = rankSites(all.views, frame.startMs, frame.stayH, scenario.focus);
+  const ranking = rankSites(all.views, frame.startMs, frame.stayH);
   const picks = pickPlaces(
     scenario.places,
     ranking.order.map(({ view }) => view.site.id),
   );
-  const siteIds = siteIdsOf([picks.best, picks.alternative]);
+  // The best option first, when there is one; then up to 2 places the person picked (3 at most).
+  const onScreen = [picks.best, ...picks.compared.map((c) => c.place)].flatMap((place) => place ?? []);
+  const siteIds = siteIdsOf(onScreen);
   const opts = { terrain: scenario.terrain };
   // The two places on screen (DATA_CONTRACT, "Play button"). shown: the time span picked, for the numbers,
   // lanes and paths. now: the playhead moment, for the sky and countdowns; they are the same at any
@@ -46,18 +50,52 @@ const Compare = ({ scenario, onChange }: CompareProps) => {
   const shown = useScenario(siteIds, scenario.start, scenario.zoom, opts);
   const now = useScenario(siteIds, new Date(frame.nowMs), 'day', opts);
 
-  // Best option first, when there is one; then the place it is compared with.
-  const columns = buildColumns(
-    [picks.best, picks.alternative].flatMap((place) => place ?? []),
-    shown,
-    all,
-    now,
-  );
+  const columns = buildColumns(onScreen, shown, all, now);
   const best = picks.best ? columns[0] : undefined;
-  const alternative = picks.best ? columns[1] : columns[0];
+  const others = picks.best ? columns.slice(1) : columns;
   const ready = columns.flatMap((column) => (column.kind === 'ready' ? [column] : []));
   const loading = all.loading || columns.some((column) => column.kind === 'loading');
   const error = all.error ?? shown.error ?? now.error;
+
+  const yourPlaces = scenario.places.slice(0, MAX_PICKS);
+
+  // The cross on a picked place's card: takes it out of the comparison. The last place stays, because
+  // the comparison needs one.
+  const removeFor = (place: Place) =>
+    yourPlaces.length > 1
+      ? () => onChange({ ...scenario, places: yourPlaces.filter((other) => placeToken(other) !== placeToken(place)) })
+      : undefined;
+  // The cards, in the side panel: the best option first, with why it won; then each place compared with it.
+  const shared = { frame, stay: scenario.stay, terrain: scenario.terrain };
+  const entries: SideEntry[] = [
+    ...(best
+      ? [
+          {
+            ...shared,
+            column: best,
+            role: 'best' as const,
+            alsoYours: picks.bestIsYours,
+            foot: <WhyBest reason={ranking.reason} checked={ranking.order.length} />,
+            how: <HowChosen checked={ranking.order.length} leftOut={ranking.leftOut} />,
+          },
+        ]
+      : []),
+    ...others.map((column, i) => {
+      const compared = picks.compared[i];
+      return {
+        ...shared,
+        column,
+        role: compared?.role ?? 'yourChoice',
+        onRemove: compared?.role === 'yourChoice' ? removeFor(compared.place) : undefined,
+      };
+    }),
+  ];
+
+  // The side panel starts at a quarter of the window (420px at most) and can be dragged from 240px to 60%.
+  const sideMin = 240;
+  const sideMax = Math.max(sideMin, Math.round(window.innerWidth * 0.6));
+  const sideNow = sideWidth ?? Math.min(window.innerWidth / 4, 420);
+  const boardStyle = (sideWidth === null ? {} : { '--side-width': `${sideWidth}px` }) as CSSProperties;
 
   const change = (next: Scenario) => {
     if (next.zoom !== scenario.zoom) pause(); // the play pace belongs to the time span, so a new span starts paused
@@ -65,6 +103,7 @@ const Compare = ({ scenario, onChange }: CompareProps) => {
   };
   return (
     <div className={styles.page} data-testid={testIds.compare.root}>
+      <div className={styles.stars} aria-hidden="true" />
       <header className={styles.top}>
         <h1 className={styles.brand}>{tCommon('appTitle')}</h1>
         <CopyLinkButton />
@@ -76,35 +115,20 @@ const Compare = ({ scenario, onChange }: CompareProps) => {
           {t('screen.error')}
         </p>
       )}
-      <FocusFilters focus={scenario.focus} onChange={(focus) => onChange({ ...scenario, focus })} />
-      <main className={styles.board}>
-        <div className={styles.side} data-testid={testIds.compare.side}>
-          <div className={styles.best}>
-            {best ? (
-              <PlaceSlot
-                column={best}
-                role="best"
-                alsoYours={picks.bestIsYours}
-                frame={frame}
-                stay={scenario.stay}
-                terrain={scenario.terrain}
-                foot={<WhyBest reason={ranking.reason} checked={ranking.order.length} />}
-                how={<HowChosen checked={ranking.order.length} leftOut={ranking.leftOut} focus={scenario.focus} />}
-              />
-            ) : (
-              <BestPending loading={all.loading} />
-            )}
+      <main className={styles.board} style={boardStyle}>
+        <div className={styles.sideWrap}>
+          <div className={styles.side} data-testid={testIds.compare.side}>
+            <SidePanel entries={entries} pending={best ? undefined : <BestPending loading={all.loading} />} />
           </div>
-          <div className={styles.alternative}>
-            {alternative && (
-              <PlaceSlot
-                column={alternative}
-                role={picks.alternativeRole}
-                frame={frame}
-                stay={scenario.stay}
-                terrain={scenario.terrain}
-              />
-            )}
+          <div className={styles.handle}>
+            <ResizeHandle
+              label={t('side.resize')}
+              width={sideNow}
+              min={sideMin}
+              max={sideMax}
+              onResize={setSideWidth}
+              testId={testIds.compare.sideResize}
+            />
           </div>
         </div>
         <div className={styles.live}>

@@ -48,7 +48,6 @@ const SetupForm = ({ initial, onSubmit }: SetupFormProps) => {
       zoom: initial?.zoom ?? 'lunarDay',
       stay,
       terrain: initial?.terrain ?? true,
-      focus: initial?.focus ?? 'both',
     });
   };
 

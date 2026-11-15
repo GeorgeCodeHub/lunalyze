@@ -8,11 +8,12 @@ import styles from './SiteCaveats.module.css';
 type SiteCaveatsProps = { view: SiteView; terrain: boolean };
 
 // The caveats in two or three words each, on the face of the card: a drawn mark and a name.
+// "Approximate location" is not here: it sits beside the coordinates, in the card's header.
 // The full sentence for each is in the card's details.
 const SiteCaveats = ({ view, terrain }: SiteCaveatsProps) => {
   const { t } = useTranslation('compare');
 
-  const kinds = caveatKinds(view, terrain);
+  const kinds = caveatKinds(view, terrain).filter((kind) => kind !== 'approximate');
 
   if (kinds.length === 0) return null;
 

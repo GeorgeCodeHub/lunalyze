@@ -1,10 +1,19 @@
-/* One place. Few blocks, evenly spaced; the space between them does the grouping. Every card has
-   the same edge and the same light: the "Best option" badge in the header marks the best one. */
+/* One place, inside the side panel's glass: a flat card with a thin edge. Few blocks, evenly spaced;
+   the space between them does the grouping. Every card looks the same: the "Best option" badge in the
+   header marks the best one. */
 .card {
-  composes: panel from '../shared/Section.module.css';
   display: grid;
   align-content: start;
   gap: 24px;
   min-width: 0;
+  padding: 20px;
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-panel);
+  background: var(--color-glass);
+}
+
+/* The Compare view: tighter, so every place fits on screen at once. */
+.card[data-compact='true'] {
+  gap: 16px;
   padding: 20px;
 }

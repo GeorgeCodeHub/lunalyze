@@ -89,7 +89,6 @@ test('submits the picked site, a 24-hour UTC start and the stay', () => {
     zoom: 'lunarDay',
     stay: 14,
     terrain: true,
-    focus: 'both',
   });
 });
 
@@ -130,7 +129,6 @@ test('starts from a shared scenario: its first place, date, hour and stay; the r
     zoom: 'day',
     stay: 1,
     terrain: false,
-    focus: 'sun',
   };
   const onSubmit = vi.fn<(s: Scenario) => void>();
   render(onSubmit, shared);
@@ -140,8 +138,7 @@ test('starts from a shared scenario: its first place, date, hour and stay; the r
   expect(one<HTMLSelectElement>(testIds.setup.hour).value).toBe('23');
   submit();
 
-  // The time span, the hills switch, what matters most and the other compared places are not asked
-  // here, so they stay.
+  // The time span, the hills switch and the other compared places are not asked here, so they stay.
   expect(onSubmit).toHaveBeenCalledWith(shared);
 });
 
@@ -156,7 +153,6 @@ test('changing the landing place keeps the other compared places, without repeat
     zoom: 'lunarDay',
     stay: 7,
     terrain: true,
-    focus: 'both',
   };
   const onSubmit = vi.fn<(s: Scenario) => void>();
   render(onSubmit, shared);

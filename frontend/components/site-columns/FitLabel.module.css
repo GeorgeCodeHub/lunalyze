@@ -1,7 +1,7 @@
 .fit {
   display: grid;
   justify-items: start;
-  gap: 10px;
+  gap: 12px;
 }
 
 .visuallyHidden {
@@ -13,7 +13,7 @@
 .line {
   display: flex;
   align-items: baseline;
-  gap: 10px;
+  gap: 12px;
   margin: 0;
   font-size: 0.9rem;
   line-height: 1.4;

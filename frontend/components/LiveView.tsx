@@ -44,7 +44,6 @@ const LiveView = ({ places, loading, frame }: LiveViewProps) => {
         <h2 id={TITLE_ID} className={styles.title}>
           {t('live.title')}
         </h2>
-        <Segmented label={t('live.switch')} options={modes} value={mode} onChange={setMode} testId={testIds.compare.liveSwitch} />
       </header>
       {places.length === 0 ? (
         <p className={styles.empty} role={loading ? 'status' : undefined}>
@@ -52,36 +51,43 @@ const LiveView = ({ places, loading, frame }: LiveViewProps) => {
         </p>
       ) : (
         <>
-          <div className={styles.time}>
-            <TimeControls frame={frame} />
+          {/* The view area, framed like a map app's viewport: the picture, the view switch floating in
+              its top corner, and the time player along its bottom edge. */}
+          <div className={styles.stage}>
+            <div className={styles.switch}>
+              <Segmented label={t('live.switch')} options={modes} value={mode} onChange={setMode} testId={testIds.compare.liveSwitch} />
+            </div>
+            {mode === 'map' && (
+              <div className={styles.map}>
+                <PolarMap views={places.map((place) => place.now)} />
+                <p className={styles.hint}>{t('live.mapHint')}</p>
+              </div>
+            )}
+            {mode === 'sky' && (
+              <div className={styles.picture}>
+                {places.map((place) => (
+                  <HorizonStrip key={place.view.site.id} view={place.view} now={place.now} siteName={nameOf(place.view)} />
+                ))}
+                <p className={styles.note}>{t('horizon.legend')}</p>
+              </div>
+            )}
+            {mode === '3d' && (
+              <Terrain3DBoundary>
+                <Suspense
+                  fallback={
+                    <p className={styles.empty} role="status">
+                      {t('live.threeDLoading')}
+                    </p>
+                  }
+                >
+                  <Terrain3D places={places} />
+                </Suspense>
+              </Terrain3DBoundary>
+            )}
+            <div className={styles.time}>
+              <TimeControls frame={frame} />
+            </div>
           </div>
-          {mode === 'map' && (
-            <div className={styles.map}>
-              <p className={styles.hint}>{t('live.mapHint')}</p>
-              <PolarMap views={places.map((place) => place.now)} />
-            </div>
-          )}
-          {mode === 'sky' && (
-            <div className={styles.picture}>
-              {places.map((place) => (
-                <HorizonStrip key={place.view.site.id} view={place.view} now={place.now} siteName={nameOf(place.view)} />
-              ))}
-              <p className={styles.note}>{t('horizon.legend')}</p>
-            </div>
-          )}
-          {mode === '3d' && (
-            <Terrain3DBoundary>
-              <Suspense
-                fallback={
-                  <p className={styles.empty} role="status">
-                    {t('live.threeDLoading')}
-                  </p>
-                }
-              >
-                <Terrain3D places={places} />
-              </Suspense>
-            </Terrain3DBoundary>
-          )}
           <div className={styles.timelines}>
             <h3 className={styles.subtitle}>{t('timeline.title')}</h3>
             {places.map((place, i) => (

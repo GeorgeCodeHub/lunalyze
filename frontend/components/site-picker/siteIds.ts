@@ -18,5 +18,8 @@ export const PICKER_GROUPS: { group: Site['group']; ids: SiteId[] }[] = [
 /** The `sites` copy key for a site's name. Ids from the URL may be unknown; t() then shows the key. */
 export const siteNameKey = (id: string) => `${id as SiteId}.name` as const;
 
+/** The short name, for tight spots: a compact card, a switch between places. */
+export const siteShortKey = (id: string) => `${id as SiteId}.short` as const;
+
 /** The `sites` copy key for a group's label. */
 export const groupLabelKey = (group: Site['group']) => `groups.${group}` as const;

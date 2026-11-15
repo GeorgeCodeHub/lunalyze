@@ -6,13 +6,14 @@ import { useDuration } from '../shared/useDuration';
 import MetricCard from './MetricCard';
 import styles from './MetricCards.module.css';
 
-type MetricCardsProps = { view: SiteView; zoom: Zoom }; // view: the time span shown
+// view: the time span shown. compact: the Compare view's small card, without the note under a number.
+type MetricCardsProps = { view: SiteView; zoom: Zoom; compact?: boolean };
 
 const SPAN = { day: 'metrics.spanDay', lunarDay: 'metrics.spanLunarDay', year: 'metrics.spanYear' } as const;
 
 // The three numbers that decide between two places, side by side. Every number is a SiteView.metrics
 // field. The time span they cover is named once, in the toolbar; here it is a heading for screen readers.
-const MetricCards = ({ view, zoom }: MetricCardsProps) => {
+const MetricCards = ({ view, zoom, compact = false }: MetricCardsProps) => {
   const { t } = useTranslation('compare');
   const duration = useDuration();
 
@@ -42,7 +43,7 @@ const MetricCards = ({ view, zoom }: MetricCardsProps) => {
           raw={longestBlackoutH}
           value={longestBlackoutH > 0 ? duration(longestBlackoutH, 'short') : t('metrics.noBlackout')}
           label={t('metrics.blackout')}
-          note={t('metrics.longest')}
+          note={compact ? undefined : t('metrics.longest')}
         />
       </ul>
     </section>

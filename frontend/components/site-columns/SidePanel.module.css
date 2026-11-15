@@ -1,0 +1,21 @@
+/* The switches at the top of the side panel: how to show the places, then which place (in Single). */
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+/* The cards. Compare: as many columns as the panel's width holds (one at its narrowest), so a wider
+   panel puts the places side by side. Single: one card. */
+.cards {
+  display: grid;
+  align-items: start;
+  gap: 16px;
+  min-width: 0;
+}
+
+.cards[data-mode='compare'] {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 248px), 1fr));
+}

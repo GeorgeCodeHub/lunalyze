@@ -10,9 +10,10 @@ import styles from './Timeline.module.css';
 // aside: shown on the name's line, at the far end: what happens next at the playhead.
 type TimelineProps = { view: SiteView; frame: TimeFrame; siteName: string; axis: boolean; aside?: ReactNode };
 
-const LANES = ['sun', 'earth', 'both'] as const;
+// Sun and Earth only: when both are in view can be read off where their bars overlap.
+const LANES = ['sun', 'earth'] as const;
 
-// One place: when the Sun, Earth and both together are in view across the time span shown. Over the
+// One place: when the Sun and Earth are in view across the time span shown. Over the
 // lanes: a frame around the stay (it starts at landing, the left edge) and a line at the playhead.
 const Timeline = ({ view, frame, siteName, axis, aside }: TimelineProps) => {
   const stayWidth = Math.min(1, frame.stayH / frame.spanH) * UNITS;

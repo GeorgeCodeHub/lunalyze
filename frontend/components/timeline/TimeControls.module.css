@@ -1,10 +1,48 @@
-/* Play button and scrubber in one row; under them the time shown, on a row of its own so the
-   scrubber keeps its width while the words change. */
+/* The time player: its name and the moment shown on top, then the play button and the track, then
+   one line on what it does. */
 .controls {
   display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 16px;
+}
+
+.title {
+  composes: title from '../shared/Section.module.css';
+}
+
+/* The moment shown, large, so it is the first thing read; how far into the mission, beside it. */
+.readout {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 10px;
+  margin: 0;
+}
+
+.readoutTime {
+  font-size: 1rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.readoutSince {
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+}
+
+.row {
+  display: grid;
   grid-template-columns: auto minmax(0, 1fr);
-  align-items: center;
-  gap: 8px 16px;
+  align-items: start;
+  gap: 16px;
 }
 
 .play {
@@ -16,7 +54,29 @@
   composes: visuallyHidden from '../shared/Section.module.css';
 }
 
+/* The track: the slider over a shaded band for the stay, with the dates of its two ends under it.
+   --stay is the share of the track the stay covers (0 to 1), set by TimeControls. The band runs from
+   the thumb's centre at the start (7px in) to where the thumb's centre stands at the end of the stay. */
+.track {
+  position: relative;
+  display: grid;
+  min-width: 0;
+}
+
+.stay {
+  position: absolute;
+  top: 16px;
+  left: 7px;
+  width: calc((100% - 14px) * var(--stay));
+  height: 12px;
+  border: 1px dashed var(--color-line-strong);
+  border-radius: 2px;
+  background: var(--color-hover);
+  pointer-events: none;
+}
+
 .scrub {
+  position: relative;
   display: flex;
   align-items: center;
   min-height: 44px;
@@ -60,26 +120,19 @@
   background: var(--color-text);
 }
 
-.readout {
+.ends {
   display: flex;
-  flex-wrap: wrap;
-  grid-column: 1 / -1;
-  align-items: baseline;
-  gap: 4px 12px;
+  justify-content: space-between;
+  gap: 12px;
   margin: 0;
-  font-size: 0.85rem;
+  color: var(--color-text-faint);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
 }
 
-.readoutLabel {
-  composes: title from '../shared/Section.module.css';
-}
-
-.readoutTime {
-  font-weight: 500;
-  font-variant-numeric: tabular-nums;
-}
-
-.readoutSince {
+.hint {
+  margin: 0;
   color: var(--color-text-muted);
+  font-size: 0.78rem;
+  line-height: 1.5;
 }
-

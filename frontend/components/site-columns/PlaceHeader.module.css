@@ -1,7 +1,40 @@
 .header {
+  position: relative;
   display: grid;
   gap: 8px;
   min-width: 0;
+}
+
+/* A place the person picked can be taken out: a small cross in the card's top corner. The name and
+   badges keep clear of it. */
+.header[data-removable='true'] .row {
+  padding-right: 36px;
+}
+
+.remove {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition:
+    background-color 160ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 160ms cubic-bezier(0.16, 1, 0.3, 1),
+    color 160ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.remove:hover {
+  border-color: var(--color-glass-border);
+  background: var(--color-glass-hover);
+  color: var(--color-text);
 }
 
 /* The name takes the room; the badges sit at the far end and drop below when the name is long. */
@@ -30,12 +63,12 @@
 .badges {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  margin: 2px 0 0;
+  gap: 8px;
+  margin: 0;
 }
 
 .badge {
-  padding: 4px 10px;
+  padding: 4px 12px;
   border: 1px solid var(--color-line-strong);
   border-radius: var(--radius-control);
   font-size: 0.72rem;
@@ -51,7 +84,7 @@
   composes: badge;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   border-style: dashed;
 }
 
@@ -68,10 +101,32 @@
   color: var(--color-invert-text);
 }
 
+/* Under the name: the coordinates, then "Approximate location" when the point stands for a region. */
 .meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
   margin: 0;
   color: var(--color-text-muted);
   font-size: 0.72rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+}
+
+.approximate {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.approximate svg {
+  flex: none;
+  width: 12px;
+  height: 12px;
+}
+
+/* The Compare view's small card: a smaller name, so all the places fit at once. */
+.header[data-compact='true'] .name {
+  font-size: 1.15rem;
 }

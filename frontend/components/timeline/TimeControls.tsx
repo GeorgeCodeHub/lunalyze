@@ -1,8 +1,9 @@
-import { type KeyboardEvent, useEffect } from 'react';
+import { type CSSProperties, type KeyboardEvent, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { HOUR } from '../../../backend/lib/realView';
 import { usePlaybackStore } from '../../stores/compare';
 import { testIds } from '../../test-ids';
-import { formatDateTime } from '../shared/formatTime';
+import { formatDateTime, formatDay } from '../shared/formatTime';
 import IconPause from '../shared/IconPause';
 import IconPlay from '../shared/IconPlay';
 import { PLAYBACK, type TimeFrame } from '../shared/timeFrame';
@@ -11,11 +12,15 @@ import styles from './TimeControls.module.css';
 
 type TimeControlsProps = { frame: TimeFrame };
 
+const TITLE_ID = 'time-controls-title';
 const HINT_ID = 'time-controls-hint';
+const KEYS_ID = 'time-controls-keys';
 const DAY_H = 24;
 
-// The play button and the time scrubber: one playhead for every place on the screen.
-// The scrubber is a native range input, so arrow keys move 1 hour; Shift + arrow moves 1 day.
+// The time player, the way a video or weather-radar player reads: what it is, the moment shown in large
+// type, then the play button and a track from landing to the end of the time span, with the stay shaded
+// on it. One playhead for every place on the screen: the map, sky, 3D view and timelines all follow it.
+// The track is a native range input, so arrow keys move 1 hour; Shift + arrow moves 1 day.
 const TimeControls = ({ frame }: TimeControlsProps) => {
   const { t } = useTranslation('compare');
   const status = usePlaybackStore((s) => s.status);
@@ -27,9 +32,12 @@ const TimeControls = ({ frame }: TimeControlsProps) => {
 
   const playing = status === 'playing';
   const { stepH, tickMs } = PLAYBACK[frame.zoom];
-  const { offsetH, endH } = frame;
+  const { offsetH, endH, stayH, startMs } = frame;
   const shown = t('playback.utc', { time: formatDateTime(frame.nowMs) });
   const sinceLanding = offsetH === 0 ? t('playback.atLanding') : t('playback.afterLanding', { time: duration(offsetH) });
+  const inStay = offsetH <= stayH;
+  // The share of the track the stay covers, for the shaded band (0 to 1).
+  const stayShare = endH > 0 ? Math.min(1, stayH / endH) : 1;
 
   const toggle = () => {
     if (playing) {
@@ -56,37 +64,55 @@ const TimeControls = ({ frame }: TimeControlsProps) => {
   }, [playing, tick, endH, tickMs]);
 
   return (
-    <div className={styles.controls}>
-      <button type="button" className={styles.play} onClick={toggle} data-status={status} data-testid={testIds.timeline.play}>
-        {playing ? <IconPause /> : <IconPlay />}
-        {playing ? t('playback.pause') : t('playback.play')}
-      </button>
-      <label className={styles.scrub}>
-        <span className={styles.visuallyHidden}>{t('playback.scrubber')}</span>
-        <input
-          type="range"
-          className={styles.range}
-          min={0}
-          max={endH}
-          step={1}
-          value={offsetH}
-          aria-valuetext={`${shown}, ${sinceLanding}`}
-          aria-describedby={HINT_ID}
-          title={t('playback.hint')}
-          data-testid={testIds.timeline.scrubber}
-          onChange={(e) => seek(Number(e.target.value))}
-          onKeyDown={onKeyDown}
-        />
-      </label>
-      <p className={styles.readout} data-testid={testIds.timeline.readout} data-offset-h={offsetH}>
-        <span className={styles.readoutLabel}>{t('playback.showing')}</span>
-        <strong className={styles.readoutTime}>{shown}</strong>
-        <span className={styles.readoutSince}>{sinceLanding}</span>
-      </p>
-      <p id={HINT_ID} className={styles.visuallyHidden}>
+    <section className={styles.controls} aria-labelledby={TITLE_ID}>
+      <div className={styles.top}>
+        <h3 id={TITLE_ID} className={styles.title}>
+          {t('playback.title')}
+        </h3>
+        <p className={styles.readout} data-testid={testIds.timeline.readout} data-offset-h={offsetH} aria-live="off">
+          <strong className={styles.readoutTime}>{shown}</strong>
+          <span className={styles.readoutSince}>
+            {sinceLanding} · {t(inStay ? 'playback.inStay' : 'playback.afterStay')}
+          </span>
+        </p>
+      </div>
+      <div className={styles.row}>
+        <button type="button" className={styles.play} onClick={toggle} data-status={status} data-testid={testIds.timeline.play}>
+          {playing ? <IconPause /> : <IconPlay />}
+          {playing ? t('playback.pause') : t('playback.play')}
+        </button>
+        <div className={styles.track} style={{ '--stay': stayShare } as CSSProperties}>
+          <span className={styles.stay} aria-hidden="true" />
+          <label className={styles.scrub}>
+            <span className={styles.visuallyHidden}>{t('playback.scrubber')}</span>
+            <input
+              type="range"
+              className={styles.range}
+              min={0}
+              max={endH}
+              step={1}
+              value={offsetH}
+              aria-valuetext={`${shown}, ${sinceLanding}`}
+              aria-describedby={`${HINT_ID} ${KEYS_ID}`}
+              title={t('playback.keys')}
+              data-testid={testIds.timeline.scrubber}
+              onChange={(e) => seek(Number(e.target.value))}
+              onKeyDown={onKeyDown}
+            />
+          </label>
+          <p className={styles.ends} aria-hidden="true">
+            <span>{t('playback.start', { date: formatDay(startMs) })}</span>
+            <span>{formatDay(startMs + endH * HOUR)}</span>
+          </p>
+        </div>
+      </div>
+      <p id={HINT_ID} className={styles.hint}>
         {t('playback.hint')}
       </p>
-    </div>
+      <p id={KEYS_ID} className={styles.visuallyHidden}>
+        {t('playback.keys')}
+      </p>
+    </section>
   );
 };
 

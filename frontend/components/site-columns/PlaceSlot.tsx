@@ -15,13 +15,15 @@ type PlaceSlotProps = {
   terrain: boolean;
   foot?: ReactNode; // why the best option won
   how?: ReactNode; // the best option's details add how it was chosen
+  onRemove?: () => void; // takes a picked place out of the comparison
+  compact?: boolean; // drawn small, to see every place at once
 };
 
 // One side of the comparison: the full card when the place has its data, the note that says why not otherwise.
-const PlaceSlot = ({ column, role, alsoYours, frame, stay, terrain, foot, how }: PlaceSlotProps) => {
+const PlaceSlot = ({ column, role, alsoYours, frame, stay, terrain, foot, how, onRemove, compact }: PlaceSlotProps) => {
   if (column.kind !== 'ready') {
     return (
-      <PlaceNote column={column} role={role}>
+      <PlaceNote column={column} role={role} onRemove={onRemove}>
         {foot}
       </PlaceNote>
     );
@@ -39,6 +41,8 @@ const PlaceSlot = ({ column, role, alsoYours, frame, stay, terrain, foot, how }:
       terrain={terrain}
       why={foot}
       how={how}
+      onRemove={onRemove}
+      compact={compact}
     />
   );
 };

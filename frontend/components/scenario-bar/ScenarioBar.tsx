@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { type Scenario, siteIdsOf, STAYS, ZOOMS } from '../../scenario';
+import { MAX_PICKS, type Scenario, siteIdsOf, STAYS, ZOOMS } from '../../scenario';
 import { testIds } from '../../test-ids';
 import SelectField from '../shared/SelectField';
 import { STAY_KEY } from '../shared/stayKeys';
 import WhenFields from '../shared/WhenFields';
 import CoordsField from '../site-picker/CoordsField';
-import PlaceSelect from '../site-picker/PlaceSelect';
+import PlacePicker from '../site-picker/PlacePicker';
 import TerrainSwitch from './TerrainSwitch';
 import styles from './ScenarioBar.module.css';
 
@@ -27,10 +27,10 @@ const ScenarioBar = ({ scenario, onChange }: ScenarioBarProps) => {
   const hour = startIso.slice(11, 13);
   const stayOptions = STAYS.map((s) => ({ value: String(s), label: t(`setup.stay.${STAY_KEY[s]}`) }));
   const zoomOptions = ZOOMS.map((z) => ({ value: z, label: t(ZOOM_KEYS[z]) }));
-  // The person's place: the one chosen last. A link can carry a second place after the setup one.
-  const place = scenario.places[1] ?? scenario.places[0];
-  const [placeId = ''] = siteIdsOf([place]);
-  const coordsText = place?.kind === 'coords' ? `${place.lat}, ${place.lon}` : '';
+  // The places picked: up to 2 listed sites or typed coordinates. A typed place shows in its own field.
+  const places = scenario.places.slice(0, MAX_PICKS);
+  const typed = places.find((place) => place.kind === 'coords');
+  const coordsText = typed ? `${typed.lat}, ${typed.lon}` : '';
 
   const setStart = (nextDate: string, nextHour: string) => {
     const start = new Date(`${nextDate}T${nextHour}:00:00Z`);
@@ -48,12 +48,18 @@ const ScenarioBar = ({ scenario, onChange }: ScenarioBarProps) => {
         {t('bar.title')}
       </h2>
       <div className={styles.fields}>
-        <PlaceSelect value={placeId} onPick={(id) => onChange({ ...scenario, places: [{ kind: 'site', id }] })} />
-        {/* A new field for each listed place picked, so text typed earlier does not linger beside it. */}
+        <PlacePicker places={places} onChange={(next) => onChange({ ...scenario, places: next })} />
+        {/* A new field each time the places change, so text typed earlier does not linger beside them.
+            Typed coordinates take the place of earlier ones, first, with the listed sites after them. */}
         <CoordsField
-          key={placeId}
+          key={siteIdsOf(places).join(',') + coordsText}
           value={coordsText}
-          onPick={(coords) => onChange({ ...scenario, places: [{ kind: 'coords', ...coords }] })}
+          onPick={(coords) =>
+            onChange({
+              ...scenario,
+              places: [{ kind: 'coords' as const, ...coords }, ...places.filter((place) => place.kind === 'site')].slice(0, MAX_PICKS),
+            })
+          }
         />
         <WhenFields
           date={dateDraft ?? date}

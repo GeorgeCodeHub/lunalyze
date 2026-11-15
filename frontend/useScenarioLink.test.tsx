@@ -14,7 +14,6 @@ const scenarioFor = (id: string, { stay = 7, terrain = true }: { stay?: Scenario
   zoom: 'lunarDay',
   stay,
   terrain,
-  focus: 'both',
 });
 
 let root: Root;

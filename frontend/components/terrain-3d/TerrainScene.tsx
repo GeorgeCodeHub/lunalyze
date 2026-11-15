@@ -44,42 +44,46 @@ const TerrainScene = ({ view, now, siteName }: TerrainSceneProps) => {
   return (
     <section className={styles.entry}>
       <h3 className={styles.title}>{t('terrain3d.title', { site: siteName })}</h3>
-      <figure
-        ref={boxRef}
-        className={styles.box}
-        data-testid={testIds.terrain3d.scene}
-        data-site-id={view.site.id}
-        data-status={status}
-        data-sun-hidden={sun.hidden}
-        data-earth-hidden={earth.hidden}
-        aria-busy={status === 'loading' || undefined}
-        {...imageProps}
-      >
-        {status === 'loading' && (
-          <p className={styles.status} role="status">
-            {t('terrain3d.loading')}
-          </p>
+      <div className={styles.view}>
+        <figure
+          ref={boxRef}
+          className={styles.box}
+          data-testid={testIds.terrain3d.scene}
+          data-site-id={view.site.id}
+          data-status={status}
+          data-sun-hidden={sun.hidden}
+          data-earth-hidden={earth.hidden}
+          aria-busy={status === 'loading' || undefined}
+          {...imageProps}
+        >
+          {status === 'loading' && (
+            <p className={styles.status} role="status">
+              {t('terrain3d.loading')}
+            </p>
+          )}
+          {status === 'error' && (
+            <p className={styles.status} role="alert">
+              <IconAlert />
+              {t('terrain3d.error')}
+            </p>
+          )}
+          {status === 'ready' && grid && (
+            <TerrainCanvas grid={grid} site={view.site} sky={now.sky} colours={colours} facing={facing} portal={boxRef} />
+          )}
+        </figure>
+        {/* Beside the figure, not inside it: the figure is an image to screen readers, so buttons in it
+            would be hidden. Drawn over the picture's bottom corner. */}
+        {status === 'ready' && (
+          <div className={styles.faceButtons}>
+            {(['sun', 'earth'] as const).map((body) => (
+              <button key={body} type="button" className={styles.faceButton} data-testid={testIds.terrain3d.face} data-body={body} onClick={() => face(body)}>
+                <BodyGlyph body={body} />
+                {t(body === 'sun' ? 'terrain3d.faceSun' : 'terrain3d.faceEarth')}
+              </button>
+            ))}
+          </div>
         )}
-        {status === 'error' && (
-          <p className={styles.status} role="alert">
-            <IconAlert />
-            {t('terrain3d.error')}
-          </p>
-        )}
-        {status === 'ready' && grid && (
-          <TerrainCanvas grid={grid} site={view.site} sky={now.sky} colours={colours} facing={facing} portal={boxRef} />
-        )}
-      </figure>
-      {status === 'ready' && (
-        <div className={styles.faceButtons}>
-          {(['sun', 'earth'] as const).map((body) => (
-            <button key={body} type="button" className={styles.faceButton} data-testid={testIds.terrain3d.face} data-body={body} onClick={() => face(body)}>
-              <BodyGlyph body={body} />
-              {t(body === 'sun' ? 'terrain3d.faceSun' : 'terrain3d.faceEarth')}
-            </button>
-          ))}
-        </div>
-      )}
+      </div>
       {view.horizonIncomplete && <TerrainNote text={t('terrain3d.lowerBound')} />}
       {view.site.precision === 'proxy' && <TerrainNote text={t('terrain3d.approximate')} />}
     </section>

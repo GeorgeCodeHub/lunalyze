@@ -12,6 +12,7 @@ type PlaceNoteProps = {
   column: Exclude<ColumnModel, { kind: 'ready' }>;
   role: Role;
   children?: ReactNode; // a last line for the card, when it has one
+  onRemove?: () => void; // takes a picked place out of the comparison
 };
 
 const BODY_KEYS = {
@@ -23,7 +24,7 @@ const BODY_KEYS = {
 
 // A place with nothing to draw yet: still loading, typed coordinates, an id that is not on the list,
 // or a site with no data. It keeps its card so the reader sees why it is empty.
-const PlaceNote = ({ column, role, children }: PlaceNoteProps) => {
+const PlaceNote = ({ column, role, children, onRemove }: PlaceNoteProps) => {
   const { t } = useTranslation('compare');
   const { t: tSites } = useTranslation('sites');
   const position = usePosition();
@@ -48,7 +49,7 @@ const PlaceNote = ({ column, role, children }: PlaceNoteProps) => {
       data-role={role}
       data-site-id={column.kind === 'typed' ? undefined : column.siteId}
     >
-      <PlaceHeader titleId={titleId} title={title} meta={meta} role={role} />
+      <PlaceHeader titleId={titleId} title={title} meta={meta} role={role} onRemove={onRemove} />
       <p className={styles.body} role={loading ? 'status' : undefined}>
         {t(BODY_KEYS[column.kind])}
       </p>

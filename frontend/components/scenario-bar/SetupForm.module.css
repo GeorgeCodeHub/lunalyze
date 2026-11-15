@@ -6,7 +6,6 @@
   display: grid;
   gap: 12px;
   min-width: 0;
-  margin: 0;
   padding: 24px 20px;
   border: 0;
   border-top: 1px solid var(--color-rule);
@@ -16,11 +15,10 @@
   border-top: 0;
 }
 
-/* Questions in capitals with wide tracking, like an instrument readout. */
+/* Questions in capitals with wide tracking, like an instrument readout. A heading, not a legend:
+   WebKit (every iOS browser) ignores a floated legend and draws it in the step's top rule. */
 .question {
-  float: left; /* lets the legend sit inside the grid like any other row */
-  width: 100%;
-  padding: 0;
+  margin: 0;
   font-size: 0.85rem;
   font-weight: 500;
   line-height: 1.4;

@@ -45,8 +45,11 @@
 
 /* Date fields: the same divider and light icon as the dropdown menus (Menu.module.css). The browser's own calendar button is
    not drawn: WhenFields lays its own button over the icon, which opens the app's calendar menu. */
+/* appearance: none stops iOS sizing the field to its own width and height, past the card's edge. */
 input[type='date'].control {
   position: relative;
+  min-width: 0;
+  appearance: none;
   padding-right: 52px;
   background-image:
     var(--icon-calendar),
@@ -58,6 +61,12 @@ input[type='date'].control {
   background-size:
     14px 14px,
     1px 55%;
+}
+
+/* iOS centres the date in the field; every other field reads from the start. */
+.control::-webkit-date-and-time-value {
+  margin: 0;
+  text-align: start;
 }
 
 .control::-webkit-calendar-picker-indicator {

@@ -83,9 +83,11 @@
   gap: 12px 20px;
 }
 
-/* The setup's arrow, turned to point back. */
+/* The setup's arrow, turned to point back, alone in a square button; its name is the label and tooltip. */
 .back {
   composes: button from './shared/Section.module.css';
+  width: 44px;
+  padding: 0;
 }
 
 .back svg {

@@ -38,12 +38,10 @@
   line-height: 1.6;
 }
 
-/* Frosted glass: the Moon's glow and the stars show through, blurred, wherever they sit behind it. */
+/* The same glass as the Compare screen's cards: a hazy, see-through fill that blends the warm and cool
+   tones. The Moon's glow and the stars show through, blurred, wherever they sit behind it. */
 .panel {
-  border: 1px solid var(--color-glass-border);
-  border-radius: var(--radius-panel);
-  background: var(--color-glass);
-  backdrop-filter: var(--blur-glass);
+  composes: panel from './shared/Section.module.css';
 }
 
 .panelTitle {

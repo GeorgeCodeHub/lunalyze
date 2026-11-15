@@ -25,7 +25,7 @@
       "twoWeeks": "About 14 days (one Moon daytime)",
       "month": "About 30 days (one full Moon day)"
     },
-    "submit": "Find the best place"
+    "submit": "Check this mission"
   },
   "when": {
     "date": "Date",
@@ -48,7 +48,7 @@
     "zoomLunarDay": "One Moon day (29.5 days)",
     "zoomYear": "One year",
     "place": "Your place",
-    "placeTyped": "Your coordinates"
+    "coords": "Your coordinates"
   },
   "terrain": {
     "label": "Hills",
@@ -236,7 +236,7 @@
   },
   "details": {
     "summary": "Details",
-    "place": "Place"
+    "group": "Group"
   },
   "ranking": {
     "title": "{{count}} south-pole places, best first",

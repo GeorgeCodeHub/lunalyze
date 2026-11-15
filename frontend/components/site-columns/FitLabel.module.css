@@ -4,13 +4,35 @@
   gap: 10px;
 }
 
-.verdict {
+.visuallyHidden {
+  composes: visuallyHidden from '../shared/Section.module.css';
+}
+
+/* Fits: one quiet line, a green tick and the reason. */
+.fits {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.fits svg {
+  flex: none;
+  position: relative;
+  top: 2px;
+  color: var(--color-good);
+}
+
+/* Risky: the one framed label on a card, dashed, with a warm warning mark. */
+.risky {
   display: inline-flex;
   align-items: center;
   gap: 10px;
   margin: 0;
   padding: 10px 14px;
-  border: 1px solid var(--color-line-strong);
+  border: 1px dashed var(--color-line-strong);
   border-radius: var(--radius-control);
   font-size: 1.1rem;
   font-weight: 500;
@@ -19,21 +41,9 @@
   text-transform: uppercase;
 }
 
-.verdict svg {
+.risky svg {
   width: 16px;
   height: 16px;
-}
-
-/* Fits: a solid edge and a green tick. Risky: a dashed edge and a warm warning mark. */
-.fit[data-fit='fits'] .verdict svg {
-  color: var(--color-good);
-}
-
-.fit[data-fit='risky'] .verdict {
-  border-style: dashed;
-}
-
-.fit[data-fit='risky'] .verdict svg {
   color: var(--color-error);
 }
 

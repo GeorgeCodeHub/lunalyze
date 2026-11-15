@@ -6,7 +6,7 @@ import styles from './PlaceHeader.module.css';
 type PlaceHeaderProps = {
   titleId: string;
   title: string;
-  meta?: string; // one short fact under the name, when the card has no details to put it in
+  meta?: string; // one short fact under the name: the place's coordinates
   role: Role;
   alsoYours?: boolean; // the best option is also the place chosen in setup
 };

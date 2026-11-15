@@ -4,23 +4,25 @@
   display: grid;
   gap: 12px 24px;
   padding: 16px 20px;
-  background: var(--color-glass);
 }
 
 .title {
   composes: visuallyHidden from '../shared/Section.module.css';
 }
 
-/* Place, date, hour, stay and time span. On a phone the place, the date and the time span each take a
-   full row (their words need it), with the hour and the stay side by side; five across when there is room. */
+/* Place, coordinates, date, hour, stay and time span. On a phone the place, the coordinates, the date
+   and the time span each take a full row (their words need it), with the hour and the stay side by
+   side. Wider screens put them three across, then all six in one row. */
 .fields {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
   gap: 12px;
 }
 
 .fields > :nth-child(1),
 .fields > :nth-child(2),
+.fields > :nth-child(3),
 .fields > :last-child {
   grid-column: 1 / -1;
 }
@@ -34,18 +36,22 @@
 }
 
 @media (min-width: 560px) {
+  .fields {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .fields > :nth-child(1),
   .fields > :nth-child(2),
+  .fields > :nth-child(3),
   .fields > :last-child {
     grid-column: auto;
   }
 }
 
-@media (min-width: 980px) {
+@media (min-width: 1180px) {
   .fields {
-    grid-template-columns: minmax(0, 1.5fr) minmax(170px, 0.8fr) minmax(150px, 0.7fr) minmax(0, 1.4fr) minmax(0, 1.3fr);
-  }
-
-  .fields > :nth-child(1) {
-    grid-column: auto;
+    grid-template-columns:
+      minmax(0, 1.4fr) minmax(0, 1.1fr) minmax(190px, 0.9fr) minmax(152px, 0.7fr)
+      minmax(0, 1.3fr) minmax(0, 1.2fr);
   }
 }

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import Compare from './components/Compare';
 import Setup from './components/Setup';
-import { readScenario, type Scenario, scenarioSearch } from './scenario';
+import { readScenario, type Scenario, writeScenarioUrl } from './scenario';
 import { usePlaybackStore } from './stores/compare';
 
 const App = () => {
@@ -11,7 +11,7 @@ const App = () => {
 
   // A setup answer: a new entry in the browser history, so Back returns to the setup step.
   const start = (next: Scenario) => {
-    window.history.pushState(null, '', scenarioSearch(next));
+    writeScenarioUrl('push', next);
     resetPlayback();
     setScenario(next);
     setEditing(false);
@@ -19,7 +19,7 @@ const App = () => {
 
   // An edit on the Compare screen: the link follows along, without filling the history.
   const change = (next: Scenario) => {
-    window.history.replaceState(window.history.state, '', scenarioSearch(next));
+    writeScenarioUrl('replace', next);
     setScenario(next);
   };
 

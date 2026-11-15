@@ -85,3 +85,20 @@ export const scenarioSearch = (s: Scenario): string =>
     `stay=${s.stay}`,
     ...(s.terrain ? [] : ['terrain=off']),
   ].join('&');
+
+/**
+ * Puts the scenario in the address bar. 'push' adds a browser-history entry (Back returns to the
+ * setup step); 'replace' rewrites the current one. A browser can refuse the update (Safari allows
+ * 100 in 30 seconds): then the address bar keeps the last link it accepted, and this returns false.
+ * The caller still shows the scenario either way.
+ */
+export const writeScenarioUrl = (mode: 'push' | 'replace', scenario: Scenario): boolean => {
+  const search = scenarioSearch(scenario);
+  try {
+    if (mode === 'push') window.history.pushState(null, '', search);
+    else window.history.replaceState(window.history.state, '', search);
+    return true;
+  } catch {
+    return false;
+  }
+};

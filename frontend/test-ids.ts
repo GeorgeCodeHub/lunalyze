@@ -23,6 +23,8 @@ export const testIds = {
   scenarioBar: {
     root: 'scenario-bar',
     place: 'scenario-bar-place',
+    coords: 'scenario-bar-coords',
+    coordsError: 'scenario-bar-coords-error',
     date: 'scenario-bar-date',
     hour: 'scenario-bar-hour',
     stay: 'scenario-bar-stay',

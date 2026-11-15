@@ -4,7 +4,7 @@ import fieldStyles from '../shared/Field.module.css';
 import { groupLabelKey, PICKER_GROUPS, siteNameKey } from './siteIds';
 
 type PlaceSelectProps = {
-  value: string; // the chosen site id; '' when the place is typed coordinates
+  value: string; // the chosen site id; '' when the place is the person's own coordinates
   onPick: (siteId: string) => void;
 };
 
@@ -24,7 +24,7 @@ const PlaceSelect = ({ value, onPick }: PlaceSelectProps) => {
           if (e.target.value) onPick(e.target.value);
         }}
       >
-        {value === '' && <option value="">{t('bar.placeTyped')}</option>}
+        {value === '' && <option value="">{t('setup.where.choose')}</option>}
         {PICKER_GROUPS.map(({ group, ids }) => (
           <optgroup key={group} label={tSites(groupLabelKey(group))}>
             {ids.map((id) => (

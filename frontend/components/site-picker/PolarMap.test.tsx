@@ -1,5 +1,4 @@
 // @vitest-environment happy-dom
-import { readFileSync } from 'node:fs';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act } from 'react';
 import { createRoot } from 'react-dom/client';
@@ -7,10 +6,11 @@ import { beforeEach, describe, expect, test } from 'vitest';
 import { POLAR_MAP } from '../../../backend/lib/projectPolar';
 import type { Site, SiteView } from '../../../backend/lib/types';
 import '../../i18n';
+import { readSites, readText } from '../../testing/readFixture';
 import { testIds } from '../../test-ids';
 import PolarMap from './PolarMap';
 
-const sites: Site[] = JSON.parse(readFileSync('backend/public/data/sites.json', 'utf8'));
+const sites = readSites();
 const site = (id: string) => sites.find((s) => s.id === id) as Site;
 
 type Opts = { sunHidden?: boolean; earthHidden?: boolean; sunAz?: number; earthAz?: number; incomplete?: boolean };
@@ -92,7 +92,7 @@ describe('body lines (criteria 7, 9)', () => {
 
 describe('dash by attribute (criterion 8)', () => {
   test('BodyLine.module.css sets stroke-dasharray only under [data-status=hidden]', () => {
-    const css = readFileSync('frontend/components/site-picker/BodyLine.module.css', 'utf8');
+    const css = readText('frontend/components/site-picker/BodyLine.module.css');
     const rules = css.split('}').map((r) => r.split('{') as [string, string?]);
     const dashed = rules.filter(([, body]) => body?.includes('stroke-dasharray'));
     expect(dashed.length).toBeGreaterThan(0);

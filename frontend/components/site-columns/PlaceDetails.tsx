@@ -5,7 +5,6 @@ import type { Stay } from '../../scenario';
 import { testIds } from '../../test-ids';
 import { formatDateTime, formatUpTo } from '../shared/formatTime';
 import { STAY_KEY } from '../shared/stayKeys';
-import { usePosition } from '../shared/usePosition';
 import { groupLabelKey } from '../site-picker/siteIds';
 import { caveatKinds } from './caveats';
 import type { StayFit } from './stayFit';
@@ -21,11 +20,10 @@ type PlaceDetailsProps = {
 };
 
 // One step away from the card's face: the exact times behind a risky verdict, each caveat as a
-// sentence, where the place is, and the two numbers for the moment the playhead is on.
+// sentence, the group the place belongs to, and the two numbers for the moment the playhead is on.
 const PlaceDetails = ({ view, now, fit, stay, terrain, children }: PlaceDetailsProps) => {
   const { t } = useTranslation('compare');
   const { t: tSites } = useTranslation('sites');
-  const position = usePosition();
 
   const { site } = view;
   const { panelOutputPct, sunElDeg } = now.metrics;
@@ -50,10 +48,8 @@ const PlaceDetails = ({ view, now, fit, stay, terrain, children }: PlaceDetailsP
         ))}
         <dl className={styles.facts}>
           <div>
-            <dt>{t('details.place')}</dt>
-            <dd>
-              {tSites(groupLabelKey(site.group))} · {position(site.lat, site.lon)}
-            </dd>
+            <dt>{t('details.group')}</dt>
+            <dd>{tSites(groupLabelKey(site.group))}</dd>
           </div>
           <div data-testid={testIds.metricCards.card} data-metric="panelOutputPct" data-value={panelOutputPct}>
             <dt>{t('metrics.sunVisible')}</dt>

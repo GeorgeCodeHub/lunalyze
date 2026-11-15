@@ -44,14 +44,19 @@ const one = <E extends HTMLElement>(id: string, from: ParentNode = container) =>
 const cards = () => all(testIds.siteColumns.column).map((c) => `${c.dataset.role}:${c.dataset.siteId ?? '-'}:${c.dataset.status}`);
 const metrics = (card: HTMLElement) => all(testIds.metricCards.card, card).map((m) => `${m.dataset.metric}=${m.dataset.value}`);
 
-const settle = () =>
-  vi.waitFor(
-    async () => {
-      await act(async () => {}); // let the fetches land and React re-render
-      expect(cards().filter((c) => c.endsWith(':loading') || c.endsWith(':ranking'))).toEqual([]);
-    },
-    { timeout: 10000 },
-  );
+/** The cards still waiting for data, as "role:site:status". */
+const waiting = () => cards().filter((c) => c.endsWith(':loading') || c.endsWith(':ranking'));
+
+/** Waits, inside act so React accepts every update, until no card is waiting for data. */
+const settle = async () => {
+  for (let attempt = 0; attempt < 1000; attempt++) {
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 5)); // the fetches land and React re-renders
+    });
+    if (waiting().length === 0) return;
+  }
+  throw new Error(`the data did not load in time; still waiting: ${waiting().join(', ')}`);
+};
 
 type HarnessProps = { search: string; changes: Scenario[] };
 
@@ -180,11 +185,51 @@ test('a link with a second place: that place is the one compared, and the toolba
   expect(one<HTMLSelectElement>(testIds.scenarioBar.place).value).toBe('haworth');
 });
 
+test('coordinates typed in the toolbar are used on Enter; bad ones show an error and change nothing', async () => {
+  const { changes } = await mount(WEEK);
+
+  const coords = () => one<HTMLInputElement>(testIds.scenarioBar.coords);
+  const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
+  const typeAndEnter = async (text: string) => {
+    await act(async () => {
+      setter?.call(coords(), text);
+      coords().dispatchEvent(new Event('input', { bubbles: true }));
+    });
+    await act(async () => coords().closest('form')?.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })));
+    await settle();
+  };
+  expect(coords().value).toBe(''); // the place is a listed one
+
+  await typeAndEnter('-91, 10');
+  expect(all(testIds.scenarioBar.coordsError)).toHaveLength(1);
+  expect(coords().getAttribute('aria-invalid')).toBe('true');
+  expect(changes).toHaveLength(0);
+
+  await typeAndEnter('-85.3, 31.4');
+  expect(all(testIds.scenarioBar.coordsError)).toHaveLength(0);
+  expect(changes.at(-1)?.places).toEqual([{ kind: 'coords', lat: -85.3, lon: 31.4 }]);
+  expect(cards()).toEqual(['best:im-2:ready', 'yourChoice:-:typed']);
+  expect(coords().value).toBe('-85.3, 31.4');
+  expect(one<HTMLSelectElement>(testIds.scenarioBar.place).value).toBe('');
+
+  // Picking a listed place afterwards empties the coordinates field.
+  await pick(testIds.scenarioBar.place, 'point-a');
+  expect(coords().value).toBe('');
+  expect(cards()).toEqual(['best:im-2:ready', 'yourChoice:point-a:ready']);
+});
+
+test('the toolbar has no Copy link button', async () => {
+  await mount(WEEK);
+
+  expect(all(testIds.scenarioBar.copyLink)).toHaveLength(0);
+});
+
 test('typed coordinates: the best option still shows, and the other card says why it is empty', async () => {
   await mount('?sites=@-85.3:31.4&date=2028-03-01T00:00Z&zoom=lunarDay&stay=7');
 
   expect(cards()).toEqual(['best:im-2:ready', 'yourChoice:-:typed']);
-  // The toolbar shows that the place is typed, and offers every listed place instead.
+  // The toolbar shows the coordinates in their field, and offers every listed place in the dropdown.
+  expect(one<HTMLInputElement>(testIds.scenarioBar.coords).value).toBe('-85.3, 31.4');
   expect(one<HTMLSelectElement>(testIds.scenarioBar.place).value).toBe('');
   expect([...one<HTMLSelectElement>(testIds.scenarioBar.place).options].map((o) => o.value).filter(Boolean)).toHaveLength(13);
 });

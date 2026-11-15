@@ -6,17 +6,29 @@
   gap: 24px;
   min-width: 0;
   padding: 20px;
-  background: var(--color-glass);
 }
 
 /* The best option stands out by its edge: a thin rim of light that runs from the Sun's warm tone to
-   Earth's blue, with a soft bloom under it. The rim is the border; the card's own ground covers the rest. */
+   Earth's blue, with a soft bloom under it. The rim is a ring drawn over the card's edge (a gradient
+   with its middle masked out), so the card itself stays see-through, with the same fill as the others: small text reads on it everywhere. */
 .card[data-role='best'] {
+  position: relative;
   border-color: transparent;
-  background:
-    linear-gradient(var(--color-panel), var(--color-panel)) padding-box,
-    linear-gradient(140deg, var(--color-sun), var(--color-line) 45%, var(--color-earth)) border-box;
   box-shadow:
     0 -6px 28px -14px var(--glow-sun-strong),
     0 14px 36px -18px var(--glow-earth-strong);
+}
+
+.card[data-role='best']::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  padding: 1px;
+  border-radius: inherit;
+  background: linear-gradient(140deg, var(--color-sun), var(--color-line) 45%, var(--color-earth));
+  mask:
+    linear-gradient(var(--color-bg) 0 0) content-box,
+    linear-gradient(var(--color-bg) 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
 }

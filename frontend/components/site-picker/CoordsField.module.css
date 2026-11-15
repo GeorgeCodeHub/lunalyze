@@ -1,0 +1,7 @@
+/* The field and, when the coordinates cannot be read, its error line under it. */
+.form {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  min-width: 0;
+}

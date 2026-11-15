@@ -1,6 +1,6 @@
-import { expect, test } from 'vitest';
+import { afterEach, expect, test, vi } from 'vitest';
 import { parseScenario } from '../backend/lib/scenarioUrl';
-import { readScenario, type Scenario, scenarioSearch } from './scenario';
+import { readScenario, type Scenario, scenarioSearch, writeScenarioUrl } from './scenario';
 
 test('no picked place means the setup step', () => {
   expect(readScenario('')).toBeNull();
@@ -90,4 +90,38 @@ test('the backend URL reader reads the sites, date, zoom and terrain this module
     zoom: 'year',
     terrain: false,
   });
+});
+
+const LINKED: Scenario = {
+  places: [{ kind: 'site', id: 'point-a' }],
+  start: new Date('2028-03-01T00:00:00Z'),
+  zoom: 'lunarDay',
+  stay: 7,
+  terrain: true,
+};
+const LINK = '?sites=point-a&date=2028-03-01T00:00Z&zoom=lunarDay&stay=7';
+
+afterEach(() => vi.unstubAllGlobals());
+
+test.each(['push', 'replace'] as const)('writeScenarioUrl %s puts the scenario in the address bar and reports it', (mode) => {
+  const history = { state: { kept: true }, pushState: vi.fn(), replaceState: vi.fn() };
+  vi.stubGlobal('window', { history });
+
+  expect(writeScenarioUrl(mode, LINKED)).toBe(true);
+  if (mode === 'push') {
+    expect(history.pushState).toHaveBeenCalledWith(null, '', LINK);
+    expect(history.replaceState).not.toHaveBeenCalled();
+  } else {
+    expect(history.replaceState).toHaveBeenCalledWith({ kept: true }, '', LINK); // the entry's own state is kept
+    expect(history.pushState).not.toHaveBeenCalled();
+  }
+});
+
+test.each(['push', 'replace'] as const)('writeScenarioUrl %s reports a browser that refuses the update, and does not throw', (mode) => {
+  const refuse = () => {
+    throw new Error('SecurityError: too many history updates');
+  };
+  vi.stubGlobal('window', { history: { state: null, pushState: refuse, replaceState: refuse } });
+
+  expect(writeScenarioUrl(mode, LINKED)).toBe(false);
 });

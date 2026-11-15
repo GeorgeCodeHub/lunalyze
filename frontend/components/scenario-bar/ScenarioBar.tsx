@@ -5,8 +5,8 @@ import { testIds } from '../../test-ids';
 import SelectField from '../shared/SelectField';
 import { STAY_KEY } from '../shared/stayKeys';
 import WhenFields from '../shared/WhenFields';
+import CoordsField from '../site-picker/CoordsField';
 import PlaceSelect from '../site-picker/PlaceSelect';
-import CopyLinkButton from './CopyLinkButton';
 import TerrainSwitch from './TerrainSwitch';
 import styles from './ScenarioBar.module.css';
 
@@ -15,7 +15,8 @@ type ScenarioBarProps = { scenario: Scenario; onChange: (next: Scenario) => void
 const TITLE_ID = 'scenario-bar-title';
 const ZOOM_KEYS = { day: 'bar.zoomDay', lunarDay: 'bar.zoomLunarDay', year: 'bar.zoomYear' } as const;
 
-// The setup answers, editable in place: every change redraws the comparison and rewrites the link.
+// The setup answers, editable in place: every change redraws the comparison and rewrites the link in
+// the address bar, which is how the comparison is shared.
 const ScenarioBar = ({ scenario, onChange }: ScenarioBarProps) => {
   const { t } = useTranslation('compare');
   // What the date field holds while it is not a full date (the user is part-way through typing one).
@@ -27,7 +28,9 @@ const ScenarioBar = ({ scenario, onChange }: ScenarioBarProps) => {
   const stayOptions = STAYS.map((s) => ({ value: String(s), label: t(`setup.stay.${STAY_KEY[s]}`) }));
   const zoomOptions = ZOOMS.map((z) => ({ value: z, label: t(ZOOM_KEYS[z]) }));
   // The person's place: the one chosen last. A link can carry a second place after the setup one.
-  const [placeId = ''] = siteIdsOf([scenario.places[1] ?? scenario.places[0]]);
+  const place = scenario.places[1] ?? scenario.places[0];
+  const [placeId = ''] = siteIdsOf([place]);
+  const coordsText = place?.kind === 'coords' ? `${place.lat}, ${place.lon}` : '';
 
   const setStart = (nextDate: string, nextHour: string) => {
     const start = new Date(`${nextDate}T${nextHour}:00:00Z`);
@@ -46,6 +49,12 @@ const ScenarioBar = ({ scenario, onChange }: ScenarioBarProps) => {
       </h2>
       <div className={styles.fields}>
         <PlaceSelect value={placeId} onPick={(id) => onChange({ ...scenario, places: [{ kind: 'site', id }] })} />
+        {/* A new field for each listed place picked, so text typed earlier does not linger beside it. */}
+        <CoordsField
+          key={placeId}
+          value={coordsText}
+          onPick={(coords) => onChange({ ...scenario, places: [{ kind: 'coords', ...coords }] })}
+        />
         <WhenFields
           date={dateDraft ?? date}
           hour={hour}
@@ -71,7 +80,6 @@ const ScenarioBar = ({ scenario, onChange }: ScenarioBarProps) => {
       </div>
       <div className={styles.actions}>
         <TerrainSwitch terrain={scenario.terrain} onChange={(terrain) => onChange({ ...scenario, terrain })} />
-        <CopyLinkButton />
       </div>
     </section>
   );

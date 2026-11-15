@@ -60,10 +60,13 @@
   box-shadow: 0 0 16px -6px var(--glow-sun-strong);
 }
 
-/* A panel: its warm edge comes from the border token; under it, a soft bloom, warm above and cool below. */
+/* A panel is glass: a see-through fill, warm in one corner and cool in the other, that blurs the
+   page's light behind it. Its warm edge comes from the border token; under it, a soft bloom. */
 .panel {
   border: 1px solid var(--color-glass-border);
   border-radius: var(--radius-panel);
+  background: linear-gradient(150deg, var(--tint-sun), var(--tint-haze) 50%, var(--tint-earth));
+  backdrop-filter: var(--blur-glass);
   box-shadow:
     0 -10px 30px -24px var(--glow-sun-strong),
     0 18px 40px -28px var(--glow-earth-strong);

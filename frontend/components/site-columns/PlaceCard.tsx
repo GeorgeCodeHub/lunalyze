@@ -6,6 +6,7 @@ import { testIds } from '../../test-ids';
 import CountdownChips from '../countdowns/CountdownChips';
 import MetricCards from '../metric-cards/MetricCards';
 import type { TimeFrame } from '../shared/timeFrame';
+import { usePosition } from '../shared/usePosition';
 import { siteNameKey } from '../site-picker/siteIds';
 import FitLabel from './FitLabel';
 import type { Role } from './pickPlaces';
@@ -28,11 +29,12 @@ type PlaceCardProps = {
   how?: ReactNode; // the best option's details add how it was chosen
 };
 
-// One place, made to be read in a glance: what it is, the verdict, three numbers, what happens next.
+// One place, made to be read in a glance: what it is and where, the verdict, three numbers, what happens next.
 // Both cards carry the same blocks in the same order, so the eye compares them straight across.
 // Everything else is one step away, in Details.
 const PlaceCard = ({ role, alsoYours, view, stayView, now, frame, stay, terrain, foot, how }: PlaceCardProps) => {
   const { t: tSites } = useTranslation('sites');
+  const position = usePosition();
 
   const { site } = view;
   const titleId = `place-card-${site.id}`;
@@ -47,7 +49,13 @@ const PlaceCard = ({ role, alsoYours, view, stayView, now, frame, stay, terrain,
       data-role={role}
       data-site-id={site.id}
     >
-      <PlaceHeader titleId={titleId} title={tSites(siteNameKey(site.id))} role={role} alsoYours={alsoYours} />
+      <PlaceHeader
+        titleId={titleId}
+        title={tSites(siteNameKey(site.id))}
+        meta={position(site.lat, site.lon)}
+        role={role}
+        alsoYours={alsoYours}
+      />
       <FitLabel fit={fit} lanes={stayView.lanes} startMs={frame.startMs} stayH={frame.stayH} />
       <MetricCards view={view} zoom={frame.zoom} />
       <CountdownChips now={now} />

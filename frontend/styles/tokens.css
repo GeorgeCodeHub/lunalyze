@@ -4,8 +4,8 @@
   --color-bg: #0a0a0a;
   --color-panel: #0e0e0e;
   --color-text: #ededed; /* 16.9:1 */
-  --color-text-muted: #a8a8a8; /* 8.4:1 */
-  --color-text-faint: #8f8f8f; /* 6.1:1 */
+  --color-text-muted: #b4b4b4; /* 9.5:1 on the page, 5.5:1 on a panel's lightest corner */
+  --color-text-faint: #a3a3a3; /* 7.8:1 on the page, 4.6:1 on a panel's lightest corner */
   --color-invert-bg: #ededed;
   --color-invert-text: #0a0a0a;
 
@@ -27,9 +27,14 @@
 
   /* Frosted-glass components: translucent fills, small radius, and edges lit in the warm tone of the
      palette. Both edge colours meet the 3:1 rule for control edges on --color-bg. */
-  --color-glass: rgb(255 255 255 / 5%);
-  --color-glass-hover: rgb(255 255 255 / 9%);
-  --color-glass-strong: rgb(255 255 255 / 14%);
+  --color-glass: rgb(255 214 170 / 6%);
+  --color-glass-hover: rgb(255 214 170 / 11%);
+  --color-glass-strong: rgb(255 214 170 / 17%);
+  /* A panel's see-through fill: the Sun's tone in one corner, Earth's in the other, and a pale haze
+     between them where the two blend. */
+  --tint-sun: rgb(255 194 125 / 14%);
+  --tint-earth: rgb(127 178 255 / 13%);
+  --tint-haze: rgb(255 255 255 / 7%);
   --color-glass-border: rgb(255 210 165 / 50%); /* 4.1:1 */
   --color-glass-border-strong: rgb(255 226 196 / 82%);
   --blur-glass: blur(18px) saturate(1.2);
@@ -55,8 +60,8 @@
   --glow-sun-strong: rgb(255 194 125 / 55%);
   --glow-earth-strong: rgb(127 178 255 / 55%);
   /* Ambient light on the page and under panels: fainter than the light on chart marks. */
-  --glow-sun-soft: rgb(255 194 125 / 9%);
-  --glow-earth-soft: rgb(127 178 255 / 8%);
+  --glow-sun-soft: rgb(255 194 125 / 12%);
+  --glow-earth-soft: rgb(127 178 255 / 12%);
   --color-pin: #ffffff;
   --color-map-bg: #0b1220;
   /* The ground in the horizon strip: a fill dark enough that the Sun and Earth read on top of it. */

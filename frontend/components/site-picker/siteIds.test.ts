@@ -1,10 +1,9 @@
-import { readFileSync } from 'node:fs';
 import { expect, test } from 'vitest';
-import type { Site } from '../../../backend/lib/types';
 import { resources } from '../../i18n';
+import { readSites } from '../../testing/readFixture';
 import { PICKER_GROUPS, siteNameKey } from './siteIds';
 
-const sites: Site[] = JSON.parse(readFileSync('backend/public/data/sites.json', 'utf8'));
+const sites = readSites();
 const listedIds = PICKER_GROUPS.flatMap(({ ids }) => ids);
 
 test('the picker lists every site in sites.json once, under its own group', () => {

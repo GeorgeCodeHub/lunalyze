@@ -40,6 +40,20 @@
   fill: var(--color-rule);
 }
 
+/* The bar fills from the left when it first draws, and slides to its new length when the numbers change. */
+@keyframes fill {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+.meterFill {
+  transform-box: fill-box;
+  transform-origin: left;
+  animation: fill 700ms var(--ease-out) 200ms backwards;
+  transition: width var(--duration-enter) var(--ease-out);
+}
+
 .meterFill[data-body='sun'] {
   fill: var(--color-sun);
   filter: drop-shadow(0 0 3px var(--glow-sun-strong));

@@ -14,3 +14,15 @@
   color: var(--color-text-muted);
   font-size: 0.8rem;
 }
+
+/* "Link copied" slides in beside the button; it replays on every click because the text empties first. */
+@keyframes appear {
+  from {
+    opacity: 0;
+    transform: translateX(6px);
+  }
+}
+
+.status:not(:empty) {
+  animation: appear var(--duration-fast) var(--ease-out);
+}

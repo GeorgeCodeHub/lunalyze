@@ -50,6 +50,7 @@ export const testIds = {
     body: 'horizon-strip-body',
     status: 'horizon-strip-status',
   },
+  terrain3d: { root: 'terrain-3d', scene: 'terrain-3d-scene', canvas: 'terrain-3d-canvas', caveat: 'terrain-3d-caveat', unavailable: 'terrain-3d-unavailable' },
   countdowns: { root: 'countdowns', chip: 'countdown-chip' },
   metricCards: { root: 'metric-cards', card: 'metric-card' },
   timeline: {

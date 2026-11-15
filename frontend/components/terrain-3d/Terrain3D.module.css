@@ -1,0 +1,80 @@
+.root {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+
+.entry {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.title {
+  composes: title from '../shared/Section.module.css';
+}
+
+.note {
+  composes: note from '../shared/Section.module.css';
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  color: var(--color-text-muted);
+}
+
+.note svg {
+  flex: none;
+  margin-top: 2px;
+}
+
+.legend {
+  composes: note from '../shared/Section.module.css';
+}
+
+.box {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  aspect-ratio: 4 / 3;
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid var(--color-glass-border);
+  border-radius: var(--radius-panel);
+}
+
+.canvas {
+  position: absolute;
+  inset: 0;
+}
+
+.status {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 0;
+  padding: 16px;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+/* The label beside a Sun or Earth marker. A hidden body gets a dashed edge as well as a wireframe. */
+.label {
+  padding: 2px 6px;
+  border: 1px solid var(--color-glass-border);
+  border-radius: var(--radius-control);
+  background: var(--color-panel);
+  color: var(--color-text);
+  font-size: 0.72rem;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.labelHidden {
+  composes: label;
+  border-style: dashed;
+  border-color: var(--color-text-faint);
+}

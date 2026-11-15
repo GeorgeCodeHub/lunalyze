@@ -119,3 +119,22 @@ type HorizonMask = {
 
 - `.bin`: 500 × 500 signed 16-bit integers, little-endian, row by row. A crop of `ldem_80s_80m` centred on the site. Height in metres = value × 0.5, above the 1737.4 km sphere.
 - `.json`: `{ siteId, width: 500, height: 500, pixelM: 80, origin: { x, y } }`. `origin` is the polar-stereographic position in metres of the centre of the first pixel (row 0, column 0): south pole at (0, 0), +x toward 90°E, +y toward 0° longitude. Pixel (row r, column c) is centred at (x + 80c, y − 80r); latitude = −90° + 2·atan(√(x²+y²) / 3 474 800 m), longitude = atan2(x, y).
+
+### `useTerrain(siteId)` (`backend/lib/useTerrain.ts`)
+
+Call it only for sites with `terrainModeled: true`. It fetches `terrain/<siteId>.json` and `.bin` and returns `{ grid: TerrainGrid | null, loading: boolean, error: Error | null }`.
+
+```ts
+type TerrainGrid = {
+  siteId: string;
+  width: number;                    // columns, 500
+  height: number;                   // rows, 500
+  pixelM: number;                   // 80
+  origin: { x: number; y: number }; // polar-stereographic m, centre of pixel (0, 0)
+  heightsM: Float32Array;           // width × height, row by row
+};
+```
+
+- Units: `origin` and `pixelM` in metres; `heightsM` in metres above the 1737.4 km sphere (int16 value × 0.5).
+- Frame: south-polar stereographic, +x toward 90°E, +y toward 0° longitude; pixel (row r, column c) is centred at (x + pixelM·c, y − pixelM·r).
+- Errors: `error` is set and `grid` is null when either file answers with an HTTP error, the `.json` is not JSON, or the `.bin` is not `width × height × 2` bytes. A failed load is not retried.

@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 
-// No lunar.ts, astronomy-engine or realView here: the lazy 3D chunk imports this file.
+// Imports only TanStack Query: the lazy 3D chunk imports this file, so it must stay free of the sky code.
 
 export type TerrainGrid = {
   siteId: string;

@@ -31,7 +31,9 @@
   flood-color: var(--color-moon-haze-glow);
 }
 
-/* A sparse, uneven starfield: three dot layers on different, coprime tile sizes so no grid shows. */
+/* A sparse, uneven starfield: dot layers on different, coprime tile sizes so no grid shows. Two layers
+   glow and dim slowly, each at its own pace, so a few stars seem to twinkle at a time, as on the
+   Compare screen. With reduced motion they hold still (global.css). */
 .stars {
   position: absolute;
   inset: 0;
@@ -45,6 +47,32 @@
     227px 241px,
     389px 367px,
     173px 311px;
+  animation: twinkle 7s ease-in-out infinite alternate;
+}
+
+.stars::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(1.4px 1.4px at 97px 53px, var(--color-star) 50%, transparent 100%),
+    radial-gradient(1px 1px at 211px 149px, var(--color-star-dim) 50%, transparent 100%),
+    radial-gradient(1.2px 1.2px at 37px 231px, var(--color-star) 50%, transparent 100%);
+  background-size:
+    337px 281px,
+    263px 307px,
+    197px 251px;
+  animation: twinkle 5s ease-in-out 2.5s infinite alternate-reverse;
+}
+
+@keyframes twinkle {
+  from {
+    opacity: 0.35;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 /* All the work (cut-out, brightening, rim and halo) happens in MoonHero's SVG filter, so the warm

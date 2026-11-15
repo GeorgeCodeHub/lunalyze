@@ -78,32 +78,34 @@ const Compare = ({ scenario, onChange }: CompareProps) => {
       )}
       <FocusFilters focus={scenario.focus} onChange={(focus) => onChange({ ...scenario, focus })} />
       <main className={styles.board}>
-        <div className={styles.best}>
-          {best ? (
-            <PlaceSlot
-              column={best}
-              role="best"
-              alsoYours={picks.bestIsYours}
-              frame={frame}
-              stay={scenario.stay}
-              terrain={scenario.terrain}
-              foot={<WhyBest reason={ranking.reason} checked={ranking.order.length} />}
-              how={<HowChosen checked={ranking.order.length} leftOut={ranking.leftOut} focus={scenario.focus} />}
-            />
-          ) : (
-            <BestPending loading={all.loading} />
-          )}
-        </div>
-        <div className={styles.alternative}>
-          {alternative && (
-            <PlaceSlot
-              column={alternative}
-              role={picks.alternativeRole}
-              frame={frame}
-              stay={scenario.stay}
-              terrain={scenario.terrain}
-            />
-          )}
+        <div className={styles.side} data-testid={testIds.compare.side}>
+          <div className={styles.best}>
+            {best ? (
+              <PlaceSlot
+                column={best}
+                role="best"
+                alsoYours={picks.bestIsYours}
+                frame={frame}
+                stay={scenario.stay}
+                terrain={scenario.terrain}
+                foot={<WhyBest reason={ranking.reason} checked={ranking.order.length} />}
+                how={<HowChosen checked={ranking.order.length} leftOut={ranking.leftOut} focus={scenario.focus} />}
+              />
+            ) : (
+              <BestPending loading={all.loading} />
+            )}
+          </div>
+          <div className={styles.alternative}>
+            {alternative && (
+              <PlaceSlot
+                column={alternative}
+                role={picks.alternativeRole}
+                frame={frame}
+                stay={scenario.stay}
+                terrain={scenario.terrain}
+              />
+            )}
+          </div>
         </div>
         <div className={styles.live}>
           <LiveView places={ready} loading={loading} frame={frame} />

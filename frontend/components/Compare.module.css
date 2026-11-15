@@ -52,12 +52,11 @@
   font-size: 0.9rem;
 }
 
-/* A phone reads the two places first, then the live view. */
+/* A phone reads the two places first, one under the other, then the live view. */
 .board {
   display: grid;
   grid-template-areas:
-    'best'
-    'alternative'
+    'side'
     'live';
   grid-template-columns: minmax(0, 1fr);
   align-items: start;
@@ -65,13 +64,17 @@
   min-width: 0;
 }
 
-.best {
-  grid-area: best;
+/* The side panel: the best option on top, the place it is compared with under it. */
+.side {
+  display: grid;
+  grid-area: side;
+  align-content: start;
+  gap: 16px;
   min-width: 0;
 }
 
+.best,
 .alternative {
-  grid-area: alternative;
   min-width: 0;
 }
 
@@ -80,30 +83,37 @@
   min-width: 0;
 }
 
-/* A tablet puts the two places side by side, the live view under both. */
+/* A tablet has room for the two places side by side, with the live view under both. */
 @media (min-width: 720px) {
   .page {
     padding: 24px 32px 48px;
   }
 
-  .board {
-    grid-template-areas:
-      'best alternative'
-      'live live';
+  .side {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-/* A wide screen keeps the two places together on the left, as two narrow cards to be compared line
-   by line, and gives all the remaining width to the live view: the part a person works with.
-   A wider gap sets the live view apart from the pair. */
-@media (min-width: 1240px) {
+/* From a small laptop up: the side panel on the left, never wider than a quarter of the window
+   (420px at most on a very wide screen), with the two places one on top of the other. The live view
+   takes all the rest. The panel stays in view while the page scrolls and scrolls by itself when the
+   two cards are taller than the window. */
+@media (min-width: 1024px) {
   .board {
-    grid-template-areas: 'best alternative live';
-    grid-template-columns: repeat(2, 288px) minmax(0, 1fr);
+    grid-template-areas: 'side live';
+    grid-template-columns: min(25vw, 420px) minmax(0, 1fr);
+    gap: 24px;
   }
 
-  .live {
-    margin-left: 8px;
+  .side {
+    position: sticky;
+    top: 16px;
+    grid-template-columns: minmax(0, 1fr);
+    max-height: calc(100vh - 32px);
+    padding: 2px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-color: var(--color-line) transparent;
+    scrollbar-width: thin;
   }
 }

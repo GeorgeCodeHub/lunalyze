@@ -18,6 +18,7 @@ export const testIds = {
     live: 'compare-live',
     liveSwitch: 'compare-live-switch',
     focus: 'compare-focus',
+    side: 'compare-side',
     credits: 'compare-credits',
   },
   scenarioBar: {
